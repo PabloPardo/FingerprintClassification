@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FingerPrintClassification", "FingerPrintClassification\FingerPrintClassification.vcxproj", "{FE4FC001-CDD3-4EA6-92AB-350901E593BB}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test\Test.vcxproj", "{87FA18B5-DDDB-4154-B0C1-83454B4C9A5D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FE4FC001-CDD3-4EA6-92AB-350901E593BB} = {FE4FC001-CDD3-4EA6-92AB-350901E593BB}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FE4FC001-CDD3-4EA6-92AB-350901E593BB}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FE4FC001-CDD3-4EA6-92AB-350901E593BB}.Debug|Win32.Build.0 = Debug|Win32
+		{FE4FC001-CDD3-4EA6-92AB-350901E593BB}.Release|Win32.ActiveCfg = Release|Win32
+		{FE4FC001-CDD3-4EA6-92AB-350901E593BB}.Release|Win32.Build.0 = Release|Win32
+		{87FA18B5-DDDB-4154-B0C1-83454B4C9A5D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{87FA18B5-DDDB-4154-B0C1-83454B4C9A5D}.Debug|Win32.Build.0 = Debug|Win32
+		{87FA18B5-DDDB-4154-B0C1-83454B4C9A5D}.Release|Win32.ActiveCfg = Release|Win32
+		{87FA18B5-DDDB-4154-B0C1-83454B4C9A5D}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

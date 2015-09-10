@@ -5,9 +5,6 @@ __pycache__/
 # C extensions
 *.so
 
-# Pickle extensions
-*.pkl
-
 # Distribution / packaging
 .Python
 env/
@@ -63,37 +60,6 @@ target/
 *.jpg
 *.png
 *.wsq
-
-# JAVA
-# ====
-*target*
-*.jar
-*.war
-*.ear
-*.class
-
-# eclipse specific git ignore
-*.pydevproject
-.project
-.metadata
-bin/**
-tmp/**
-tmp/**/*
-*.tmp
-*.bak
-*.swp
-*~.nib
-local.properties
-.classpath
-.settings/
-.loadpath
-
-# External tool builders
-.externalToolBuilders/
-
-# Locally stored "Eclipse launch configurations"
-*.launch
-
 .idea
 Malos_15_07_08
 Malos_15_07_08_5Primeres
@@ -102,6 +68,21 @@ Malos_15_07_08_Primeres250
 RandomizedData_Training
 RandomizedData_Training2.0
 *.whl
+*.pkl
 data
 *.gz
 *.tar
+*.sdf
+*.tlog
+Debug
+Release
+*.dll
+*.ilk
+*.obj
+*.pdb
+*.rc
+*.exe
+*.suo
+ipch
+out
+img
