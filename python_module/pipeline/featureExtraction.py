@@ -38,32 +38,32 @@ def feature_extraction(I, X, name_data_x, params, names, verbose=False, test_nam
                 if type(rad_density) == list:
                     HoI = []
                     for r in rad_density:
-                        h = hist_density(seg_image, radius=r, n_bins=n_bins, verbose=verbose)
+                        h, _ = hist_density(seg_image, radius=r, n_bins=n_bins, verbose=verbose)
                         HoI.extend(h)
                 else:
-                    HoI = hist_density(seg_image, radius=rad_density, n_bins=n_bins, verbose=verbose)
+                    HoI, _ = hist_density(seg_image, radius=rad_density, n_bins=n_bins, verbose=verbose)
 
                 # Get Histogram of Gradients
                 if type(rad_gradient) == list:
                     HoG = []
                     for r in rad_gradient:
-                        h = hist_grad(seg_image, radius=r, n_bins=n_bins, verbose=verbose)
+                        h, _ = hist_grad(seg_image, radius=r, n_bins=n_bins, verbose=verbose)
                         HoG.extend(h)
                 else:
-                    HoG = hist_grad(seg_image, radius=rad_gradient, n_bins=n_bins, verbose=verbose)
+                    HoG, _ = hist_grad(seg_image, radius=rad_gradient, n_bins=n_bins, verbose=verbose)
 
                 # Get Histogram of Entropy
                 if type(rad_entropy) == list:
                     HoE = []
                     for r in rad_entropy:
-                        h = hist_entropy(seg_image, radius=r, n_bins=n_bins, verbose=verbose)
+                        h, _ = hist_entropy(seg_image, radius=r, n_bins=n_bins, verbose=verbose)
                         HoE.extend(h)
                 else:
-                    HoE = hist_entropy(seg_image, radius=rad_entropy, n_bins=n_bins, verbose=verbose)
+                    HoE, _ = hist_entropy(seg_image, radius=rad_entropy, n_bins=n_bins, verbose=verbose)
 
                 # Get Histogram of Hough
                 HoH = []
-                h = hist_hough(seg_image, n_bins=n_bins, verbose=verbose)
+                h, _ = hist_hough(seg_image, n_bins=n_bins, verbose=verbose)
                 HoH.extend(h)
 
                 # hist_imgs.append(HoI)
@@ -77,15 +77,15 @@ def feature_extraction(I, X, name_data_x, params, names, verbose=False, test_nam
                     if verbose:
                         print "Split section %d\n===============" % j
                     for r in rad_density:
-                        h = hist_density(splt[j], radius=r, n_bins=n_bins, verbose=verbose)
+                        h, _ = hist_density(splt[j], radius=r, n_bins=n_bins, verbose=verbose)
                         aux.extend(h)
                     for r in rad_gradient:
-                        h = hist_grad(splt[j], radius=r, n_bins=n_bins, verbose=verbose)
+                        h, _ = hist_grad(splt[j], radius=r, n_bins=n_bins, verbose=verbose)
                         aux.extend(h)
                     for r in rad_entropy:
-                        h = hist_entropy(splt[j], radius=r, n_bins=n_bins, verbose=verbose)
+                        h, _ = hist_entropy(splt[j], radius=r, n_bins=n_bins, verbose=verbose)
                         aux.extend(h)
-                    h = hist_hough(splt[j], n_bins=n_bins, verbose=verbose)
+                    h, _ = hist_hough(splt[j], n_bins=n_bins, verbose=verbose)
                     aux.extend(h)
                     hist = np.concatenate((hist, aux))
                 hist = np.concatenate((hist, diferentiate_img(seg_image, verbose=verbose)))
