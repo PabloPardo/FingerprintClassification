@@ -30,11 +30,11 @@ std::string GetElapsedTime(clock_t time_a, clock_t time_b)
 using namespace cv;
 int main(int argc, char** argv) {
 	
-	uchar data[25] = {255,255,0,0,0,255,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-	//uchar data[2] = {0.1,0.1}
+	/*uchar data[25] = {255,255,0,0,0,255,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	Mat* grayMat = new cv::Mat(5,5,CV_8U,data);
 	
-	std::cout << entropy(grayMat,new Mat()) << std::endl;
+	std::cout << entropy(grayMat,new Mat()) << std::endl;*/
+
 	LList *files = getDirFiles((char *)"\\\\ssd2015\\Data\\FpFeatures_Comparison\\input\\");
 	
 	
@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
 				
 				cfg->path = (char*)pout.c_str();
 				cfg->fileName = (char*)data.fname;
-				cfg->verboseEntropy = true;
+				cfg->verboseHough = true;
 				setConfig(cfg);
 				
 
@@ -99,15 +99,16 @@ int main(int argc, char** argv) {
 				time_b = clock();
 				total_time_ticks += (long)(time_b - time_a);
 				
-				if(i % 1000 == 0)
-				{
+				/*if(i % 1000 == 0)
+				{*/
 					cv::FileStorage file_hough((const std::string)pout + fp->element.fname + "_hough.txt", cv::FileStorage::WRITE);
 					file_hough << "HoughHist" << out_hough;
-				}
+				/*}*/
 				
 				std::cout << "\tHoughHist OK..." + GetElapsedTime(time_a,time_b) + "ms" << std::endl;
 
 				time_a = clock();
+
 				cv::Mat out_entropy = hist_entropy(&in,5,32);
 				time_b = clock();
 				total_time_ticks += (long)(time_b - time_a);

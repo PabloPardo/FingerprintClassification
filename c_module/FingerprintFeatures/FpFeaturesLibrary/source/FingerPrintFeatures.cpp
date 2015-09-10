@@ -311,10 +311,11 @@ float FingerPrintFeatures::entropy(const cv::Mat* input,const cv::Mat* disk) {
  	cv::Mat logP;
 	//logMeu(&hist,input->rows*input->cols,&logP,logTable);
 	cv::log(hist,logP);
+	logP /= 0.6931471805599453;
+	//std::cout << logP << std::endl;
 
     float entropy = -1*cv::sum(hist.mul(logP)).val[0];
-	if(entropy > 0)
-		std::cout << *input << std::endl;
+
 	return entropy;
 }
 /*
@@ -441,10 +442,10 @@ Mat FingerPrintFeatures::hist_hough(const Mat* img, int n_bins) {
 	int line_gap = 3;
 	Mat edges;
 	
-	blur(*img, edges, Size(3,3));
+	GaussianBlur(*img, edges, Size(9,9), 2.);
 	
-	if (cfg->verboseHough)
-		cfg->writeMatToFile("blur", &edges);
+	/*if (cfg->verboseHough)
+		cfg->writeMatToFile("blur", &edges);*/
 
 	Canny(edges, edges, 1, 25, 3);
 	

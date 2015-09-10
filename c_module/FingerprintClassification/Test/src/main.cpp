@@ -4,7 +4,7 @@
 #include "opencv2\ml\ml.hpp"
 #include <Windows.h>
 
-const bool CROSS = true;
+const bool CROSS = false;
 
 struct InputCross
 {
@@ -83,7 +83,7 @@ Input getSegmentedData() {
 	Input ret = Input();
 	ret.csvPath = "\\\\ssd2015\\data\\CSVs\\RandomizedData.csv";
 	ret.imagesPath = "\\\\ssd2015\\data\\Segmented\\";
-	ret.outPutPath = "\\\\ssd2015\\data\\out\\First500_Segmented_Depth25\\model\\";
+	ret.outPutPath = "\\\\ssd2015\\data\\out\\10092015\\model\\";
 	Properties* prop = new Properties();
 	prop->n_bins = 32;
 	prop->rad_grad = 1;
