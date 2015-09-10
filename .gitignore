@@ -76,7 +76,7 @@ data
 *.tlog
 Debug
 Release
-*.dll
+
 *.ilk
 *.obj
 *.pdb
@@ -84,5 +84,4 @@ Release
 *.exe
 *.suo
 ipch
-out
-img
+
