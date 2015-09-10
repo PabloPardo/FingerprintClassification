@@ -60,3 +60,15 @@ target/
 *.jpg
 *.png
 *.wsq
+.idea
+Malos_15_07_08
+Malos_15_07_08_5Primeres
+Malos_15_07_08_C++
+Malos_15_07_08_Primeres250
+RandomizedData_Training
+RandomizedData_Training2.0
+*.whl
+*.pkl
+data
+*.gz
+*.tar
