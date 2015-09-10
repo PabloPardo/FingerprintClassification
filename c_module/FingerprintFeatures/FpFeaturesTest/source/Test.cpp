@@ -27,16 +27,15 @@ std::string GetElapsedTime(clock_t time_a, clock_t time_b)
 		return std::to_string((long double)total_time_ticks);
 	}	
 }
-
+using namespace cv;
 int main(int argc, char** argv) {
 	
-	/*uchar data[5][5] = {{255,255,0,0,0},{255,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0}};
-	cv::Mat* grayMat = new cv::Mat(5,5,CV_8U,data);
+	uchar data[25] = {255,255,0,0,0,255,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	//uchar data[2] = {0.1,0.1}
+	Mat* grayMat = new cv::Mat(5,5,CV_8U,data);
 	
-	std::cout << entropy(grayMat) << std::endl;*/
-
-	std::cout << getVersion() << std::endl;
-	LList *files = getDirFiles((char *)"..\\img\\");
+	std::cout << entropy(grayMat,new Mat()) << std::endl;
+	LList *files = getDirFiles((char *)"\\\\ssd2015\\Data\\FpFeatures_Comparison\\input\\");
 	
 	
 	if (files != NULL){
@@ -53,12 +52,8 @@ int main(int argc, char** argv) {
 			{
 				FName data = fp->element;
 				in = cv::imread((char *)data.fpath, cv::IMREAD_GRAYSCALE);
-				
-				/*imshow(data.fname, in);
-				show_histogram("histograma", in);
-				waitKey();*/
 			
-				std::string pout = "..\\out\\";
+				std::string pout = "\\\\ssd2015\\Data\\FpFeatures_Comparison\\opencv\\";
 				
 				
 				cfg->path = (char*)pout.c_str();
@@ -79,11 +74,11 @@ int main(int argc, char** argv) {
 				
 				total_time_ticks = (long)(time_b - time_a);
 				
-				if(i % 1000 == 0)
-				{
+				/*if(i % 1000 == 0)
+				{*/
 					file_grad = cv::FileStorage((const std::string)pout + fp->element.fname + "_grad.txt", cv::FileStorage::WRITE);
 					file_grad << "GradHist" << out_grad;
-				}
+				/*}*/
 				
 				std::cout << "\tGradHist OK..." + GetElapsedTime(time_a,time_b) + "ms" << std::endl;
 				
@@ -92,11 +87,11 @@ int main(int argc, char** argv) {
 				time_b = clock();
 				total_time_ticks += (long)(time_b - time_a);
 				
-				if(i % 1000 == 0)
-				{
+				/*if(i % 1000 == 0)
+				{*/
 					file_dens = cv::FileStorage((const std::string)pout + fp->element.fname + "_dens.txt", cv::FileStorage::WRITE);
 					file_dens << "DensHist" << out_dens;
-				}
+				/*}*/
 				std::cout << "\tDensHist OK..." + GetElapsedTime(time_a,time_b) + "ms" << std::endl;
 				
 				time_a = clock();
@@ -117,11 +112,11 @@ int main(int argc, char** argv) {
 				time_b = clock();
 				total_time_ticks += (long)(time_b - time_a);
 				
-				if(i % 1000 == 0)
-				{
+				/*if(i % 1000 == 0)
+				{*/
 					cv::FileStorage file_entropy((const std::string)pout + fp->element.fname + "_entropy.txt", cv::FileStorage::WRITE);
 					file_entropy << "EntropyHist" << out_entropy;
-				}
+				/*}*/
 				std::cout << "\tEntropyHist OK..." + GetElapsedTime(time_a,time_b) + "ms" << std::endl;
 
 
@@ -145,9 +140,7 @@ int main(int argc, char** argv) {
 				std::cout << "Error genérico" << std::endl;
 			}
 		}
-		char buf[100];
-		std::cout << "Presione una tecla y enter para finalizar..." << std::endl;
-		std::cin >> buf;
+		system("pause");
 		delete cfg;
 		files->free();
 	}
