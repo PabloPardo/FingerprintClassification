@@ -63,6 +63,7 @@ target/
 *.jpg
 *.png
 *.wsq
+<<<<<<< HEAD
 
 # JAVA
 # ====
@@ -93,3 +94,15 @@ local.properties
 
 # Locally stored "Eclipse launch configurations"
 *.launch
+
+.idea
+Malos_15_07_08
+Malos_15_07_08_5Primeres
+Malos_15_07_08_C++
+Malos_15_07_08_Primeres250
+RandomizedData_Training
+RandomizedData_Training2.0
+*.whl
+data
+*.gz
+*.tar
