@@ -110,7 +110,7 @@ def feature_extraction(I, X, name_data_x, params, names, verbose=False, test_nam
         mean = []
         std = []
         #norm_data = np.array(hist_imgs,dtype=np.double)
-        hist_imgs = np.array(hist_imgs,dtype=np.double)
+        hist_imgs = np.array(hist_imgs, dtype=np.double)
         for i in range(hist_imgs.shape[1]):
             if not 'normalize_mean' in params.keys():
                 mean.append(np.mean(hist_imgs[:, i]))
