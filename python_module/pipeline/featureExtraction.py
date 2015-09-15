@@ -100,16 +100,13 @@ def feature_extraction(I, X, name_data_x, params, names, verbose=False, test_nam
                     for j in hist[i]:
                         f.write(',' + j)
                     f.write('\n')
-            # np.savetxt(test_name + "/features_full_python_unnormalized.csv", csv_data , delimiter=",")
         else:
             if os.path.isfile(raw_data):
                 hist_imgs = np.genfromtxt(raw_data, delimiter=',')
-                #hist_imgs = hist_imgs[:, :]
 
         # Normalize Features
         mean = []
         std = []
-        #norm_data = np.array(hist_imgs,dtype=np.double)
         hist_imgs = np.array(hist_imgs, dtype=np.double)
         for i in range(hist_imgs.shape[1]):
             if not 'normalize_mean' in params.keys():
@@ -134,5 +131,4 @@ def feature_extraction(I, X, name_data_x, params, names, verbose=False, test_nam
                 for j in hist[i]:
                     f.write(',' + j)
                 f.write('\n')
-        # np.savetxt(test_name + "/features_full_python.csv", hist_imgs, delimiter=",")
     return hist_imgs, params
