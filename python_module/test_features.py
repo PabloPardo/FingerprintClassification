@@ -24,36 +24,36 @@ def feature_extraction(I, params, verbose=False):
     if type(rad_density) == list:
         HoI = []
         for r in rad_density:
-            h = hist_density(seg_image, radius=r, n_bins=n_bins, verbose=verbose)
+            h, _ = hist_density(seg_image, radius=r, n_bins=n_bins, verbose=verbose)
             HoI.extend(h)
     else:
-        HoI = hist_density(seg_image, radius=rad_density, n_bins=n_bins, verbose=verbose)
+        HoI, _ = hist_density(seg_image, radius=rad_density, n_bins=n_bins, verbose=verbose)
 
     # Get Histogram of Gradients
     if type(rad_gradient) == list:
         HoG = []
         for r in rad_gradient:
-            h = hist_grad(seg_image, radius=r, n_bins=n_bins, verbose=verbose)
+            h, _ = hist_grad(seg_image, radius=r, n_bins=n_bins, verbose=verbose)
             HoG.extend(h)
     else:
-        HoG = hist_grad(seg_image, radius=rad_gradient, n_bins=n_bins, verbose=verbose)
+        HoG, _ = hist_grad(seg_image, radius=rad_gradient, n_bins=n_bins, verbose=verbose)
 
     # Get Histogram of Entropy
     if type(rad_entropy) == list:
         HoE = []
         for r in rad_entropy:
-            h = hist_entropy(seg_image, radius=r, n_bins=n_bins, verbose=verbose)
+            h, _ = hist_entropy(seg_image, radius=r, n_bins=n_bins, verbose=verbose)
             HoE.extend(h)
     else:
-        HoE = hist_entropy(seg_image, radius=rad_entropy, n_bins=n_bins, verbose=verbose)
+        HoE, _ = hist_entropy(seg_image, radius=rad_entropy, n_bins=n_bins, verbose=verbose)
 
     # Get Histogram of Hough
     HoH = []
-    h = hist_hough(seg_image, n_bins=n_bins, verbose=verbose)
+    h, _ = hist_hough(seg_image, n_bins=n_bins, verbose=verbose)
     HoH.extend(h)
 
     # hist_imgs.append(HoI)
-    hist = np.concatenate((HoI, HoG, HoE, HoH, X[i]))
+    hist = np.concatenate((HoI, HoG, HoE, HoH))
 
     # Split image into small images
     shape_spl = (3, 2)
@@ -63,15 +63,15 @@ def feature_extraction(I, params, verbose=False):
         if verbose:
             print "Split section %d\n===============" % j
         for r in rad_density:
-            h = hist_density(splt[j], radius=r, n_bins=n_bins, verbose=verbose)
+            h, _ = hist_density(splt[j], radius=r, n_bins=n_bins, verbose=verbose)
             aux.extend(h)
         for r in rad_gradient:
-            h = hist_grad(splt[j], radius=r, n_bins=n_bins, verbose=verbose)
+            h, _ = hist_grad(splt[j], radius=r, n_bins=n_bins, verbose=verbose)
             aux.extend(h)
         for r in rad_entropy:
-            h = hist_entropy(splt[j], radius=r, n_bins=n_bins, verbose=verbose)
+            h, _ = hist_entropy(splt[j], radius=r, n_bins=n_bins, verbose=verbose)
             aux.extend(h)
-        h = hist_hough(splt[j], n_bins=n_bins, verbose=verbose)
+        h, _ = hist_hough(splt[j], n_bins=n_bins, verbose=verbose)
         aux.extend(h)
         hist = np.concatenate((hist, aux))
     hist = np.concatenate((hist, diferentiate_img(seg_image, verbose=verbose)))
@@ -127,6 +127,9 @@ def main(dir, image_path, comp_data, feature):
         h, feat_img = hist_entropy(I, radius=rad_entropy, n_bins=n_bins, verbose=verbose)
     elif feature == 'h' or feature == 'h_img':
         h, feat_img = hist_hough(I, n_bins=n_bins, verbose=verbose)
+    elif feature == 'all':
+        h, params = feature_extraction(I, params, verbose=False)
+        h = h[0]
     else:
         print 'Wrong feature.'
         return -1
@@ -148,16 +151,14 @@ def main(dir, image_path, comp_data, feature):
         imsave(dir + 'ImageC++_%s.jpg' % feature, v1)
         imsave(dir + 'ImagePyt_%s.jpg' % feature, v2)
 
-    # hist_imgs, params = feature_extraction(I, params, verbose=False)
-
     return 0
 
 if __name__ == "__main__":
     path = 'TestFeatures/'
-    img_name = '2014-11-26_7938306_06.png'
+    img_name = '2014-11-28_7951644_08_segmented.png'
     test_dir = path + img_name.split('.')[0] + '/'
 
     if not os.path.isdir(test_dir):
         os.makedirs(test_dir)
 
-    main(test_dir, img_name, 'edges2014-11-26_7938306_06NOEOF.TXT', 'h_img')
+    main(test_dir, img_name, '2014-11-28_7951644_08FeaturesNOEOF.TXT', 'all')
