@@ -29,14 +29,16 @@ std::string GetElapsedTime(clock_t time_a, clock_t time_b)
 }
 using namespace cv;
 int main(int argc, char** argv) {
+	/*
+	uchar data[121];
+	for(int i = 0; i < 121; i++)
+		data[i] = 255;
+	Mat* grayMat = new cv::Mat(11,11,CV_8U,data);
+	Mat* disk = new Mat(cv::getStructuringElement(MORPH_ELLIPSE, cv::Size(11,11)));
 	
-	/*uchar data[25] = {255,255,0,0,0,255,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-	Mat* grayMat = new cv::Mat(5,5,CV_8U,data);
-	
-	std::cout << entropy(grayMat,new Mat()) << std::endl;*/
-
+	std::cout << entropy(grayMat,disk) << std::endl;
+	*/
 	LList *files = getDirFiles((char *)"\\\\ssd2015\\Data\\FpFeatures_Comparison\\input\\");
-	
 	
 	if (files != NULL){
 		LList *fp = files;
@@ -58,6 +60,7 @@ int main(int argc, char** argv) {
 				
 				cfg->path = (char*)pout.c_str();
 				cfg->fileName = (char*)data.fname;
+				//cfg->verboseDiff = true;
 				cfg->verboseHough = true;
 				setConfig(cfg);
 				
@@ -101,14 +104,13 @@ int main(int argc, char** argv) {
 				
 				/*if(i % 1000 == 0)
 				{*/
-					cv::FileStorage file_hough((const std::string)pout + fp->element.fname + "_hough.txt", cv::FileStorage::WRITE);
-					file_hough << "HoughHist" << out_hough;
+				cv::FileStorage file_hough((const std::string)pout + fp->element.fname + "_hough.txt", cv::FileStorage::WRITE);
+				file_hough << "HoughHist" << out_hough;
 				/*}*/
 				
 				std::cout << "\tHoughHist OK..." + GetElapsedTime(time_a,time_b) + "ms" << std::endl;
 
 				time_a = clock();
-
 				cv::Mat out_entropy = hist_entropy(&in,5,32);
 				time_b = clock();
 				total_time_ticks += (long)(time_b - time_a);

@@ -300,13 +300,20 @@ float FingerPrintFeatures::entropy(cv::Mat* input) {
 float FingerPrintFeatures::entropy(const cv::Mat* input,const cv::Mat* disk) {
 	
 	float frequencies[256] = {0};
+	int nDisk = 0;
 	for(int i = 0; i < input->rows; i++)
 		for(int j = 0; j < input->cols; j++)
-			frequencies[input->at<unsigned char>(i,j)]++;
+		{
+			if(disk->at<unsigned char>(i,j) == 1)
+			{
+				frequencies[input->at<unsigned char>(i,j)]++;
+				nDisk++;
+			}
+		}
 	
 	cv::Mat hist(1,256,CV_32F,frequencies);
     //std::cout << hist << std::endl;
-	hist /= input->total();
+	hist /= nDisk;
 	//std::cout << hist << std::endl;
  	cv::Mat logP;
 	//logMeu(&hist,input->rows*input->cols,&logP,logTable);
@@ -355,6 +362,21 @@ Mat getSubSetNeighbours(const Mat* in,int row,int col, int radius)
 
 	return Mat((*in)(rect));
 }
+Mat getDiskSubSet(const Mat disk, int i, int j, int rows, int cols, int radius)
+{
+	int row_l = i - radius;
+	int row_r = i + radius;
+	int col_l = j - radius;
+	int col_r = j + radius;
+
+	int start_row = cv::max(0, row_l) - row_l;
+	int end_row = cv::min(rows, row_r + 1) - row_l;
+	int start_col = cv::max(0, col_l) - col_l;
+	int end_col = cv::min(cols, col_r + 1) - col_l;
+	cv::Rect subDisk = cv::Rect(start_col,start_row,end_col-start_col,end_row-start_row);
+
+	return Mat((disk)(subDisk));
+}
 /*
 """
 Computes the histogram of entropies from an image.
@@ -373,9 +395,9 @@ Computes the histogram of entropies from an image.
 */
 Mat FingerPrintFeatures::hist_entropy(const Mat* img, int radius, int n_bins) {
 	
-	Mat disk = Mat(cv::getStructuringElement(MORPH_ELLIPSE, cv::Size(radius,radius)));
-	initLogTable(radius);
-
+	Mat disk = Mat(cv::getStructuringElement(MORPH_ELLIPSE, cv::Size(radius*2+1,radius*2+1)));
+	
+	//initLogTable(radius);
 
 	Mat output = Mat(img->rows,img->cols,CV_32F);
 
@@ -386,7 +408,8 @@ Mat FingerPrintFeatures::hist_entropy(const Mat* img, int radius, int n_bins) {
 			try
 			{
 			Mat subSet = getSubSetNeighbours(img,i,j,(radius));
-			output.at<float>(i,j) = entropy(&subSet,&disk);
+			Mat subDisk = getDiskSubSet((const Mat)disk,i,j,img->rows,img->cols,(radius));
+			output.at<float>(i,j) = entropy(&subSet,&subDisk);
 
 			//output->at<float>(i,j) = (i+j)/(float)img->rows*img->cols;
 			} catch (...) {
@@ -442,10 +465,10 @@ Mat FingerPrintFeatures::hist_hough(const Mat* img, int n_bins) {
 	int line_gap = 3;
 	Mat edges;
 	
-	GaussianBlur(*img, edges, Size(9,9), 2.);
+	GaussianBlur(*img, edges, Size(17,17), 2.);
 	
-	/*if (cfg->verboseHough)
-		cfg->writeMatToFile("blur", &edges);*/
+	if (cfg->verboseHough)
+		cfg->writeMatToFile("blur", &edges);
 
 	Canny(edges, edges, 1, 25, 3);
 	
@@ -456,6 +479,9 @@ Mat FingerPrintFeatures::hist_hough(const Mat* img, int n_bins) {
 	
 	HoughLinesP(edges, lines, 1, CV_PI / 100, threshold, line_length, line_gap);
 	
+	if(cfg->verboseHough)
+		cfg->writeMatToFile("lines", &lines);
+
 	Mat magnitudes = Mat(1, lines.cols, CV_32F);
 	for (int i = 0; i < lines.cols; i++)
 	{

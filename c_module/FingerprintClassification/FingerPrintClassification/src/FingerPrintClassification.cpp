@@ -138,7 +138,7 @@ cv::Mat** GetImageRegions(const cv::Mat *img) {
 *		rad_entr : Entropy Radius.
 *
 ***************************************************************************/
-cv::Mat LoadImage_and_FeatExtr (unsigned char* data, int w, int h, const cv::Mat features){
+cv::Mat LoadImage_and_FeatExtr (unsigned char* data, int w, int h, const cv::Mat features, int cont=0){
 
 	// Read image
 	//cv::Mat in = cv::imread(path, cv::IMREAD_GRAYSCALE); //CV_8U
@@ -204,7 +204,12 @@ cv::Mat LoadImage_and_FeatExtr (unsigned char* data, int w, int h, const cv::Mat
 	cv::hconcat(out_entropy, ret, ret);
 	cv::hconcat(out_grad, ret, ret);
 	cv::hconcat(out_dens, ret, ret);
-	
+	if(cont > 0)
+	{
+		cv::Mat matCont = cv::Mat(1,1,CV_32F);
+		matCont.at<float>(0,0) = cont;
+		cv:hconcat(matCont, ret, ret);
+	}
 	return ret;
 }
 
@@ -238,7 +243,7 @@ ReturnType FitRF(char *csvPath, char *imagesPath, char *outPath) {
 		
 		if (CreateDirectory(outPath, NULL) || ERROR_ALREADY_EXISTS == GetLastError())
 		{
-			for(std::vector<int>::size_type i = 0; i != imgFileNames.size(); i++){
+			for(int i = 0; i != imgFileNames.size(); i++){
 				clock_t time_a = clock();
 				cv::Mat featurei = features.row(i);
 				cv::Mat in = cv::imread(imagesPath + imgFileNames[i],cv::IMREAD_GRAYSCALE);
@@ -248,12 +253,12 @@ ReturnType FitRF(char *csvPath, char *imagesPath, char *outPath) {
 				}
 				if(prop->verbose)
 					std::cout << imgFileNames[i] << " img "  << i; 
-				cv::Mat hist = LoadImage_and_FeatExtr(in.data, in.rows, in.cols, featurei);
+				cv::Mat hist = LoadImage_and_FeatExtr(in.data, in.rows, in.cols, featurei, 0);
 				// Join features
 				if(trainSamples.rows == 0)
 					trainSamples = hist;
 				else
-					cv::vconcat(hist, trainSamples, trainSamples);
+					cv::vconcat(trainSamples, hist, trainSamples);
 				hist.release();
 				clock_t time_b = clock();
 				if(prop->verbose)
@@ -336,14 +341,15 @@ ReturnType FitRF(char *csvPath, char *imagesPath, char *outPath) {
 }
 
 /**************************************************************************
-*								  CrossFitRF
+*								  FitFromDataRF
 *								  -----
 *		csvPath						    : Path to the csv data.
-*		normDataPath					: Path to the cross-validation path data. (Normalized)
+*		normDataPath					: Path to the data.
 *		outPath							: Path where the trained model will be saved.
+*		normalized						: Type of data
 *
 ***************************************************************************/
-ReturnType FitFromDataRF(char *csvPath, char *normDataPath, char *outPath) {
+ReturnType FitFromDataRF(char *csvPath, char *dataPath, char *outPath, bool normalized) {
 
 	ReturnType ret = { 0, "No Error" };
 	
@@ -367,9 +373,14 @@ ReturnType FitFromDataRF(char *csvPath, char *normDataPath, char *outPath) {
 		if (CreateDirectory(outPath, NULL) || ERROR_ALREADY_EXISTS == GetLastError())
 		{
 			if(prop->verbose)
-				std::cout << "Taking features from path " << normDataPath << std::endl;
-			normTS = importFileFeatures(normDataPath, prop->verbose, Constants::TOTAL_FEATURES);
+				std::cout << "Taking features from path " << dataPath << std::endl;
 			
+			normTS = importFileFeatures(dataPath, prop->verbose, Constants::TOTAL_FEATURES);
+			
+			if(!normalized)
+			{
+				normTS = createNormalizationFile(outPath, normTS);
+			}
 			
 			/****************************************************/
 			/*					  Train RF						*/
@@ -377,10 +388,10 @@ ReturnType FitFromDataRF(char *csvPath, char *normDataPath, char *outPath) {
 			
 			// Construct the classifier and set the parameters
 			//CvRTrees  rtrees[Constants::NUM_CLASSIFIERS][1];
-			//CvRTrees  rtrees[6][1];
+			CvRTrees  rtrees[6][1];
 			// Construct the classifier and set the parameters
-			CvRTrees** rtrees;
-			allocateRtrees(&rtrees,Constants::NUM_CLASSIFIERS,1);
+			//CvRTrees** rtrees;
+			//allocateRtrees(&rtrees,Constants::NUM_CLASSIFIERS,1);
 			float priors[] = {1,1,1,1,1,1};
 			CvRTParams  params( prop->max_depth,						// max_depth,
 								prop->min_samples_count,				// min_sample_count,
@@ -422,7 +433,7 @@ ReturnType FitFromDataRF(char *csvPath, char *normDataPath, char *outPath) {
 				sprintf(fileName, "%smodel_%d.xml", outPath, i);
 				rtrees[i]->save(fileName);
 			}
-			releaseRTrees(rtrees, Constants::NUM_CLASSIFIERS,1);
+			//releaseRTrees(rtrees, Constants::NUM_CLASSIFIERS,1);
 		} else {
 			throw (std::string)"Folder " + outPath + " could not be created";
 		}
@@ -590,7 +601,7 @@ ReturnType ExtractFeatures(char* csvPath, char* imagesPath, char* outPath)
 		cv::Mat trainSamples;
 		cv::Mat normTS;
 		
-		for(std::vector<int>::size_type i = 0; i != imgFileNames.size(); i++){
+		for(int i = 0; i != imgFileNames.size(); i++){
 			clock_t time_a = clock();
 			cv::Mat featurei = features.row(i);
 			cv::Mat in = cv::imread(imagesPath + imgFileNames[i],cv::IMREAD_GRAYSCALE);
@@ -600,12 +611,12 @@ ReturnType ExtractFeatures(char* csvPath, char* imagesPath, char* outPath)
 			}
 			if(prop->verbose)
 				std::cout << imgFileNames[i] << " img "  << i; 
-			cv::Mat hist = LoadImage_and_FeatExtr(in.data, in.rows, in.cols, featurei);
+			cv::Mat hist = LoadImage_and_FeatExtr(in.data, in.rows, in.cols, featurei,0);
 			// Join features
 			if(trainSamples.rows == 0)
 				trainSamples = hist;
 			else
-				cv::vconcat(hist, trainSamples, trainSamples);
+				cv::vconcat(trainSamples, hist, trainSamples);
 			hist.release();
 			clock_t time_b = clock();
 			if(prop->verbose)

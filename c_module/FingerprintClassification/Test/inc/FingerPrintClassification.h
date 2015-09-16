@@ -62,7 +62,7 @@ extern "C" __declspec(dllexport) ReturnType ReleaseModel(void*);
 ***************************************************************************/
 extern "C" __declspec(dllexport) ReturnType FitRF(char*, char*, char*);
 
-extern "C" __declspec(dllexport) ReturnType FitFromDataRF(char*, char*, char*);
+extern "C" __declspec(dllexport) ReturnType FitFromDataRF(char*, char*, char*, bool);
 
 /**************************************************************************
 *								PredictRF
