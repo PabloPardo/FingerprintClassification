@@ -7,6 +7,7 @@ from math import pi
 from skimage.feature import canny
 from skimage.transform import probabilistic_hough_line
 
+
 def integral_image(x):
     """Integral image / summed area table.
 
@@ -155,7 +156,7 @@ def hist_density(img, radius, n_bins=64, verbose=False):
         sys.stdout.write('\nHistogram of Densities:\n')
         sys.stdout.write(repr(hist.__str__()))
 
-    return hist
+    return hist, dens_img
 
 
 def gradient_pix(i, j, img, radius):
@@ -229,7 +230,7 @@ def hist_grad(img, radius=1, n_bins=64, verbose=False):
         sys.stdout.write('\nHistogram of Gradients:\n')
         sys.stdout.write(hist.__str__())
 
-    return hist
+    return hist, grad_img
 
 
 def hist_entropy(img, radius=5, n_bins=64, verbose=False):
@@ -247,7 +248,8 @@ def hist_entropy(img, radius=5, n_bins=64, verbose=False):
 
     :return: list of int
     """
-    entropy_img = entropy(img, disk(radius))
+    # entropy_img = entropy(img, disk(radius))
+    entropy_img = entropy(img, np.ones([11, 11], dtype=int))
     if verbose:
         sys.stdout.write('\nImage of Entropies:\n')
         sys.stdout.write(entropy_img.__str__())
@@ -258,7 +260,7 @@ def hist_entropy(img, radius=5, n_bins=64, verbose=False):
         sys.stdout.write('\nHistogram of Entropy:\n')
         sys.stdout.write(hist.__str__())
 
-    return hist
+    return hist, entropy_img
 
 
 def diferentiate_img(img, verbose=False):
@@ -346,4 +348,4 @@ def hist_hough(img, n_bins, verbose=False):
         sys.stdout.write('\nHistogram of Hough:\n')
         sys.stdout.write(hist.__str__())
 
-    return hist
+    return hist, edges

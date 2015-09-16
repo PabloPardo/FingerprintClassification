@@ -42,6 +42,8 @@ Computes the histogram of densities from an image.
 : return : list of int
 """
 */
+
+
 Mat FingerPrintFeatures::hist_density(const Mat* img, int radius, int n_bins=64)
 {	
 	Mat dens_img = dens_api->density_img(img, radius,cfg);
@@ -115,9 +117,7 @@ Mat FingerPrintFeatures::hist_grad(const Mat* img, int radius, int n_bins)
 	else
 	{
 		ret = Mat(1,32,CV_32F,0.);
-	}
-	if(cfg->verboseGrad)
-		cfg->writeMatToFile("HistGrad", &ret);	
+	}	
 	return ret;
 }
 
@@ -297,11 +297,12 @@ float FingerPrintFeatures::entropy(cv::Mat* input) {
 /***
 * Calculates the entropy of a matrix as a single float value *
 */
-float FingerPrintFeatures::entropy(cv::Mat* input, cv::Mat* disk) {
+float FingerPrintFeatures::entropy(const cv::Mat* input,const cv::Mat* disk) {
 	
 	float frequencies[256] = {0};
-	for(int i = 0; i < input->rows*input->cols; i++)
-		frequencies[(int)input->data[i]]++;
+	for(int i = 0; i < input->rows; i++)
+		for(int j = 0; j < input->cols; j++)
+			frequencies[input->at<unsigned char>(i,j)]++;
 	
 	cv::Mat hist(1,256,CV_32F,frequencies);
     //std::cout << hist << std::endl;
@@ -310,9 +311,11 @@ float FingerPrintFeatures::entropy(cv::Mat* input, cv::Mat* disk) {
  	cv::Mat logP;
 	//logMeu(&hist,input->rows*input->cols,&logP,logTable);
 	cv::log(hist,logP);
+	logP /= 0.6931471805599453;
+	//std::cout << logP << std::endl;
 
     float entropy = -1*cv::sum(hist.mul(logP)).val[0];
-	
+
 	return entropy;
 }
 /*
@@ -384,6 +387,7 @@ Mat FingerPrintFeatures::hist_entropy(const Mat* img, int radius, int n_bins) {
 			{
 			Mat subSet = getSubSetNeighbours(img,i,j,(radius));
 			output.at<float>(i,j) = entropy(&subSet,&disk);
+
 			//output->at<float>(i,j) = (i+j)/(float)img->rows*img->cols;
 			} catch (...) {
 				std::cout << "Error en " << i << "," << j << std::endl;
@@ -438,10 +442,10 @@ Mat FingerPrintFeatures::hist_hough(const Mat* img, int n_bins) {
 	int line_gap = 3;
 	Mat edges;
 	
-	blur(*img, edges, Size(3,3));
+	GaussianBlur(*img, edges, Size(9,9), 2.);
 	
-	if (cfg->verboseHough)
-		cfg->writeMatToFile("blur", &edges);
+	/*if (cfg->verboseHough)
+		cfg->writeMatToFile("blur", &edges);*/
 
 	Canny(edges, edges, 1, 25, 3);
 	
@@ -450,7 +454,7 @@ Mat FingerPrintFeatures::hist_hough(const Mat* img, int n_bins) {
 	
 	cv::Mat lines;
 	
-	HoughLinesP(edges, lines, 1, CV_PI / 180, threshold, line_length, line_gap);
+	HoughLinesP(edges, lines, 1, CV_PI / 100, threshold, line_length, line_gap);
 	
 	Mat magnitudes = Mat(1, lines.cols, CV_32F);
 	for (int i = 0; i < lines.cols; i++)

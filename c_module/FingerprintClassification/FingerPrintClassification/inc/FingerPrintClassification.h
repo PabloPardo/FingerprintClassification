@@ -19,7 +19,8 @@ struct Properties
 	int min_samples_count; // Min samples needed to split a leaf.
 	int max_categories; // Max number of categories.
 	int max_num_of_trees_in_forest; // Max number of trees in the forest.
-	
+	int nactive_vars; // nactive_vars,
+
 	bool verbose;
 
 	Properties() {  
@@ -31,6 +32,7 @@ struct Properties
 		min_samples_count=2; 
 		max_categories=3; 
 		max_num_of_trees_in_forest=10;
+		nactive_vars = 0;
 		verbose = false;
 	};
 	friend std::ostream& operator<<(std::ostream& os, const Properties& prop);
@@ -62,7 +64,7 @@ extern "C" __declspec(dllexport) ReturnType SetProperties(Properties*);
 ***************************************************************************/
 extern "C" __declspec(dllexport) ReturnType FitRF(char*, char*, char*);
 
-extern "C" __declspec(dllexport) ReturnType CrossFitRF(char*, char*, char*);
+extern "C" __declspec(dllexport) ReturnType FitFromDataRF(char*, char*, char*);
 
 /**************************************************************************
 *								PredictRF
@@ -93,4 +95,14 @@ extern "C" __declspec(dllexport) ReturnType CrossPredictRF(float**, void*, doubl
 *		outPath				: Output path with the results {normalization, unnormalizedData, normalizedData}
 ***************************************************************************/
 extern "C" __declspec(dllexport) ReturnType ExtractFeatures(char*,char*,char*);
+
+/**************************************************************************
+*								ExportMeanStdFile
+*								---------
+*		unNormalizedDataPath	: Path to the file with the fingerPrint features.
+*		outPath					: Output path with the results {normalization, unnormalizedData, normalizedData}
+*		verbose					
+***************************************************************************/
+extern "C" __declspec(dllexport) ReturnType ExportMeanStdFile(const char*, const char*, bool verbose=false);
+
 #endif

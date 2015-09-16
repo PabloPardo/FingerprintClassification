@@ -10,7 +10,6 @@ class FingerPrintFeatures
 	Density* dens_api;
 	float logTable[131072];
 	void initLogTable(int);
-	float entropy(Mat*,Mat*);
 public:
 	Config* cfg;
 	FingerPrintFeatures(Config*);
@@ -19,6 +18,7 @@ public:
 	Mat hist_grad(const Mat* image, int radius, int n_bins);
 	Mat diferentiate_img(const Mat* image);
 	Mat hist_entropy(const Mat* img, int radius = 5, int n_bins = 64);
+	float entropy(const Mat*, const Mat*);
 	Mat hist_hough(const Mat* img, int n_bins);
 };
 

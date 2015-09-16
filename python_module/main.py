@@ -82,22 +82,6 @@ for i in aux:
 
     hist_imgs, params = feature_extraction(I, X, name_data_x, params, names, False, test_name, raw_data, path_normalized_data, segmentation)
 
-    # -- Use C++ features --
-    # hist_imgs = np.genfromtxt('//ssd2015/Data/CSVs/FitFeaturesGEYCE.csv', delimiter=',')
-    # hist_imgs = hist_imgs[:, 1:]
-    # mean = []
-    # std = []
-    # hist_imgs = np.array(hist_imgs)
-    # for i in range(hist_imgs.shape[1]):
-    #     mean.append(np.mean(hist_imgs[:, i]))
-    #     std.append(np.std(hist_imgs[:, i]))
-    #     hist_imgs[:, i] = (hist_imgs[:, i] - mean[i]) / std[i] if std[i] != 0 else hist_imgs[:, i] - mean[i]
-    #
-    # params['normalize_mean'] = mean
-    # params['normalize_std'] = std
-
-
-
     """
         --------------------
                 Train

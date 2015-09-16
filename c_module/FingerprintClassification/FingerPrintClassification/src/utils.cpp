@@ -154,7 +154,7 @@ cv::Mat oneVsAll(cv::Mat labels, int tar_class){
 	return res;
 }
 
-void exportFileFeatures(char* sufix, cv::Mat trainSamples, std::vector<std::string> imgPaths, char* outPath)
+void exportFileFeatures(cv::Mat trainSamples, std::vector<std::string> imgPaths, const char* outFile)
 {
 	/*char path_buffer[_MAX_PATH];
 	char drive[_MAX_DRIVE];
@@ -169,7 +169,7 @@ void exportFileFeatures(char* sufix, cv::Mat trainSamples, std::vector<std::stri
 	{
 		throwError("Couldn't split path:" + (std::string)outPath);
 	}*/
-	std::string fileName = outPath + std::string(sufix);
+	std::string fileName = outFile;
 	std::ofstream myfile (fileName);
 	if (myfile.is_open())
 	{
@@ -261,7 +261,7 @@ cv::Mat importFileFeatures(const char* c_path_normalized, bool verbose, const in
 	return ret;
 }
 
-cv::Mat createNormalizationFile(char* outPath, cv::Mat trainSamples) 
+cv::Mat createNormalizationFile(const char* outPath, cv::Mat trainSamples) 
 {
 	//NORMALIZE
 	// Write the mean and std into a file as part of the model
@@ -273,7 +273,8 @@ cv::Mat createNormalizationFile(char* outPath, cv::Mat trainSamples)
 	file.open(fname);
 	cv::Mat temp1, temp2, mean, std, norm_i,ret;
 	ret = cv::Mat(trainSamples.size(), trainSamples.type());
-	for (int i = trainSamples.cols - 1; i >= 0; i--)
+	//for (int i = trainSamples.cols - 1; i >= 0; i--)
+	for (int i = 0; i < trainSamples.cols; i++)
 	{
 		cv::meanStdDev(trainSamples.col(i), mean, std);
 		cv::subtract(trainSamples.col(i), mean, temp1);
@@ -287,7 +288,7 @@ cv::Mat createNormalizationFile(char* outPath, cv::Mat trainSamples)
 	return ret;
 }
 
-cv::Mat readTrainedMeanStd(char* normalizationFilePath,cv::Mat sample) 
+cv::Mat readTrainedMeanStd(const char* normalizationFilePath,cv::Mat sample) 
 {
 	//NORMALIZE
 	// Read train mean and std to normalize the test mean
