@@ -28,7 +28,7 @@ def create_data2(path_csv, path_data, name_data_I, name_data_X, name_data_y, lab
     prev = 0
     for i in range(len(csv)):
         name = csv['EmNomFitxer'].values[i]
-        if not raw_data:
+        if not raw_data :
             try:
                 im = Image.open(path_data + name).convert('L')
                 if type(I) != list:
@@ -227,7 +227,8 @@ def write_results(params, y, output_file, names, name_results_FP, predictions):
     n_folds = params['n_folds']
     y_names = params['y_names']
     y_pred = params['y_pred']
-    y_pred_prob = params['y_pred_prob']
+    if 'y_pred_prob' in params:
+        y_pred_prob = params['y_pred_prob']
     rad_density = params['rad_density']
     rad_gradient = params['rad_gradient']
     rad_entropy = params['rad_entropy']
@@ -277,10 +278,11 @@ def write_results(params, y, output_file, names, name_results_FP, predictions):
     file.close()
 
     # Escriure butifarres
-    file = open(predictions, 'wb')
-    for i in range(len(y)):
-        file.write('%s;%s;%s\n' % (names[i], ';'.join(str(e) for e in y_pred_prob[i]), ';'.join(str(e) for e in y[i])))
-    file.close()
+    if 'y_pred_prob' in params:
+        file = open(predictions, 'wb')
+        for i in range(len(y)):
+            file.write('%s;%s;%s\n' % (names[i], ';'.join(str(e) for e in y_pred_prob[i]), ';'.join(str(e) for e in y[i])))
+        file.close()
 
     return results
 

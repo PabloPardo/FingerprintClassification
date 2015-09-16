@@ -17,9 +17,15 @@ import cPickle as cPk
 
 # Definition of all the I/O paths
 # size = 'big'
-test_name = 'RandomizedData_Training2.0'
+
+segmentation = True
+test_name = 'RandomizedData_Training_Segmented'
+
 path_data = '//ssd2015/Data/Training/'
+#path_xlsx = 'RandomizedData_Training/RandomizedData5.csv'
 path_xlsx = '//ssd2015/Data/CSVs/RandomizedData.csv'
+#path_normalized_data = '//ssd2015/Data/out/14092015/model'
+path_normalized_data = 'false'
 # path_csv = path_data + 'results_all.csv'
 name_data_img = test_name + '/stack_images.pkl'
 name_data_y = test_name + '/y.pkl'
@@ -28,9 +34,14 @@ name_data_y_pred = test_name + '/model.pkl'
 name_data_geyce_x = test_name + '/X.pkl'
 name_results = test_name + '/results.txt'
 name_results_FP = test_name + '/FP_res_%s_Class.txt'
+
+#raw_data = 'RandomizedData_Training/features_full_python_unnormalized.csv'
 raw_data = False
 
+
 labels = [ 'EmBorrosa', 'EmPetita', 'EmNegre', 'EmClara',  'EmMotejada', 'EmDefectuosa']
+
+
 
 if not os.path.exists(test_name):
         os.makedirs(test_name)
@@ -69,7 +80,7 @@ for i in aux:
               'rad_gradient': 1,
               'rad_entropy': i[2]}
 
-    hist_imgs, params = feature_extraction(I, X, name_data_x, params, names, False, test_name, raw_data)
+    hist_imgs, params = feature_extraction(I, X, name_data_x, params, names, False, test_name, raw_data, path_normalized_data, segmentation)
 
     # -- Use C++ features --
     # hist_imgs = np.genfromtxt('//ssd2015/Data/CSVs/FitFeaturesGEYCE.csv', delimiter=',')
@@ -106,7 +117,7 @@ for i in aux:
     else:
         params = train_testCV(hist_imgs, y, params, name_data_y_pred)
 
-    r = write_results(params, y, name_results, names, name_results_FP)
+    r = write_results(params, y, name_results, names, name_results_FP, test_name + '/butis.txt')
 
     if best_results[params['n_classes']]['inner'] < r['inner']:
         best_results[params['n_classes']] = r
