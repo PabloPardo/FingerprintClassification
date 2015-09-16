@@ -4,7 +4,7 @@
 #include "opencv2\ml\ml.hpp"
 #include <Windows.h>
 
-const bool CROSS = false;
+const bool CROSS = true;
 
 struct InputCross
 {
@@ -83,7 +83,7 @@ Input getSegmentedData() {
 	Input ret = Input();
 	ret.csvPath = "\\\\ssd2015\\data\\CSVs\\RandomizedData.csv";
 	ret.imagesPath = "\\\\ssd2015\\data\\Segmented\\";
-	ret.outPutPath = "\\\\ssd2015\\data\\out\\10092015\\model\\";
+	ret.outPutPath = "\\\\ssd2015\\data\\CSVs\\";
 	Properties* prop = new Properties();
 	prop->n_bins = 32;
 	prop->rad_grad = 1;
@@ -98,6 +98,26 @@ Input getSegmentedData() {
 	return ret;
 }
 
+InputCross getProva() {
+	InputCross ret = InputCross();
+	ret.csvPath = "\\\\ssd2015\\Data\\CSVs\\20150907\\RandomizedData.csv";
+	ret.normalizedDataPath = "\\\\ssd2015\\Data\\CSVs\\20150907\\trainFeaturesData.csv";
+	ret.outPutPath = "\\\\ssd2015\\Data\\out\\PythonNormalizedData2\\model\\";
+	Properties* prop = new Properties();
+	prop->n_bins = 32;
+	prop->rad_grad = 1;
+	prop->rad_dens = 3;
+	prop->rad_entr = 5;
+	prop->max_depth = 25;
+	prop->min_samples_count = 2; 
+	prop->max_categories = 3;
+	prop->max_num_of_trees_in_forest = 100;
+	prop->nactive_vars = 0;
+	prop->verbose = true;
+	ret.prop = prop;
+	return ret;
+}
+
 void FitAndPredict(void)
 {
 	float* probs;
@@ -107,12 +127,12 @@ void FitAndPredict(void)
 	{
 		if(CROSS)
 		{
-			InputCross paths = getRandomizedData();
+			InputCross paths = getProva();
 			ret = SetProperties(paths.prop);
 
 			std::cout << "Train ...\n";
 			
-			ret = CrossFitRF(paths.csvPath,
+			ret = FitFromDataRF(paths.csvPath,
 				paths.normalizedDataPath,
 				paths.outPutPath);
 			if(ret.code > 0)
@@ -194,15 +214,22 @@ Input getPredictFP() {
 
 void ExtractFeatures(void) 
 {
-	Input input = getPredictFP();
+	Input input = getSegmentedData();
 	SetProperties(input.prop);
 	ExtractFeatures(input.csvPath,input.imagesPath,input.outPutPath);
+}
+
+void ExportNormalizationVector()
+{
+	const char* unNormalizedDataPath = "//ssd2015/Data/Normalization_Comparison/features_full_python_unnormalized.csv";
+	ExportMeanStdFile(unNormalizedDataPath, unNormalizedDataPath,true);
 }
 
 
 int main(void){
 
-	FitAndPredict();
-	//ExtractFeatures();
+	//FitAndPredict();
+	ExtractFeatures();
+	//ExportNormalizationVector();
 	return 0;
 }

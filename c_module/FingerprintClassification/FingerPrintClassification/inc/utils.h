@@ -63,11 +63,11 @@ void printParamsRF(const Properties& prop);
 
 cv::Mat importFileFeatures(const char*, bool, const int);
 
-void exportFileFeatures(char*,cv::Mat, std::vector<std::string>,char*);
+void exportFileFeatures(cv::Mat, std::vector<std::string>,const char*);
 
-cv::Mat createNormalizationFile(char* outPath, cv::Mat trainSamples);
+cv::Mat createNormalizationFile(const char* outPath, cv::Mat trainSamples);
 
-cv::Mat readTrainedMeanStd(char* normalizationFilePath,cv::Mat sample);
+cv::Mat readTrainedMeanStd(const char* normalizationFilePath,cv::Mat sample);
 
 void allocateRtrees(CvRTrees***, const int, const int);
 

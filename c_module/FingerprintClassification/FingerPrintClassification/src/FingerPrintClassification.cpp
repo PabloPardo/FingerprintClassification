@@ -156,9 +156,9 @@ cv::Mat LoadImage_and_FeatExtr (unsigned char* data, int w, int h, const cv::Mat
 	cv::Mat** regions = GetImageRegions(&img);
 	//std::cout << "regions fetes" << std::endl;
 
-	for(int i = 0; i < Constants::NUM_ROW_SEGMENTS; i++)
+	for(int i = Constants::NUM_ROW_SEGMENTS - 1; i >= 0; i--)
 	{
-		for(int j = 0; j < Constants::NUM_COL_SEGMENTS; j++)
+		for(int j = Constants::NUM_COL_SEGMENTS - 1; j >=0 ; j--)
 		{
 			/*
 			cfg.verboseHough = true;
@@ -179,8 +179,8 @@ cv::Mat LoadImage_and_FeatExtr (unsigned char* data, int w, int h, const cv::Mat
 			cv::Mat out_entropy = hist_entropy(&in, prop->rad_entr, prop->n_bins);	
 
 			// Join histograms
-			cv::hconcat(out_entropy, ret, ret);
 			cv::hconcat(out_hough, ret,  ret);
+			cv::hconcat(out_entropy, ret, ret);
 			cv::hconcat(out_grad, ret, ret);
 			cv::hconcat(out_dens, ret, ret);
 		}
@@ -199,9 +199,9 @@ cv::Mat LoadImage_and_FeatExtr (unsigned char* data, int w, int h, const cv::Mat
 
 	cv::Mat out_entropy = hist_entropy(&img, prop->rad_entr, prop->n_bins);	
 
-	// Join histograms
-	cv::hconcat(out_entropy, ret, ret);
+	// Join histograms	
 	cv::hconcat(out_hough, ret,  ret);
+	cv::hconcat(out_entropy, ret, ret);
 	cv::hconcat(out_grad, ret, ret);
 	cv::hconcat(out_dens, ret, ret);
 	
@@ -269,7 +269,7 @@ ReturnType FitRF(char *csvPath, char *imagesPath, char *outPath) {
 			
 			if(prop->verbose)
 			{
-				exportFileFeatures("Normal", normTS, imgFileNames, csvPath);
+				exportFileFeatures(normTS, imgFileNames, ((std::string)outPath + "/NormalizedData.csv").c_str());
 			}
 			/****************************************************/
 			/*					  Train RF						*/
@@ -289,7 +289,7 @@ ReturnType FitRF(char *csvPath, char *imagesPath, char *outPath) {
 								prop->max_categories,					// max_categories,
 								priors,								// priors,
 								false,							// calc_var_importance,
-								1,								// nactive_vars,
+								prop->nactive_vars,				// nactive_vars,
 								prop->max_num_of_trees_in_forest, // max_num_of_trees_in_the_forest,
 								0,								// forest_accuracy,
 								CV_TERMCRIT_ITER				// termcrit_type
@@ -343,7 +343,7 @@ ReturnType FitRF(char *csvPath, char *imagesPath, char *outPath) {
 *		outPath							: Path where the trained model will be saved.
 *
 ***************************************************************************/
-ReturnType CrossFitRF(char *csvPath, char *normDataPath, char *outPath) {
+ReturnType FitFromDataRF(char *csvPath, char *normDataPath, char *outPath) {
 
 	ReturnType ret = { 0, "No Error" };
 	
@@ -389,7 +389,7 @@ ReturnType CrossFitRF(char *csvPath, char *normDataPath, char *outPath) {
 								prop->max_categories,					// max_categories,
 								priors,								// priors,
 								false,							// calc_var_importance,
-								1,								// nactive_vars,
+								prop->nactive_vars,				// nactive_vars,
 								prop->max_num_of_trees_in_forest, // max_num_of_trees_in_the_forest,
 								0,								// forest_accuracy,
 								CV_TERMCRIT_ITER				// termcrit_type
@@ -615,11 +615,28 @@ ReturnType ExtractFeatures(char* csvPath, char* imagesPath, char* outPath)
 		{
 			std::cout << *prop << std::endl;
 		}
-		exportFileFeatures("UnNormal", trainSamples, imgFileNames, outPath);
+		exportFileFeatures(trainSamples, imgFileNames, ((std::string)outPath + "Cplusplus-UnNormalizedData.csv").c_str());
 			
 		normTS = createNormalizationFile(outPath,trainSamples);
 		trainSamples.release();
-		exportFileFeatures("Normal", normTS, imgFileNames, outPath);
+		exportFileFeatures(normTS, imgFileNames, ((std::string)outPath + "Cplusplus-NormalizedData.csv").c_str());
+	}
+	catch(std::exception& ex)
+	{
+		ret.code = 1;
+		ret.message = ex.what();
+	}
+	
+	return ret;
+}
+
+ReturnType ExportMeanStdFile(const char* unNormalizedDataPath, const char* outPath, bool verbose)
+{
+	ReturnType ret = { 0, "No Error" };
+	try
+	{
+		cv::Mat trainSamples = importFileFeatures(unNormalizedDataPath, verbose, Constants::TOTAL_FEATURES);	
+		createNormalizationFile(outPath,trainSamples);
 	}
 	catch(std::exception& ex)
 	{

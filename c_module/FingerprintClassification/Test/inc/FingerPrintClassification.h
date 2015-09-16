@@ -18,7 +18,8 @@ struct Properties
 	int min_samples_count; // Min samples needed to split a leaf.
 	int max_categories; // Max number of categories.
 	int max_num_of_trees_in_forest; // Max number of trees in the forest.
-	
+	int nactive_vars; 
+
 	bool verbose;
 
 	Properties() {  
@@ -61,7 +62,7 @@ extern "C" __declspec(dllexport) ReturnType ReleaseModel(void*);
 ***************************************************************************/
 extern "C" __declspec(dllexport) ReturnType FitRF(char*, char*, char*);
 
-extern "C" __declspec(dllexport) ReturnType CrossFitRF(char*, char*, char*);
+extern "C" __declspec(dllexport) ReturnType FitFromDataRF(char*, char*, char*);
 
 /**************************************************************************
 *								PredictRF
@@ -92,4 +93,6 @@ extern "C" __declspec(dllexport) ReturnType CrossPredictRF(float**, void*, doubl
 *		outPath				: Output path with the results {normalization, unnormalizedData, normalizedData}
 ***************************************************************************/
 extern "C" __declspec(dllexport) ReturnType ExtractFeatures(char*,char*,char*);
+
+extern "C" __declspec(dllexport) ReturnType ExportMeanStdFile(const char*, const char*, bool);
 #endif

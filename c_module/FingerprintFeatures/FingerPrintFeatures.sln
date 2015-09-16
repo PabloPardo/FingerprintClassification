@@ -1,9 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+# Visual C++ Express 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FpFeaturesLibrary", "FpFeaturesLibrary\FpFeaturesLibrary.vcxproj", "{07F8529C-01C3-4150-AEB0-BA2B5EBB9B8F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FpFeaturesTest", "FpFeaturesTest\FpFeaturesTest.vcxproj", "{957B2752-E62C-49A3-9B55-DB0B0D92D85A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{07F8529C-01C3-4150-AEB0-BA2B5EBB9B8F} = {07F8529C-01C3-4150-AEB0-BA2B5EBB9B8F}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
