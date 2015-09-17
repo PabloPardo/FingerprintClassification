@@ -7,7 +7,7 @@
 const bool FROM_DATA = true;
 
 
-struct InputCross
+struct InputFromData
 {
 	char* csvPath;
 	char* dataPath;
@@ -24,8 +24,8 @@ struct Input
 	Properties* prop;
 };
 
-InputCross getRandomizedData() {
-	InputCross ret = InputCross();
+InputFromData getRandomizedData() {
+	InputFromData ret = InputFromData();
 	ret.csvPath = "\\\\ssd2015\\Data\\CSVs\\20150907\\RandomizedData.csv";
 	ret.dataPath = "\\\\ssd2015\\Data\\CSVs\\20150907\\features_full_python.csv";
 	ret.outPutPath = "\\\\ssd2015\\Data\\out\\PythonNormalizedData\\model\\";
@@ -38,6 +38,48 @@ InputCross getRandomizedData() {
 	prop->min_samples_count = 2; 
 	prop->max_categories = 3;
 	prop->max_num_of_trees_in_forest = 100;
+	prop->verbose = true;
+	ret.prop = prop;
+	return ret;
+}
+
+InputFromData getProva() {
+	InputFromData ret = InputFromData();
+	ret.csvPath = "\\\\ssd2015\\Data\\CSVs\\20150907\\RandomizedData.csv";
+	ret.dataPath = "\\\\ssd2015\\Data\\CSVs\\20150907\\trainFeaturesData.csv";
+	ret.outPutPath = "\\\\ssd2015\\Data\\out\\PythonNormalizedData2\\model\\";
+	Properties* prop = new Properties();
+	prop->n_bins = 32;
+	prop->rad_grad = 1;
+	prop->rad_dens = 3;
+	prop->rad_entr = 5;
+	prop->max_depth = 25;
+	prop->min_samples_count = 2; 
+	prop->max_categories = 3;
+	prop->max_num_of_trees_in_forest = 100;
+	prop->nactive_vars = 0;
+	prop->verbose = true;
+	ret.prop = prop;
+	return ret;
+}
+
+InputFromData getProvaFromRawDataCplusplus() {
+	InputFromData ret = InputFromData();
+	ret.csvPath = "\\\\ssd2015\\Data\\CSVs\\RandomizedData.csv";
+	ret.dataPath = "\\\\ssd2015\\data\\out\\ProvaFromNormalizedCplusplus\\model\\Cplusplus-NormalizedData.csv";
+	ret.outPutPath = "\\\\ssd2015\\data\\out\\ProvaFromNormalizedCplusplus\\model\\";
+	ret.normalized = true;
+
+	Properties* prop = new Properties();
+	prop->n_bins = 32;
+	prop->rad_grad = 1;
+	prop->rad_dens = 3;
+	prop->rad_entr = 5;
+	prop->max_depth = 25;
+	prop->min_samples_count = 2; 
+	prop->max_categories = 3;
+	prop->max_num_of_trees_in_forest = 100;
+	prop->nactive_vars = 0;
 	prop->verbose = true;
 	ret.prop = prop;
 	return ret;
@@ -100,11 +142,11 @@ Input getSegmentedData() {
 	return ret;
 }
 
-InputCross getProva() {
-	InputCross ret = InputCross();
-	ret.csvPath = "\\\\ssd2015\\Data\\CSVs\\20150907\\RandomizedData.csv";
-	ret.dataPath = "\\\\ssd2015\\Data\\CSVs\\20150907\\trainFeaturesData.csv";
-	ret.outPutPath = "\\\\ssd2015\\Data\\out\\PythonNormalizedData2\\model\\";
+Input getPredictFP() {
+	Input ret = Input();
+	ret.csvPath = "\\\\ssd2015\\data\\CSVs\\Malos_15_07_08.csv";
+	ret.imagesPath = "\\\\ssd2015\\data\\PredictData_Segmented\\";
+	ret.outPutPath = "\\\\ssd2015\\data\\out\\Malos_15_07_08_Segmented\\";
 	Properties* prop = new Properties();
 	prop->n_bins = 32;
 	prop->rad_grad = 1;
@@ -114,34 +156,10 @@ InputCross getProva() {
 	prop->min_samples_count = 2; 
 	prop->max_categories = 3;
 	prop->max_num_of_trees_in_forest = 100;
-	prop->nactive_vars = 0;
 	prop->verbose = true;
 	ret.prop = prop;
 	return ret;
 }
-
-InputCross getProvaFromRawDataCplusplus() {
-	InputCross ret = InputCross();
-	ret.csvPath = "\\\\ssd2015\\Data\\CSVs\\RandomizedData.csv";
-	ret.dataPath = "\\\\ssd2015\\data\\out\\ProvaFromNormalizedCplusplus\\model\\Cplusplus-NormalizedData.csv";
-	ret.outPutPath = "\\\\ssd2015\\data\\out\\ProvaFromNormalizedCplusplus\\model\\";
-	ret.normalized = true;
-
-	Properties* prop = new Properties();
-	prop->n_bins = 32;
-	prop->rad_grad = 1;
-	prop->rad_dens = 3;
-	prop->rad_entr = 5;
-	prop->max_depth = 25;
-	prop->min_samples_count = 2; 
-	prop->max_categories = 3;
-	prop->max_num_of_trees_in_forest = 100;
-	prop->nactive_vars = 0;
-	prop->verbose = true;
-	ret.prop = prop;
-	return ret;
-}
-
 
 void FitAndPredict(void)
 {
@@ -219,11 +237,12 @@ void FitAndPredict(void)
 	system("pause");
 }
 
-Input getPredictFP() {
+void ExtractFeatures(void) 
+{
 	Input ret = Input();
-	ret.csvPath = "\\\\ssd2015\\data\\CSVs\\Malos_15_07_08.csv";
-	ret.imagesPath = "\\\\ssd2015\\data\\PredictData_Segmented\\";
-	ret.outPutPath = "\\\\ssd2015\\data\\out\\Malos_15_07_08_Segmented\\";
+	ret.csvPath = "\\\\ssd2015\\data\\CSVs\\RandomizedData.csv";
+	ret.imagesPath = "\\\\ssd2015\\data\\Training\\";
+	ret.outPutPath = "\\\\ssd2015\\data\\CSVs\\";
 	Properties* prop = new Properties();
 	prop->n_bins = 32;
 	prop->rad_grad = 1;
@@ -235,13 +254,8 @@ Input getPredictFP() {
 	prop->max_num_of_trees_in_forest = 100;
 	prop->verbose = true;
 	ret.prop = prop;
-	return ret;
-}
-
-void ExtractFeatures(void) 
-{
-	Input input = getSegmentedData();
-	SetProperties(input.prop);
+	
+	SetProperties(prop);
 	ExtractFeatures(input.csvPath,input.imagesPath,input.outPutPath);
 }
 
@@ -251,9 +265,7 @@ void ExportNormalizationVector()
 	ExportMeanStdFile(unNormalizedDataPath, unNormalizedDataPath,true);
 }
 
-
 int main(void){
-
 	FitAndPredict();
 	//ExtractFeatures();
 	//ExportNormalizationVector();
