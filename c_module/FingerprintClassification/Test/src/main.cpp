@@ -3,9 +3,14 @@
 #include "opencv2\highgui\highgui.hpp"
 #include "opencv2\ml\ml.hpp"
 #include <Windows.h>
+#include "FoldSplitter.h"
+#include "utils.h"
+#include <time.h>
 
 const bool FROM_DATA = true;
 
+void getMatchedFiles(char *dir, char *pattern, LList **ret, LList **cpos);
+LList *getDirFiles(char *dir);
 
 struct InputFromData
 {
@@ -24,46 +29,7 @@ struct Input
 	Properties* prop;
 };
 
-InputFromData getRandomizedData() {
-	InputFromData ret = InputFromData();
-	ret.csvPath = "\\\\ssd2015\\Data\\CSVs\\20150907\\RandomizedData.csv";
-	ret.dataPath = "\\\\ssd2015\\Data\\CSVs\\20150907\\features_full_python.csv";
-	ret.outPutPath = "\\\\ssd2015\\Data\\out\\PythonNormalizedData\\model\\";
-	Properties* prop = new Properties();
-	prop->n_bins = 32;
-	prop->rad_grad = 1;
-	prop->rad_dens = 3;
-	prop->rad_entr = 5;
-	prop->max_depth = 25;
-	prop->min_samples_count = 2; 
-	prop->max_categories = 3;
-	prop->max_num_of_trees_in_forest = 100;
-	prop->verbose = true;
-	ret.prop = prop;
-	return ret;
-}
-
-InputFromData getProva() {
-	InputFromData ret = InputFromData();
-	ret.csvPath = "\\\\ssd2015\\Data\\CSVs\\20150907\\RandomizedData.csv";
-	ret.dataPath = "\\\\ssd2015\\Data\\CSVs\\20150907\\trainFeaturesData.csv";
-	ret.outPutPath = "\\\\ssd2015\\Data\\out\\PythonNormalizedData2\\model\\";
-	Properties* prop = new Properties();
-	prop->n_bins = 32;
-	prop->rad_grad = 1;
-	prop->rad_dens = 3;
-	prop->rad_entr = 5;
-	prop->max_depth = 25;
-	prop->min_samples_count = 2; 
-	prop->max_categories = 3;
-	prop->max_num_of_trees_in_forest = 100;
-	prop->nactive_vars = 0;
-	prop->verbose = true;
-	ret.prop = prop;
-	return ret;
-}
-
-InputFromData getProvaFromRawDataCplusplus() {
+InputFromData getInputFromDataData() {
 	InputFromData ret = InputFromData();
 	ret.csvPath = "\\\\ssd2015\\Data\\CSVs\\RandomizedData.csv";
 	ret.dataPath = "\\\\ssd2015\\data\\out\\ProvaFromNormalizedCplusplus\\model\\Cplusplus-NormalizedData.csv";
@@ -85,68 +51,11 @@ InputFromData getProvaFromRawDataCplusplus() {
 	return ret;
 }
 
-Input getSegmented_Depth16() {
+Input getInputData() {
 	Input ret = Input();
 	ret.csvPath = "\\\\ssd2015\\data\\out\\Segmented_Depth16\\CSVs\\fitData0.csv";
 	ret.imagesPath = "\\\\ssd2015\\data\\Segmented\\";
 	ret.outPutPath = "\\\\ssd2015\\data\\out\\Segmented_Depth16\\model0\\";
-	Properties* prop = new Properties();
-	prop->n_bins = 32;
-	prop->rad_grad = 1;
-	prop->rad_dens = 3;
-	prop->rad_entr = 5;
-	prop->max_depth = 25;
-	prop->min_samples_count = 2; 
-	prop->max_categories = 3;
-	prop->max_num_of_trees_in_forest = 100;
-	prop->verbose = true;
-	ret.prop = prop;
-	return ret;
-}
-
-Input getSegmentedWholeData() {
-	Input ret = Input();
-	ret.csvPath = "\\\\ssd2015\\data\\CSVs\\RandomizedData.csv";
-	ret.imagesPath = "\\\\ssd2015\\data\\Segmented\\";
-	ret.outPutPath = "\\\\ssd2015\\data\\out\\All_Segmented_Depth25\\model\\";
-	Properties* prop = new Properties();
-	prop->n_bins = 32;
-	prop->rad_grad = 1;
-	prop->rad_dens = 3;
-	prop->rad_entr = 5;
-	prop->max_depth = 25;
-	prop->min_samples_count = 2; 
-	prop->max_categories = 3;
-	prop->max_num_of_trees_in_forest = 100;
-	prop->verbose = true;
-	ret.prop = prop;
-	return ret;
-}
-
-Input getSegmentedData() {
-	Input ret = Input();
-	ret.csvPath = "\\\\ssd2015\\data\\CSVs\\RandomizedData.csv";
-	ret.imagesPath = "\\\\ssd2015\\data\\Training\\";
-	ret.outPutPath = "\\\\ssd2015\\data\\CSVs\\";
-	Properties* prop = new Properties();
-	prop->n_bins = 32;
-	prop->rad_grad = 1;
-	prop->rad_dens = 3;
-	prop->rad_entr = 5;
-	prop->max_depth = 25;
-	prop->min_samples_count = 2; 
-	prop->max_categories = 3;
-	prop->max_num_of_trees_in_forest = 100;
-	prop->verbose = true;
-	ret.prop = prop;
-	return ret;
-}
-
-Input getPredictFP() {
-	Input ret = Input();
-	ret.csvPath = "\\\\ssd2015\\data\\CSVs\\Malos_15_07_08.csv";
-	ret.imagesPath = "\\\\ssd2015\\data\\PredictData_Segmented\\";
-	ret.outPutPath = "\\\\ssd2015\\data\\out\\Malos_15_07_08_Segmented\\";
 	Properties* prop = new Properties();
 	prop->n_bins = 32;
 	prop->rad_grad = 1;
@@ -170,7 +79,7 @@ void FitAndPredict(void)
 	{
 		if(FROM_DATA)
 		{
-			InputCross paths = getProvaFromRawDataCplusplus();
+			InputFromData paths = getInputFromDataData();
 			ret = SetProperties(paths.prop);
 
 			std::cout << "Train ...\n";
@@ -196,7 +105,7 @@ void FitAndPredict(void)
 		}
 		else
 		{
-			Input paths = getSegmentedData();
+			Input paths = getInputData();
 			
 			ret = SetProperties(paths.prop);
 			
@@ -211,7 +120,7 @@ void FitAndPredict(void)
 			std::cout << "Test ...\n";
 
 			char* imagePath = "\\\\ssd2015\\data\\Segmented\\2014-11-27_7941300_10.png";
-			int features[13] = {9, 4, 1165, 101, 98, 86, 55, 51, 9, 9, 9, 8, 6};
+			float features[13] = {9., 4., 1165., 101., 98., 86., 55., 51., 9., 9., 9., 8., 6.};
 			cv::Mat in = cv::imread(imagePath,cv::IMREAD_GRAYSCALE);
 			void* handle;
 			ret = InitModel(&handle,paths.outPutPath);
@@ -239,10 +148,10 @@ void FitAndPredict(void)
 
 void ExtractFeatures(void) 
 {
-	Input ret = Input();
-	ret.csvPath = "\\\\ssd2015\\data\\CSVs\\RandomizedData.csv";
-	ret.imagesPath = "\\\\ssd2015\\data\\Training\\";
-	ret.outPutPath = "\\\\ssd2015\\data\\CSVs\\";
+	Input input = Input();
+	input.csvPath = "//ssd2015/Data/CSVs/Malos_15_07_08.csv";
+	input.imagesPath = "//ssd2015/data/PredictData/";
+	input.outPutPath = "//ssd2015/data/Cache/";
 	Properties* prop = new Properties();
 	prop->n_bins = 32;
 	prop->rad_grad = 1;
@@ -253,8 +162,8 @@ void ExtractFeatures(void)
 	prop->max_categories = 3;
 	prop->max_num_of_trees_in_forest = 100;
 	prop->verbose = true;
-	ret.prop = prop;
-	
+	input.prop = prop;
+
 	SetProperties(prop);
 	ExtractFeatures(input.csvPath,input.imagesPath,input.outPutPath);
 }
@@ -262,12 +171,79 @@ void ExtractFeatures(void)
 void ExportNormalizationVector()
 {
 	const char* unNormalizedDataPath = "//ssd2015/Data/Normalization_Comparison/features_full_python_unnormalized.csv";
-	ExportMeanStdFile(unNormalizedDataPath, unNormalizedDataPath,true);
+	ExportMeanStdFile(unNormalizedDataPath, unNormalizedDataPath, true);
 }
 
+void PredictFromDirectory() {
+	try
+	{
+		const char* labelsDir = "//ssd2015/Data/CSVs/Malos_15_07_08.csv";
+		const char* imagesDir = "//ssd2015/data/PredictData/";
+		const char* modelDir = "//ssd2015/data/out/ProvaFromNormalizedCplusplus/model/";
+		PredictFromLabelsAndFeatureFile(labelsDir,imagesDir,modelDir);
+	}
+	catch(std::exception ex)
+	{
+		std::cout << ex.what() << std::endl;
+	}
+	catch(...)
+	{
+		std::cout << "Internal Error" << std::endl;
+	}
+}
+
+
 int main(void){
-	FitAndPredict();
+	PredictFromDirectory();
+	//FitAndPredict();
 	//ExtractFeatures();
 	//ExportNormalizationVector();
 	return 0;
+}
+
+LList *getDirFiles(char *dir){
+	LList *ret = NULL, *cpos = NULL;
+	char *sst;
+
+	// List PNG files
+	sst = strconcat(dir, "*.png");
+	getMatchedFiles(dir, sst, &ret, &cpos);
+	delete[] sst;
+
+	// List JPG files
+	sst = strconcat(dir, "*.jpg");
+	getMatchedFiles(dir, sst, &ret, &cpos);
+	delete[] sst;
+
+	// List BIN files
+	sst = strconcat(dir, "*.bin");
+	getMatchedFiles(dir, sst, &ret, &cpos);
+	delete[] sst;
+
+	return ret;
+}
+
+void getMatchedFiles(char *dir, char *pattern, LList **ret, LList **cpos){
+	WIN32_FIND_DATA ffd;
+
+	// Get handle to first file
+	HANDLE hFind = FindFirstFile((char *)pattern, &ffd);
+	if (hFind == INVALID_HANDLE_VALUE) return;
+
+	// Build linked list with file paths
+	bool hasNext = true;
+	while (hasNext){
+		if (*ret == NULL){
+			*ret = new LList;
+			*cpos = *ret;
+		}
+		else{
+			(*cpos)->next = new LList;
+			*cpos = (*cpos)->next;
+		}
+
+		(*cpos)->element.fname = strclone(ffd.cFileName);
+		(*cpos)->element.fpath = strconcat(dir, ffd.cFileName);
+		hasNext = FindNextFile(hFind, &ffd);
+	}
 }

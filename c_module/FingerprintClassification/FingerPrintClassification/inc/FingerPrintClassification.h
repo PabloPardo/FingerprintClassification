@@ -40,7 +40,7 @@ struct Properties
 
 extern "C" __declspec(dllexport) ReturnType ReleaseFloatPointer(float*);
 
-extern "C" __declspec(dllexport) ReturnType InitModel(CvRTrees**,char*);
+extern "C" __declspec(dllexport) ReturnType InitModel(CvRTrees**,const char*);
 
 extern "C" __declspec(dllexport) ReturnType ReleaseModel(CvRTrees*);
 
@@ -77,7 +77,7 @@ extern "C" __declspec(dllexport) ReturnType FitFromDataRF(char*, char*, char*, b
 *						- Density Radius
 *						- Entropy Radius
 ***************************************************************************/
-extern "C" __declspec(dllexport) ReturnType PredictRF(float**, unsigned char*, int, int, char*, void*, const int*);
+extern "C" __declspec(dllexport) ReturnType PredictRF(float**, unsigned char*, int, int, const char*, void*, const float*);
 
 /**************************************************************************
 *								CrossPredictRF
@@ -104,5 +104,15 @@ extern "C" __declspec(dllexport) ReturnType ExtractFeatures(char*,char*,char*);
 *		verbose					
 ***************************************************************************/
 extern "C" __declspec(dllexport) ReturnType ExportMeanStdFile(const char*, const char*, bool verbose=false);
+
+
+/**************************************************************************
+*								PredictFromLabelsAndFeatureFile
+*								---------
+*		labelsPath				: Path to the file with the labels of each image.
+*		imagesPath				: Path to the fingerprint grayscale image
+*		modelPath				: Path to the trained model					
+***************************************************************************/
+extern "C" __declspec(dllexport) ReturnType PredictFromLabelsAndFeatureFile(const char*, const char*, const char*);
 
 #endif
