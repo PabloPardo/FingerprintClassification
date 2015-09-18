@@ -1,113 +1,103 @@
-__author__ = 'pablo'
+from sklearn.cross_validation import StratifiedKFold
+from sklearn.grid_search import GridSearchCV
+from sklearn.preprocessing import StandardScaler
 
-import time
-from plot import plot_scores
-from pipeline.utils import *
-from itertools import product
-from pipeline.learningMethod import train, train_testCV
-from sklearn.ensemble import RandomForestClassifier
-from pipeline.featureExtraction import feature_extraction
-import cPickle as cPk
-"""
-    ----------------------------
-            Load Data
-            ---------
-    ----------------------------
-"""
-
-# Definition of all the I/O paths
-# size = 'big'
-
-segmentation = True
-test_name = 'RandomizedData_Training_Segmented'
-
-path_data = '//ssd2015/Data/Training/'
-#path_xlsx = 'RandomizedData_Training/RandomizedData5.csv'
-path_xlsx = '//ssd2015/Data/CSVs/RandomizedData.csv'
-#path_normalized_data = '//ssd2015/Data/out/14092015/model'
-path_normalized_data = 'false'
-# path_csv = path_data + 'results_all.csv'
-name_data_img = test_name + '/stack_images.pkl'
-name_data_y = test_name + '/y.pkl'
-name_data_x = test_name + '/X_%sDensRad_%sGradRad_%sEntrRad_Hough_%dbins.pkl'
-name_data_y_pred = test_name + '/model.pkl'
-name_data_geyce_x = test_name + '/X.pkl'
-name_results = test_name + '/results.txt'
-name_results_FP = test_name + '/FP_res_%s_Class.txt'
-
-#raw_data = 'RandomizedData_Training/features_full_python_unnormalized.csv'
-raw_data = False
+from utils import *
+from adaboost import *
+from sklearn import svm, cross_validation
 
 
-labels = [ 'EmBorrosa', 'EmPetita', 'EmNegre', 'EmClara',  'EmMotejada', 'EmDefectuosa']
+# DATA EXTRACTION
+# Data to use in the prediction: dedo, nfiq, foregraund, numMinucias, >.1, ..., >.9
+data = load('../../data/results_all.csv')
 
 
+geyce_y = np.array(data.get(data.keys()[-2]).values, dtype=np.int8)  # Predictions given by Geyce
+kit4_y = np.array(data.get(data.keys()[-1]).values, dtype=np.int8)   # Labels given by Kit4
 
-if not os.path.exists(test_name):
-        os.makedirs(test_name)
+# Change Labels to -1, 1 instead of 0, 1
+for i in range(len(geyce_y)):
+    geyce_y[i] = -1 if geyce_y[i] == 0 else 1
+    kit4_y[i] = -1 if kit4_y[i] == 0 else 1
 
-I, X, y, names = create_data2(path_xlsx, path_data, name_data_img,name_data_geyce_x, name_data_y, labels, raw_data)
+# print len([i for i in kit4_y if not i])/float(len(kit4_y))
+# n = len(kit4_y)
+data = data.get(data.keys()[3:-3])
 
-# Create matrix of subset of labels we want to classify the instances on
-classes = {'6Classes': (['Blurry', 'Small', 'Dark', 'Bright',  'Spotted', 'Damaged'], [0, 1, 2, 3, 4, 5])}
-"""
-    -------------------------------------
-            Feature Extraction
-            ------------------
-    -------------------------------------
-"""
-# Define parameters for the feature extraction.
-# n_bins and rad_* can be a list of elements, then the program will check the
-# performance of different parameter configurations.
-num_classes = ['6Classes']
-n_bins = 32
-rad_density = 3
-rad_entropy = 5
-max_depth = None
-aux = [[n_bins, rad_density, rad_entropy, i] for i in num_classes]
-best_results = {'6Classes': {'inter': 0, 'inner': 0, 'w_inner': 0, 'iou': 0}}
-best_params = {}
-counter = 0
+# Split the feature 'dedo' into 10 binary features
+dedos = data.get('dedo')
+dedos = pd.get_dummies(dedos.values, prefix='dedo')
+data.drop('dedo', axis=1, inplace=True)
+data = data.join(dedos).as_matrix()
 
-for i in aux:
-    tinit = time.time()
-    # y = label_subset(y_, classes[i[3]][1])
-    params = {'y_names': classes[i[3]][0],
-              'n_classes': i[3],
-              'n_jobs': -1,
-              'n_bins': i[0],
-              'rad_density': i[1],
-              'rad_gradient': 1,
-              'rad_entropy': i[2]}
+# Normalize
+X = StandardScaler().fit_transform(data)
 
-    hist_imgs, params = feature_extraction(I, X, name_data_x, params, names, False, test_name, raw_data, path_normalized_data, segmentation)
+# PREDICTION
+# Split data into test and train
+outer = StratifiedKFold(y=kit4_y, n_folds=10)
 
-    """
-        --------------------
-                Train
-                -----
-        --------------------
-    """
-    params['estimator'] = RandomForestClassifier()
-    params['estimator_name'] = 'RandomForest'
-    params['estimator_params'] = {'n_estimators': 10, 'max_depth': max_depth}
-    params['n_folds'] = 5
-    params['verbose'] = 0
+fold_cnt = 0
+TP = []
+TN = []
+FP = []
+FN = []
+TP_geyce = []
+TN_geyce = []
+FP_geyce = []
+FN_geyce = []
+for out_train, out_test in outer:
+    fold_cnt += 1
+    print 'Fold {0} / 10\n-----------\n'.format(fold_cnt)
 
-    if os.path.isfile(name_data_y_pred):
-        file = open(name_data_y_pred, 'rb')
-        params = cPk.load(file)
-        file.close()
-    else:
-        params = train_testCV(hist_imgs, y, params, name_data_y_pred)
+    X_out_train = X[out_train]
+    X_out_test = X[out_test]
+    y_out_train = kit4_y[out_train]
+    y_out_test = kit4_y[out_test]
 
-    r = write_results(params, y, name_results, names, name_results_FP, test_name + '/butis.txt')
+    ## TRAIN
+    # Grid search2
+    # estimator = svm.LinearSVC(dual=False)
+    # estimator = svm.SVC()
+    # params = {'C': [0.01, 0.1, 0.5, 1, 2, 3]}
+    #           #'gamma': [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1]}
+    # grid = GridSearchCV(estimator=estimator, param_grid=params, n_jobs=4, cv=10, verbose=0)
+    # grid.fit(X_out_train, y_out_train)
+    weak_class_arr, agg_class_est_train = adaboost_train_ds(X_out_train, y_out_train, num_it=40, num_ds_steps=10)
 
-    if best_results[params['n_classes']]['inner'] < r['inner']:
-        best_results[params['n_classes']] = r
-        best_params[params['n_classes']] = params
+    ## VALIDATE
+    # y_out_test_pred = grid.predict(X_out_test)
+    y_out_test_pred, agg_class_est_test = adaboost_test_ds(X_out_test, weak_class_arr, thresh=1.5)
 
-    counter += 1
-    print '%.2f%% : params: %s - time: %f\r' % (100 * counter / float(len(aux)), str(i), time.time() - tinit)
+    ## EVALUATE
+    contingency_table = eval_pred(y_out_test_pred, y_out_test)
 
-write_summary(best_results, best_params, test_name + '/summary.txt')
+    TP.append(contingency_table[0])
+    TN.append(contingency_table[1])
+    FP.append(contingency_table[2])
+    FN.append(contingency_table[3])
+    # print '\tBest param: {0}\n'.format(grid.best_params_)
+
+    # --------------------------------------------
+    print '\nGeyce\'s Evaluation\n------------------\n'
+    contingency_table_geyce = eval_pred(geyce_y[out_test], y_out_test)
+    TP_geyce.append(contingency_table_geyce[0])
+    TN_geyce.append(contingency_table_geyce[1])
+    FP_geyce.append(contingency_table_geyce[2])
+    FN_geyce.append(contingency_table_geyce[3])
+
+    plotFP(agg_class_est_test, y_out_test, [0, 3], 80)
+    plotROC(agg_class_est_test.T, y_out_test)
+    break
+
+print 'Our Prediction Stats\n--------------------'
+print '\tTP = %f' % np.mean(TP)
+print '\tTN = %f' % np.mean(TN)
+print '\tFP = %f' % np.mean(FP)
+print '\tFN = %f' % np.mean(FN)
+
+print 'Geyces Prediction Stats\n-----------------------'
+print '\tTP = %f' % np.mean(TP_geyce)
+print '\tTN = %f' % np.mean(TN_geyce)
+print '\tFP = %f' % np.mean(FP_geyce)
+print '\tFN = %f' % np.mean(FN_geyce)
