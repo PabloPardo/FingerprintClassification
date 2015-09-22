@@ -180,6 +180,17 @@ void PredictFromDirectory() {
 		const char* labelsDir = "//ssd2015/Data/CSVs/Malos_15_07_08.csv";
 		const char* imagesDir = "//ssd2015/data/PredictData/";
 		const char* modelDir = "//ssd2015/data/out/ProvaFromNormalizedCplusplus/model/";
+		Properties* prop = new Properties();
+		prop->n_bins = 32;
+		prop->rad_grad = 1;
+		prop->rad_dens = 3;
+		prop->rad_entr = 5;
+		prop->max_depth = 25;
+		prop->min_samples_count = 2; 
+		prop->max_categories = 3;
+		prop->max_num_of_trees_in_forest = 100;
+		prop->verbose = true;
+		SetProperties(prop);
 		PredictFromLabelsAndFeatureFile(labelsDir,imagesDir,modelDir);
 	}
 	catch(std::exception ex)
