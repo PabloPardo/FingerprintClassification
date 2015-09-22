@@ -589,7 +589,7 @@ ReturnType CrossPredictRF(float** probs, void* handle, double* normalizedFeature
 *		imagesPath			: Path to the fingerprint image collection.
 *		outPath				: Output path with the results {normalization, unnormalizedData, normalizedData}
 ***************************************************************************/
-ReturnType ExtractFeatures(char* csvPath, char* imagesPath, char* outPath)
+ReturnType ExtractFeatures(char* csvPath, char* imagesPath, char* outPath, char* prefix)
 {
 	ReturnType ret = { 0, "No Error" };
 	try
@@ -627,11 +627,11 @@ ReturnType ExtractFeatures(char* csvPath, char* imagesPath, char* outPath)
 		{
 			std::cout << *prop << std::endl;
 		}
-		exportFileFeatures(trainSamples, imgFileNames, ((std::string)outPath + "Cplusplus-UnNormalizedData.csv").c_str());
+		exportFileFeatures(trainSamples, imgFileNames, ((std::string)outPath + "/" + prefix + "-raw.csv").c_str());
 			
 		normTS = createNormalizationFile(outPath,trainSamples);
 		trainSamples.release();
-		exportFileFeatures(normTS, imgFileNames, ((std::string)outPath + "Cplusplus-NormalizedData.csv").c_str());
+		exportFileFeatures(normTS, imgFileNames, ((std::string)outPath + "/" + prefix + "-norm.csv").c_str());
 	}
 	catch(std::exception& ex)
 	{

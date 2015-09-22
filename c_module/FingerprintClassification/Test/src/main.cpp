@@ -26,6 +26,7 @@ struct Input
 	char* csvPath;
 	char* imagesPath;
 	char* outPutPath;
+	char* prefix;
 	Properties* prop;
 };
 
@@ -149,23 +150,15 @@ void FitAndPredict(void)
 void ExtractFeatures(void) 
 {
 	Input input = Input();
-	input.csvPath = "//ssd2015/Data/CSVs/Malos_15_07_08.csv";
-	input.imagesPath = "//ssd2015/data/PredictData/";
+	input.csvPath = "//ssd2015/Data/CSVs/RandomizedData.csv";
+	input.imagesPath = "//ssd2015/data/Training/";
 	input.outPutPath = "//ssd2015/data/Cache/";
+	input.prefix = "Train_5824_FP";
 	Properties* prop = new Properties();
-	prop->n_bins = 32;
-	prop->rad_grad = 1;
-	prop->rad_dens = 3;
-	prop->rad_entr = 5;
-	prop->max_depth = 25;
-	prop->min_samples_count = 2; 
-	prop->max_categories = 3;
-	prop->max_num_of_trees_in_forest = 100;
 	prop->verbose = true;
 	input.prop = prop;
-
 	SetProperties(prop);
-	ExtractFeatures(input.csvPath,input.imagesPath,input.outPutPath);
+	ExtractFeatures(input.csvPath,input.imagesPath,input.outPutPath,input.prefix);
 }
 
 void ExportNormalizationVector()
@@ -205,9 +198,9 @@ void PredictFromDirectory() {
 
 
 int main(void){
-	PredictFromDirectory();
+	//PredictFromDirectory();
 	//FitAndPredict();
-	//ExtractFeatures();
+	ExtractFeatures();
 	//ExportNormalizationVector();
 	return 0;
 }
