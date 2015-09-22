@@ -85,7 +85,7 @@ extern "C" __declspec(dllexport) ReturnType PredictRF(float**, unsigned char*, i
 *		modelPath			: Path to the trained model file.
 *		normalizedFeatures	: Normalized Features from an image.
 ***************************************************************************/
-extern "C" __declspec(dllexport) ReturnType CrossPredictRF(float**, void*, double*);
+extern "C" __declspec(dllexport) ReturnType PredictFromDataRF(float**, void*, double*);
 
 /**************************************************************************
 *								ExtractFeatures

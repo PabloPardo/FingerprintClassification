@@ -542,7 +542,7 @@ ReturnType ReleaseModel(CvRTrees* handle)
 	return ret;
 }
 
-ReturnType CrossPredictRF(float** probs, void* handle, double* normalizedFeatures)
+ReturnType PredictFromDataRF(float** probs, void* handle, double* normalizedFeatures)
 {
 	ReturnType ret = { 0, "No Error" };
 	try
@@ -681,8 +681,6 @@ ReturnType ReleaseFloatPointer(float* pointer)
 		delete [] pointer;
 	return ret;
 }
-
-
 
 ReturnType PredictFromLabelsAndFeatureFile(const char* labelsPath, const char* imagesPath, const char* modelPath)
 {
