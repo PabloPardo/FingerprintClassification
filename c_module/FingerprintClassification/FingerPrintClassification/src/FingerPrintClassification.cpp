@@ -700,6 +700,7 @@ ReturnType PredictFromLabelsAndFeatureFile(const char* labelsPath, const char* i
 		CvRTrees* handle;
 		InitModel(&handle,modelPath);
 		for(int i = 0; i < imgFileNames.size(); i++)
+		for(unsigned int i = 0; i < imgFileNames.size(); i++)
 		{
 			clock_t time_a = clock();
 			cv::Mat featurei = features.row(i);
