@@ -240,9 +240,9 @@ void FitAndPredict(void)
 void ExtractFeatures(void) 
 {
 	Input ret = Input();
-	ret.csvPath = "\\\\ssd2015\\data\\CSVs\\RandomizedData.csv";
-	ret.imagesPath = "\\\\ssd2015\\data\\Training\\";
-	ret.outPutPath = "\\\\ssd2015\\data\\CSVs\\";
+	ret.csvPath = "E:\\results_all.csv";
+	ret.imagesPath = "E:\\BadQualityPNG\\";
+	ret.outPutPath = "E:\\good_bad_features.csv";
 	Properties* prop = new Properties();
 	prop->n_bins = 32;
 	prop->rad_grad = 1;
@@ -256,7 +256,7 @@ void ExtractFeatures(void)
 	ret.prop = prop;
 	
 	SetProperties(prop);
-	ExtractFeatures(input.csvPath,input.imagesPath,input.outPutPath);
+	ExtractFeatures(ret.csvPath,ret.imagesPath,ret.outPutPath);
 }
 
 void ExportNormalizationVector()
@@ -266,8 +266,8 @@ void ExportNormalizationVector()
 }
 
 int main(void){
-	FitAndPredict();
-	//ExtractFeatures();
+	//FitAndPredict();
+	ExtractFeatures();
 	//ExportNormalizationVector();
 	return 0;
 }
