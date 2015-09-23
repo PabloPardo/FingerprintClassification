@@ -21,7 +21,7 @@ void throwError(std::string error) {
 *		head  : Boolean to determine whether the csv file has heather or not.
 *
 ***************************************************************************/
-data readCSV(char *path){
+LabelsAndFeaturesData readCSV(const char *path){
 
 	// Count the number of lines in the file to allocate memory.
 	int n_lines = countLines(path);
@@ -115,12 +115,12 @@ data readCSV(char *path){
 	} while(std::getline(ifs, line));
 
 
-	data ret = { M, imgPaths, F};
+	LabelsAndFeaturesData ret = { M, imgPaths, F};
 
 	return ret;
 }
 
-int countLines(char *path) {
+int countLines(const char *path) {
    unsigned int number_of_lines = 0;
     FILE *infile = fopen(path, "r");
     int ch;

@@ -8,13 +8,7 @@
 #define UTILS_H
 
 void throwError(std::string error);
-int countLines(char *path);
-
-struct data{
-	cv::Mat matrix;
-	std::vector<std::string> imgFileNames;
-	cv::Mat features;
-};
+int countLines(const char *path);
 
 struct Constants
 {
@@ -55,7 +49,13 @@ enum CSV_HEADERS
 	nueve
 };
 
-data readCSV(char*);
+struct LabelsAndFeaturesData {
+	cv::Mat matrix;
+	std::vector<std::string> imgFileNames;
+	cv::Mat features;
+};
+
+LabelsAndFeaturesData readCSV(const char*);
 
 cv::Mat oneVsAll(cv::Mat labels, int tar_class);
 

@@ -128,6 +128,7 @@ cv::Mat** GetImageRegions(const cv::Mat *img) {
 	}
 	return ret;
 }
+
 /**************************************************************************
 *						LoadImage_and_FeatExtr
 *						----------------------
@@ -234,7 +235,7 @@ ReturnType FitRF(char *csvPath, char *imagesPath, char *outPath) {
 			std::cout << *prop << std::endl;
 		}
 		//Read csv with image name + labels
-		data dat = readCSV(csvPath);
+		LabelsAndFeaturesData dat = readCSV(csvPath);
 		//cv::Mat trainClasses = dat.matrix.t();
 		std::vector<std::string> imgFileNames = dat.imgFileNames;
 		cv::Mat features = dat.features;
@@ -363,7 +364,7 @@ ReturnType FitFromDataRF(char *csvPath, char *dataPath, char *outPath, bool norm
 			std::cout << *prop << std::endl;
 		}
 		//Read csv with image name + labels
-		data dat = readCSV(csvPath);
+		LabelsAndFeaturesData dat = readCSV(csvPath);
 		//cv::Mat trainClasses = dat.matrix.t();
 		std::vector<std::string> imgFileNames = dat.imgFileNames;
 		cv::Mat features = dat.features;
@@ -461,7 +462,7 @@ ReturnType FitFromDataRF(char *csvPath, char *dataPath, char *outPath, bool norm
 *		rad_entr   : Entropy Radius.
 *
 ***************************************************************************/
-ReturnType PredictRF(float** probs, unsigned char* data, int w, int h, char* modelDir, void* handle, const int* features) {
+ReturnType PredictRF(float** probs, unsigned char* data, int w, int h, const char* modelDir, void* handle, const float* features) {
 	ReturnType ret = { 0, "No Error" };
 	try
 	{
@@ -500,7 +501,7 @@ ReturnType PredictRF(float** probs, unsigned char* data, int w, int h, char* mod
 	return ret;
 }
 
-ReturnType InitModel(CvRTrees** handle,char *modelPath)
+ReturnType InitModel(CvRTrees** handle,const char *modelPath)
 {
 	ReturnType ret = { 0, "No Error" };
 	clock_t begin;
@@ -594,7 +595,7 @@ ReturnType ExtractFeatures(char* csvPath, char* imagesPath, char* outPath)
 	try
 	{
 		//Read csv with image name + labels
-		data dat = readCSV(csvPath);
+		LabelsAndFeaturesData dat = readCSV(csvPath);
 		//cv::Mat trainClasses = dat.matrix.t();
 		std::vector<std::string> imgFileNames = dat.imgFileNames;
 		cv::Mat features = dat.features;
@@ -678,5 +679,48 @@ ReturnType ReleaseFloatPointer(float* pointer)
 	ReturnType ret = { 0, "No Error" };	
 	if(pointer != NULL)
 		delete [] pointer;
+	return ret;
+}
+
+
+
+ReturnType PredictFromLabelsAndFeatureFile(const char* labelsPath, const char* imagesPath, const char* modelPath)
+{
+	ReturnType ret = { 0, "No Error" };	
+	try
+	{
+		LabelsAndFeaturesData data = readCSV(labelsPath);
+		std::vector<std::string> imgFileNames = data.imgFileNames;
+		cv::Mat features = data.features;
+		
+
+		if(ret.code > 0)
+			throw new std::exception(ret.message);
+		
+		CvRTrees* handle;
+		InitModel(&handle,modelPath);
+		for(int i = 0; i < imgFileNames.size(); i++)
+		for(unsigned int i = 0; i < imgFileNames.size(); i++)
+		{
+			clock_t time_a = clock();
+			cv::Mat featurei = features.row(i);
+			std::cout << featurei << std::endl;
+			cv::Mat in = cv::imread(imagesPath + imgFileNames[i],cv::IMREAD_GRAYSCALE);
+			float *resultats;
+			PredictRF(&resultats, in.data, in.cols, in.rows, modelPath, handle, (const float*)featurei.data);
+			if(in.rows == 0) {
+				std::string tmp = "ERROR: file " + (std::string)imagesPath + imgFileNames[i] + " could not be opened. Is the path okay?";
+				throw new std::exception(tmp.c_str());
+			}
+			std::cout << imgFileNames[i] << " img "  << i;
+		}
+		ReleaseModel(handle);
+
+	} 
+	catch(std::exception& ex)
+	{
+		ret.code = 1;
+		ret.message = ex.what();
+	}
 	return ret;
 }
