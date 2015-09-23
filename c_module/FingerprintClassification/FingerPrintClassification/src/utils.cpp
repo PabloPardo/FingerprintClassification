@@ -206,6 +206,24 @@ void printParamsRF(const Properties& prop)
 	std::cout << "NUM_FEATURES:" << Constants::NUM_FEATURES << std::endl;
 }
 
+void printParamsSVM(const PropertiesSVM& propSVM)
+{
+	std::cout << "n_bins:" << propSVM.n_bins << std::endl;
+	std::cout << "rad_grad:" << propSVM.rad_grad << std::endl;
+	std::cout << "rad_dens:" << propSVM.rad_dens << std::endl;
+	std::cout << "rad_entr:" << propSVM.rad_entr << std::endl;
+	std::cout << "svm_type:" << propSVM.svm_type << std::endl;
+	std::cout << "kernel_type:" << propSVM.kernel_type << std::endl;
+	std::cout << "gamma:" << propSVM.gamma << std::endl;
+	std::cout << "Cvalue:" << propSVM.Cvalue << std::endl;
+
+	std::cout << "TOTAL_FEATURES:" << Constants::TOTAL_FEATURES << std::endl;
+	std::cout << "NUM_ROW_SEGMENTS:" << Constants::NUM_ROW_SEGMENTS << std::endl;
+	std::cout << "NUM_COL_SEGMENTS:" << Constants::NUM_COL_SEGMENTS << std::endl;
+	std::cout << "NUM_CLASSIFIERS:" << Constants::NUM_CLASSIFIERS << std::endl;
+	std::cout << "NUM_FEATURES:" << Constants::NUM_FEATURES << std::endl;
+}
+
 bool has_suffix(const std::string &str, const std::string &suffix)
 {
     return str.size() >= suffix.size() &&
@@ -334,7 +352,22 @@ void allocateRtrees(CvRTrees*** data, const int rows, const int cols)
 	*data = rtrees;
 }
 
+void allocateSVMs(CvSVM*** data, const int rows, const int cols)
+{
+	CvSVM** svms = new CvSVM*[rows];
+	for (int i = 0; i < rows; ++i)
+		svms[i] = new CvSVM[cols];
+	*data = svms;
+}
+
 void releaseRTrees(CvRTrees** matrix, const int rows, const int cols) 
+{
+	for (int i = 0; i < rows; ++i)
+		delete [] matrix[i];
+	delete [] matrix;
+}
+
+void releaseSVMs(CvSVM** matrix, const int rows, const int cols) 
 {
 	for (int i = 0; i < rows; ++i)
 		delete [] matrix[i];

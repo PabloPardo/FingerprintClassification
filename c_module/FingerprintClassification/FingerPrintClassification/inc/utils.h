@@ -61,6 +61,8 @@ cv::Mat oneVsAll(cv::Mat labels, int tar_class);
 
 void printParamsRF(const Properties& prop);
 
+void printParamsSVM(const PropertiesSVM& propSVM);
+
 cv::Mat importFileFeatures(const char*, bool, const int);
 
 void exportFileFeatures(cv::Mat, std::vector<std::string>,const char*);
@@ -71,6 +73,10 @@ cv::Mat readTrainedMeanStd(const char* normalizationFilePath,cv::Mat sample);
 
 void allocateRtrees(CvRTrees***, const int, const int);
 
+void allocateSVMs(CvSVM***, const int, const int);
+
 void releaseRTrees(CvRTrees**, const int, const int);
+
+void releaseSVMs(CvSVM**, const int, const int);
 
 #endif /* UTILS_H */
