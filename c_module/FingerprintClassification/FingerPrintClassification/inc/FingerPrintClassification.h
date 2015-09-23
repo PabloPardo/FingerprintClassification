@@ -85,7 +85,7 @@ extern "C" __declspec(dllexport) ReturnType PredictRF(float**, unsigned char*, i
 *		modelPath			: Path to the trained model file.
 *		normalizedFeatures	: Normalized Features from an image.
 ***************************************************************************/
-extern "C" __declspec(dllexport) ReturnType CrossPredictRF(float**, void*, double*);
+extern "C" __declspec(dllexport) ReturnType PredictFromDataRF(float**, void*, double*);
 
 /**************************************************************************
 *								ExtractFeatures
@@ -93,8 +93,9 @@ extern "C" __declspec(dllexport) ReturnType CrossPredictRF(float**, void*, doubl
 *		csvPath				: Path to the file with the fingerPrint features.
 *		imagesPath			: Path to the fingerprint image collection.
 *		outPath				: Output path with the results {normalization, unnormalizedData, normalizedData}
+*		prefix				: Prefix of output file
 ***************************************************************************/
-extern "C" __declspec(dllexport) ReturnType ExtractFeatures(char*,char*,char*);
+extern "C" __declspec(dllexport) ReturnType ExtractFeatures(char*,char*,char*,char*);
 
 /**************************************************************************
 *								ExportMeanStdFile
