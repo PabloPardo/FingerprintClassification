@@ -57,11 +57,13 @@ struct LabelsAndFeaturesData {
 
 LabelsAndFeaturesData readCSV(const char*);
 
+cv::Mat CropImage(int, int, const cv::Mat*);
+
+cv::Mat** GetImageRegions(const cv::Mat*);
+
 cv::Mat oneVsAll(cv::Mat labels, int tar_class);
 
 void printParamsRF(const Properties& prop);
-
-void printParamsSVM(const PropertiesSVM& propSVM);
 
 cv::Mat importFileFeatures(const char*, bool, const int);
 
@@ -73,10 +75,6 @@ cv::Mat readTrainedMeanStd(const char* normalizationFilePath,cv::Mat sample);
 
 void allocateRtrees(CvRTrees***, const int, const int);
 
-void allocateSVMs(CvSVM***, const int, const int);
-
 void releaseRTrees(CvRTrees**, const int, const int);
-
-void releaseSVMs(CvSVM**, const int, const int);
 
 #endif /* UTILS_H */

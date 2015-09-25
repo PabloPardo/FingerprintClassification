@@ -17,9 +17,7 @@
 
 
 Properties* prop = new Properties();
-PropertiesSVM* propSVM = new PropertiesSVM();
 Config cfg = Config();
-
 /**************************************************************************
 *								  Segment
 *								  -------
@@ -71,64 +69,6 @@ cv::Mat Segmenta(cv::Mat img, int bin_thr = 250){
     cv::waitKey(0);*/
 
 	return croppedImage;
-}
-
-
-/**************************************************************************
-*						CropImage
-*						----------------------
-*		params->
-*			row			: Row selected
-*			col			: Col selected
-*			img			: Reference to the image.
-*		returns->
-*			cv::Mat subset of img region(row,col)
-*
-***************************************************************************/
-cv::Mat CropImage(int row, int col, const cv::Mat* img) 
-{
-	int row_split = img->rows / Constants::NUM_ROW_SEGMENTS;
-	int col_split = img->cols / Constants::NUM_COL_SEGMENTS;
-	int mod_row_split = img->rows % Constants::NUM_ROW_SEGMENTS;
-	int mod_col_split = img->cols % Constants::NUM_COL_SEGMENTS;
-	
-	int start_row = row*row_split;
-	int end_row = (row + 1)*row_split;
-	int start_col = col*col_split;
-	int end_col = (col + 1)*col_split;
-	
-	if(end_row == img->rows - mod_row_split)
-		end_row += mod_row_split;
-	
-	if(end_col == img->cols - mod_col_split)
-		end_col += mod_col_split;
-
-	cv::Rect rect = cv::Rect(start_col,start_row,end_col-start_col,end_row-start_row);
-
-	return cv::Mat((*img)(rect));
-}
-
-/**************************************************************************
-*						GetImageRegions
-*						----------------------
-*		params->
-*			img		 : Reference to the image.
-*		returns->
-*			array of cv::Mat with every region
-*
-***************************************************************************/
-cv::Mat** GetImageRegions(const cv::Mat *img) {
-
-	cv::Mat** ret = new cv::Mat*[Constants::NUM_ROW_SEGMENTS];
-	for(int i = 0; i < Constants::NUM_ROW_SEGMENTS; ++i)
-		ret[i] = new cv::Mat[Constants::NUM_COL_SEGMENTS];
-	
-	for(int i = 0; i < Constants::NUM_ROW_SEGMENTS; i++) {
-		for(int j = 0; j < Constants::NUM_COL_SEGMENTS; j++) {
-			ret[i][j] = CropImage(i,j, img);
-		}	
-	}
-	return ret;
 }
 
 /**************************************************************************
@@ -343,124 +283,6 @@ ReturnType FitRF(char *csvPath, char *imagesPath, char *outPath) {
 	return ret;
 }
 
-ReturnType FitSVM(char *csvPath, char *imagesPath, char *outPath) {
-
-	ReturnType ret = { 0, "No Error" };
-	try
-	{
-		/****************************************************/
-		/*		     Load Image & Feature Extraction		*/
-		/****************************************************/
-		if(propSVM->verbose)
-		{
-			std::cout << *prop << std::endl;
-		}
-		//Read csv with image name + labels
-		LabelsAndFeaturesData dat = readCSV(csvPath);
-		//cv::Mat trainClasses = dat.matrix.t();
-		std::vector<std::string> imgFileNames = dat.imgFileNames;
-		cv::Mat features = dat.features;
-		cv::Mat trainSamples;
-		cv::Mat normTS;
-		
-		if (CreateDirectory(outPath, NULL) || ERROR_ALREADY_EXISTS == GetLastError())
-		{
-			for(int i = 0; i != imgFileNames.size(); i++){
-				clock_t time_a = clock();
-				cv::Mat featurei = features.row(i);
-				cv::Mat in = cv::imread(imagesPath + imgFileNames[i],cv::IMREAD_GRAYSCALE);
-				cfg.fileName = (char*)imgFileNames[i].c_str();
-				if(in.rows == 0) {
-					throwError("ERROR: file " + (std::string)imagesPath + imgFileNames[i] + " could not be opened. Is the path okay?");
-				}
-				if(propSVM->verbose)
-					std::cout << imgFileNames[i] << " img "  << i; 
-				cv::Mat hist = LoadImage_and_FeatExtr(in.data, in.rows, in.cols, featurei, 0);
-				// Join features
-				if(trainSamples.rows == 0)
-					trainSamples = hist;
-				else
-					cv::vconcat(trainSamples, hist, trainSamples);
-				hist.release();
-				clock_t time_b = clock();
-				if(propSVM->verbose)
-					std::cout << "train. length: [" << trainSamples.rows << "," << trainSamples.cols  << "] time: " << (long)(time_b - time_a) << std::endl;
-			}
-			if(propSVM->verbose)
-			{
-				std::cout << *propSVM << std::endl;
-			}
-			
-			normTS = createNormalizationFile(outPath,trainSamples);
-			trainSamples.release();
-			
-			if(propSVM->verbose)
-			{
-				exportFileFeatures(normTS, imgFileNames, ((std::string)outPath + "/NormalizedData.csv").c_str());
-			}
-			/****************************************************/
-			/*					  Train RF						*/
-			/****************************************************/
-			
-			// Construct the classifier and set the parameters
-			//CvRTrees  rtrees[Constants::NUM_CLASSIFIERS][1];
-			//CvRTrees  rtrees[6][1];
-			// Construct the classifier and set the parameters
-			CvSVM** svms;
-			allocateSVMs(&svms,Constants::NUM_CLASSIFIERS,1);
-			//float priors[] = {1,1,1,1,1,1};
-			CvSVMParams  params(propSVM->svm_type,		// svm_type
-								propSVM->kernel_type,	// kernel_type
-								propSVM->degree,		// Parameter \gamma of a kernel function (POLY / RBF / SIGMOID). 
-								propSVM->gamma,			// gamma parameter
-								propSVM->coef0,			// Parameter coef0 of a kernel function (POLY / SIGMOID).
-								propSVM->Cvalue,		// C value of the SVM
-								propSVM->nu,			// Parameter \nu of a SVM optimization problem (NU_SVC / ONE_CLASS / NU_SVR).
-								propSVM->p,				// Parameter \epsilon of a SVM optimization problem (EPS_SVR).
-								propSVM->weights,		// weights
-								propSVM->term_crit,		// termination criteria
-							   );
-
-			// define all the attributes as numerical
-			// alternatives are CV_VAR_CATEGORICAL or CV_VAR_ORDERED(=CV_VAR_NUMERICAL)
-			// that can be assigned on a per attribute basis
-			//cv::Mat var_type = cv::Mat(Constants::TOTAL_FEATURES + 1, 1, CV_8U );
-			//var_type.setTo(cv::Scalar(CV_VAR_NUMERICAL) ); // all inputs are numerical
-			// this is a classification problem (i.e. predict a discrete number of class
-			// outputs) so reset the last (+1) output var_type element to CV_VAR_CATEGORICAL
-			//var_type.at<uchar>(Constants::TOTAL_FEATURES, 0) = CV_VAR_CATEGORICAL;
-
-			for(int i=0; i < Constants::NUM_CLASSIFIERS; i++){
-
-				//Prepare trainClasses for the oneVsAll classification strategy
-				//cv::Mat trainClass_i = oneVsAll(trainClasses, i);
-				cv::Mat trainClass_i = dat.matrix.col(i);
-
-				// Fit the classifier with the training data
-				svms[i]->train( normTS, trainClass_i, cv::Mat(), cv::Mat(), params );
-
-				// Save Model
-				char fileName[10000];
-				sprintf(fileName, "%smodel_%d.xml", outPath, i);
-				svms[i]->save(fileName);
-			}
-			releaseSVMs(svms,Constants::NUM_CLASSIFIERS,1);
-		} else {
-			throw (std::string)"Folder " + outPath + " could not be created";
-		}
-	}
-	catch(std::exception& ex)
-	{
-		ret.code = 1;
-		ret.message = ex.what();
-	}
-	catch(...)
-	{
-		std::cout << "General error" << std::endl;
-	}
-	return ret;
-}
-
 /**************************************************************************
 *								  FitFromDataRF
 *								  -----
@@ -485,7 +307,6 @@ ReturnType FitFromDataRF(char *csvPath, char *dataPath, char *outPath, bool norm
 		}
 		//Read csv with image name + labels
 		LabelsAndFeaturesData dat = readCSV(csvPath);
-		//cv::Mat trainClasses = dat.matrix.t();
 		std::vector<std::string> imgFileNames = dat.imgFileNames;
 		cv::Mat features = dat.features;
 		cv::Mat trainSamples;
@@ -500,6 +321,8 @@ ReturnType FitFromDataRF(char *csvPath, char *dataPath, char *outPath, bool norm
 			
 			if(!normalized)
 			{
+				if(prop->verbose)
+					std::cout << "Creating normalization.csv file " << dataPath << std::endl;
 				normTS = createNormalizationFile(outPath, normTS);
 			}
 			
@@ -514,17 +337,17 @@ ReturnType FitFromDataRF(char *csvPath, char *dataPath, char *outPath, bool norm
 			//CvRTrees** rtrees;
 			//allocateRtrees(&rtrees,Constants::NUM_CLASSIFIERS,1);
 			float priors[] = {1,1,1,1,1,1};
-			CvRTParams  params( prop->max_depth,						// max_depth,
-								prop->min_samples_count,				// min_sample_count,
-								0.f,							// regression_accuracy,
-								false,							// use_surrogates,
-								prop->max_categories,					// max_categories,
+			CvRTParams  params( prop->max_depth,					// max_depth,
+								prop->min_samples_count,			// min_sample_count,
+								0.f,								// regression_accuracy,
+								false,								// use_surrogates,
+								prop->max_categories,				// max_categories,
 								priors,								// priors,
-								false,							// calc_var_importance,
-								prop->nactive_vars,				// nactive_vars,
-								prop->max_num_of_trees_in_forest, // max_num_of_trees_in_the_forest,
-								0,								// forest_accuracy,
-								CV_TERMCRIT_ITER				// termcrit_type
+								false,								// calc_var_importance,
+								prop->nactive_vars,					// nactive_vars,
+								prop->max_num_of_trees_in_forest,	// max_num_of_trees_in_the_forest,
+								0,									// forest_accuracy,
+								CV_TERMCRIT_ITER					// termcrit_type
 							   );
 
 			// define all the attributes as numerical
@@ -538,120 +361,30 @@ ReturnType FitFromDataRF(char *csvPath, char *dataPath, char *outPath, bool norm
 			/*cv::FileStorage file_norm("normTS.txt", cv::FileStorage::WRITE);
 			file_norm << "normTS" << normTS;*/
 			for(int i=0; i < Constants::NUM_CLASSIFIERS; i++){
-
+				
+				cv::Mat trainClass_i;
 				//Prepare trainClasses for the oneVsAll classification strategy
-				//cv::Mat trainClass_i = oneVsAll(trainClasses, i);
-				cv::Mat trainClass_i = dat.matrix.col(i);
+				trainClass_i = dat.matrix.col(i);
+				if(prop->verbose)
+				{
+					std::cout << "Columna_Labels[" << i << "]:";
+					for(int i = 0; i < 10; i++)
+						std::cout << trainClass_i.at<int>(i,0) << " ";
+					std::cout << std::endl;
+				}
 				// Fit the classifier with the training data
 				/*cv::FileStorage file_train("trainClass" + std::to_string((long double)i) + ".txt", cv::FileStorage::WRITE);
 				file_train << "trainClass_i" << trainClass_i;*/
-				std::cout << std::endl << "Training(" << i << ")...";
+				if(prop->verbose)
+					std::cout << "Training(" << i << ")...";
 				clock_t start = clock();
-				rtrees[i]->train( normTS, CV_ROW_SAMPLE, trainClass_i, cv::Mat(), cv::Mat(), var_type, cv::Mat(), params );
-				std::cout << "time:" <<  clock() - start << "ms" << std::endl;
+				rtrees[i]->train(normTS, CV_ROW_SAMPLE,trainClass_i);
+				if(prop->verbose)
+					std::cout << "time:" <<  clock() - start << "ms" << std::endl;
 				// Save Model
 				char fileName[10000];
 				sprintf(fileName, "%smodel_%d.xml", outPath, i);
 				rtrees[i]->save(fileName);
-			}
-			//releaseRTrees(rtrees, Constants::NUM_CLASSIFIERS,1);
-		} else {
-			throw (std::string)"Folder " + outPath + " could not be created";
-		}
-	}
-	catch(std::exception& ex)
-	{
-		ret.code = 1;
-		ret.message = ex.what();
-	}
-	catch(...)
-	{
-		std::cout << "General error" << std::endl;
-	}
-	return ret;
-}
-
-/**************************************************************************
-*								  FitFromDataSVM
-*								  -----
-*		csvPath						    : Path to the csv data.
-*		normDataPath					: Path to the data.
-*		outPath							: Path where the trained model will be saved.
-*		normalized						: Type of data
-*
-***************************************************************************/
-ReturnType FitFromDataSVM(char *csvPath, char *dataPath, char *outPath, bool normalized) {
-
-	ReturnType ret = { 0, "No Error" };
-	
-	try
-	{
-		/****************************************************/
-		/*		     Import Normalized Data into matrix		*/
-		/****************************************************/
-		if(propSVM->verbose)
-		{
-			std::cout << *propSVM << std::endl;
-		}
-		//Read csv with image name + labels
-		LabelsAndFeaturesData dat = readCSV(csvPath);
-		//cv::Mat trainClasses = dat.matrix.t();
-		std::vector<std::string> imgFileNames = dat.imgFileNames;
-		cv::Mat features = dat.features;
-		cv::Mat trainSamples;
-		cv::Mat normTS;
-		
-		if (CreateDirectory(outPath, NULL) || ERROR_ALREADY_EXISTS == GetLastError())
-		{
-			if(propSVM->verbose)
-				std::cout << "Taking features from path " << dataPath << std::endl;
-			
-			normTS = importFileFeatures(dataPath, propSVM->verbose, Constants::TOTAL_FEATURES);
-			
-			if(!normalized)
-			{
-				normTS = createNormalizationFile(outPath, normTS);
-			}
-			
-			/****************************************************/
-			/*					  Train SVM						*/
-			/****************************************************/
-			
-			// Construct the classifier and set the parameters
-			//CvRTrees  rtrees[Constants::NUM_CLASSIFIERS][1];
-			CvSVM svm[6][1];
-			// Construct the classifier and set the parameters
-			//CvRTrees** rtrees;
-			//allocateRtrees(&rtrees,Constants::NUM_CLASSIFIERS,1);
-			//float priors[] = {1,1,1,1,1,1};
-			CvSVMParams  params(propSVM->svm_type,		// svm_type
-								propSVM->kernel_type,	// kernel_type
-								propSVM->degree,		// Parameter \gamma of a kernel function (POLY / RBF / SIGMOID). 
-								propSVM->gamma,			// gamma parameter
-								propSVM->coef0,			// Parameter coef0 of a kernel function (POLY / SIGMOID).
-								propSVM->Cvalue,		// C value of the SVM
-								propSVM->nu,			// Parameter \nu of a SVM optimization problem (NU_SVC / ONE_CLASS / NU_SVR).
-								propSVM->p,				// Parameter \epsilon of a SVM optimization problem (EPS_SVR).
-								propSVM->weights,		// weights
-								propSVM->term_crt,		// termination criteria
-								);
-
-			for(int i=0; i < Constants::NUM_CLASSIFIERS; i++){
-
-				//Prepare trainClasses for the oneVsAll classification strategy
-				//cv::Mat trainClass_i = oneVsAll(trainClasses, i);
-				cv::Mat trainClass_i = dat.matrix.col(i);
-				// Fit the classifier with the training data
-				/*cv::FileStorage file_train("trainClass" + std::to_string((long double)i) + ".txt", cv::FileStorage::WRITE);
-				file_train << "trainClass_i" << trainClass_i;*/
-				std::cout << std::endl << "Training(" << i << ")...";
-				clock_t start = clock();
-				svm[i]->train( normTS, trainClass_i, cv::Mat(), cv::Mat(), params );
-				std::cout << "time:" <<  clock() - start << "ms" << std::endl;
-				// Save Model
-				char fileName[10000];
-				sprintf(fileName, "%smodel_%d.xml", outPath, i);
-				svm[i]->save(fileName);
 			}
 			//releaseRTrees(rtrees, Constants::NUM_CLASSIFIERS,1);
 		} else {
@@ -720,56 +453,6 @@ ReturnType PredictRF(float** probs, unsigned char* data, int w, int h, const cha
 	return ret;
 }
 
-/**************************************************************************
-*								PredictSVM
-*								---------
-*		imagePath  : Path to the image we want to predict on.
-*		modelPath  : Path to the trained model file.
-*		n_bins	   : Number of histogram bins.
-*		rad_grad   : Gradient Radius.
-*		rad_dens   : Density Radius.
-*		rad_entr   : Entropy Radius.
-*
-***************************************************************************/
-ReturnType PredictSVM(int** probs, unsigned char* data, int w, int h, const char* modelDir, void* handle, const float* features) {
-	ReturnType ret = { 0, "No Error" };
-	try
-	{
-		cv::Mat matFea = cv::Mat(1,Constants::NUM_FEATURES,CV_32F,(void*)features);
-		/****************************************************/
-		/*		     Load Image & Feature Extraction		*/
-		/****************************************************/
-		cv::Mat sample;
-		cv::Mat normSample;
-		sample = LoadImage_and_FeatExtr (data, w, h, matFea);
-		normSample = readTrainedMeanStd(modelDir, sample);
-		sample.release();
-
-		/****************************************************/
-		/*				    Predict Labels					*/
-		/****************************************************/
-
-		// Calculate prediction
-		//float prediction[Constants::NUM_CLASSIFIERS];
-		int *prediction = new int[Constants::NUM_CLASSIFIERS];
-
-		// Initialice svm;
-		CvSVM* svm = (CvSVM*)handle;
-		for(int i=0; i<Constants::NUM_CLASSIFIERS; i++){
-
-			prediction[i] = svm[i].predict(normSample);
-		}
-	
-		*probs = prediction;
-	}
-	catch(std::exception& ex)
-	{
-		ret.code = 1;
-		ret.message = ex.what();
-	}
-	return ret;
-}
-
 ReturnType InitModel(CvRTrees** handle,const char *modelPath)
 {
 	ReturnType ret = { 0, "No Error" };
@@ -804,48 +487,7 @@ ReturnType InitModel(CvRTrees** handle,const char *modelPath)
 	return ret;
 }
 
-ReturnType InitModelSVM(CvSVM** handle,const char *modelPath)
-{
-	ReturnType ret = { 0, "No Error" };
-	clock_t begin;
-	double load_svm = 0;
-	CvSVM* models = new CvSVM[Constants::NUM_CLASSIFIERS];
-	for(int i=0; i<Constants::NUM_CLASSIFIERS; i++){
-			// Initialice rtree;
-			
-		
-			// Load the trained model
-			char modelName[10000];
-			sprintf(modelName,"%smodel_%i.xml", modelPath, i);
-			if(_access(modelName, 0) != -1)
-			{
-				begin = clock();
-				models[i].load(modelName);
-				load_svm += double(clock() - begin);
-			}
-			else
-			{
-				std::string err = "ERROR: file " + (std::string)modelName + " could not be opened. Is the path okay?";
-				std::cerr << err << std::endl;
-				throw std::exception(err.c_str());
-			}
-	}
-	
-	*handle = models;
-
-	if(propSVM->verbose)
-		std::cout << "Load SVM[" << load_svm << "]" << std::endl;
-	return ret;
-}
-
 ReturnType ReleaseModel(CvRTrees* handle)
-{
-	ReturnType ret = { 0, "No Error" };
-	delete[] handle;
-	return ret;
-}
-
-ReturnType ReleaseModelSVM(CvSVM* handle)
 {
 	ReturnType ret = { 0, "No Error" };
 	delete[] handle;
@@ -892,45 +534,6 @@ ReturnType PredictFromDataRF(float** probs, void* handle, double* normalizedFeat
 	return ret;
 }
 
-ReturnType PredictFromDataSVM(int** probs, void* handle, double* normalizedFeatures)
-{
-	ReturnType ret = { 0, "No Error" };
-	try
-	{
-		cv::Mat normSample;
-		clock_t global = clock();
-		clock_t begin;
-		
-		normSample = cv::Mat(1,Constants::TOTAL_FEATURES,CV_32F,normalizedFeatures);
-		
-
-		/****************************************************/
-		/*				    Predict Labels					*/
-		/****************************************************/
-		// Calculate prediction
-		//float prediction[Constants::NUM_CLASSIFIERS];
-		int* prediction = new int[Constants::NUM_CLASSIFIERS];
-		double load_svm = 0; 
-		double predict_time = 0;
-		CvSVM* svms = (CvSVM*)handle;
-		for(int i=0; i<Constants::NUM_CLASSIFIERS; i++){
-			begin = clock();
-			prediction[i] = svms[i].predict(normSample);
-			predict_time += double(clock() - begin);
-		}
-	
-		*probs = prediction;
-		if(propSVM->verbose)
-			std::cout << "Predict[" << predict_time << "]" << std::endl;
-	}
-	catch(std::exception& ex)
-	{
-		ret.code = 1;
-		ret.message = ex.what();
-	}
-	
-	return ret;
-}
 /**************************************************************************
 *								ExtractFeatures
 *								---------
@@ -1023,15 +626,6 @@ ReturnType SetProperties(Properties* param)
 	return ret;
 }
 
-ReturnType SetPropertiesSVM(PropertiesSVM* param)
-{
-	ReturnType ret = { 0, "No Error" };	
-	propSVM = param;
-	if(propSVM->verbose)
-		std::cout << "SetProperties ->" << std::endl << *prop << std::endl;
-	return ret;
-}
-
 ReturnType ReleaseFloatPointer(float* pointer) 
 {
 	ReturnType ret = { 0, "No Error" };	
@@ -1079,4 +673,9 @@ ReturnType PredictFromLabelsAndFeatureFile(const char* labelsPath, const char* i
 		ret.message = ex.what();
 	}
 	return ret;
+}
+
+ReturnType TrainPredictAndEvaluateFromData(char *csvPath, char *dataPath, char *outPath, bool normalized) {
+
+	
 }
