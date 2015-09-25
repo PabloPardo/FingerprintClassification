@@ -15,6 +15,8 @@ data = load('data/results_20049.csv')
 geyce_y = np.array(data.get(data.keys()[-3]).values, dtype=np.int8)  # Predictions given by Geyce
 kit4_y = np.array(data.get(data.keys()[-2]).values, dtype=np.int8)   # Labels given by Kit4
 
+features = load_extended('data/Cplusplus-NormalizedData.csv')
+
 # Change Labels to -1, 1 instead of 0, 1
 for i in range(len(geyce_y)):
     geyce_y[i] = -1 if geyce_y[i] == 0 else 1
@@ -22,16 +24,17 @@ for i in range(len(geyce_y)):
 
 # print len([i for i in kit4_y if not i])/float(len(kit4_y))
 # n = len(kit4_y)
-data = data.get(data.keys()[3:-3])
+# data = data.get(data.keys()[3:-3])
 
 # Split the feature 'dedo' into 10 binary features
-dedos = data.get('dedo')
-dedos = pd.get_dummies(dedos.values, prefix='dedo')
-data.drop('dedo', axis=1, inplace=True)
-data = data.join(dedos).as_matrix()
+# dedos = data.get('dedo')
+# dedos = pd.get_dummies(dedos.values, prefix='dedo')
+# data.drop('dedo', axis=1, inplace=True)
+# data = data.join(dedos).as_matrix()
 
 # Normalize
-X = StandardScaler().fit_transform(np.array(data, dtype=np.int))
+# X = StandardScaler().fit_transform(data)
+X = np.array(features, dtype=np.int)
 
 # PREDICTION
 # Split data into test and train

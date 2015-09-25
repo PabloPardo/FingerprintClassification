@@ -17,100 +17,26 @@ def load(path):
     :rtype: pd.DataFrame
     :return: Returns a pandas DataFrame.
     """
-    data = pd.read_csv(path, comment='#', delimiter=';', index_col=False)
+    data = pd.read_csv(path,
+                       comment='#',
+                       delimiter=';',
+                       index_col=False)
 
     return data
 
 
-def load_extended(path, param):
+def load_extended(path):
     """
     Loads the data from the results.csv and computes extended features.
 
     :param path: Path to the csv file
     :type path: str
 
-    :param param: Dictionary with the parameters necessaries to compute the features.
-    :type param: dict
-
-    :rtype: pd.DataFrame
-    :return: Returns a pandas DataFrame.
+    :rtype: np.array
+    :return: Returns a np array.
     """
-    data = pd.read_csv(path, comment='#', delimiter=';', index_col=False)
 
-    rad_density = param['rad_density']
-    rad_gradient = param['rad_gradient']
-    rad_entropy = param['rad_entropy']
-    n_bins = param['n_bins']
-
-    hist_imgs = []
-    for i in range(len(data.index)):
-        t = time.time()
-
-        I = Image.open(path + data['archivo'].values[i]).convert('L')
-
-        # Segment image
-        _, seg_image = segmentation(I)
-
-        # Get Histogram of Intensities
-        if type(rad_density) == list:
-            HoI = []
-            for r in rad_density:
-                h = hist_density(seg_image, radius=r, n_bins=n_bins)
-                HoI.extend(h)
-        else:
-            HoI = hist_density(seg_image, radius=rad_density, n_bins=n_bins)
-
-        # Get Histogram of Gradients
-        if type(rad_gradient) == list:
-            HoG = []
-            for r in rad_gradient:
-                h = hist_grad(seg_image, radius=r, n_bins=n_bins)
-                HoG.extend(h)
-        else:
-            HoG = hist_grad(seg_image, radius=rad_gradient, n_bins=n_bins)
-
-        # Get Histogram of Entropy
-        if type(rad_entropy) == list:
-            HoE = []
-            for r in rad_entropy:
-                h = hist_entropy(seg_image, radius=r, n_bins=n_bins)
-                HoE.extend(h)
-        else:
-            HoE = hist_entropy(seg_image, radius=rad_entropy, n_bins=n_bins)
-
-        # Get Histogram of Hough
-        HoH = []
-        h = hist_hough(seg_image, n_bins=n_bins)
-        HoH.extend(h)
-
-        # hist_imgs.append(HoI)
-        hist = np.concatenate((HoI, HoG, HoE, HoH))
-
-        # Split image into small images
-        shape_spl = (3, 2)
-        splt = split_image(seg_image, shape=shape_spl)
-        for j in range(shape_spl[0]*shape_spl[1]):
-            aux = []
-            for r in rad_density:
-                h = hist_density(splt[j], radius=r, n_bins=n_bins)
-                aux.extend(h)
-            for r in rad_gradient:
-                h = hist_grad(splt[j], radius=r, n_bins=n_bins)
-                aux.extend(h)
-            for r in rad_entropy:
-                h = hist_entropy(splt[j], radius=r, n_bins=n_bins)
-                aux.extend(h)
-            h = hist_hough(splt[j], n_bins=n_bins)
-            aux.extend(h)
-            hist = np.concatenate((hist, aux))
-
-        hist = np.concatenate((hist, diferentiate_img(seg_image)))
-        hist_imgs.append(hist)
-
-        print '%d / %d -- time: %f' % (i, I.shape[2], time.time() - t)
-    df = pd.DataFrame(hist_imgs)
-
-    return pd.concat([data, df], axis=1)
+    return pd.read_csv(path, header=None, usecols=range(1, 915), comment='#', delimiter=',', index_col=False).values
 
 
 def eval_pred(pred_y, y, verbose=True):
