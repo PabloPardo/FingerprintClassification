@@ -65,6 +65,8 @@ cv::Mat oneVsAll(cv::Mat labels, int tar_class);
 
 void printParamsRF(const Properties& prop);
 
+cv::Mat importNormalization(const char*);
+
 cv::Mat importFileFeatures(const char*, bool, const int);
 
 void exportFileFeatures(cv::Mat, std::vector<std::string>,const char*);

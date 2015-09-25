@@ -212,6 +212,33 @@ bool has_suffix(const std::string &str, const std::string &suffix)
            str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
 }
 
+cv::Mat importNormalization(const char* normFile)
+{
+	std::ifstream ifs(normFile, std::ifstream::in);
+	if (!ifs.is_open()) {
+		throwError((std::string)"ERROR: file " + normFile + " could not be opened. Is the path okay?");
+	}
+
+	std::string line;
+	std::string value;
+	cv::Mat ret = cv::Mat(Constants::TOTAL_FEATURES,2,CV_32F);
+	
+	for(int i = 0; i < ret.rows; i++)
+	{
+		std::getline(ifs, line);
+		if (line.empty())
+			continue; 
+		std::istringstream iss(line);
+		// Read Line
+		for(int j = 0; j < ret.cols; j++)
+		{
+			std::getline(iss, value, ' ');
+			ret.at<float>(i,j) = atof(value.c_str());
+		}
+	}
+	return ret;
+}
+
 cv::Mat importFileFeatures(const char* c_path_normalized, bool verbose, const int total_features)
 {
 	char* path = (char*)c_path_normalized;

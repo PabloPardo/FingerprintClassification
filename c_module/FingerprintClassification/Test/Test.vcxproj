@@ -11,11 +11,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\main_api.cpp" />
     <ClCompile Include="src\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\FoldSplitter.h" />
+    <ClInclude Include="inc\apirf.h" />
     <ClInclude Include="inc\FingerPrintClassification.h" />
     <ClInclude Include="inc\utils.h" />
   </ItemGroup>

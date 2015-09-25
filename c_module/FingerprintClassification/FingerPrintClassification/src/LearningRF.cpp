@@ -18,7 +18,7 @@ void LearnData::write(const char* outPath)
 		for (int i = 0; i < normalization.rows; i++)
 		{
 			for (int j = 0; j < normalization.cols; j++)
-				myfile << " " << normalization.at<double>(i, j);
+				myfile << " " << normalization.at<float>(i, j);
 			myfile << endl;
 		}
 		myfile.close();
@@ -30,7 +30,7 @@ void LearnData::write(const char* outPath)
 
 	for (int m = 0; m < Constants::NUM_CLASSIFIERS; m++)
 	{
-		char* fileName;
+		char fileName[10000];
 		sprintf(fileName, "%smodel_%d.xml", outPath, m);
 		rtrees->save((const char*)fileName);
 	}
@@ -48,9 +48,8 @@ LearningRF::~LearningRF()
 
 void LearningRF::ImageExtraction(const Mat* img, Mat* output)
 {
-	Mat ret;
-	cv::Mat dif = diferentiate_img(img);
-	cv::hconcat(dif, ret, ret);
+	Mat ret = diferentiate_img(img);
+	
 	cv::Mat** regions = GetImageRegions(img);
 	
 	for (int i = Constants::NUM_ROW_SEGMENTS - 1; i >= 0; i--)
@@ -102,7 +101,7 @@ void LearningRF::Extract(const vector<Mat*>* imgData, Mat* rawFeatures)
 			tmp = hist;
 		else
 			cv::vconcat(tmp, hist, tmp);
-		hist.release();
+		
 		clock_t time_b = clock();
 		if (prop->verbose)
 			cout << "train. length: [" << tmp.rows << "," << tmp.cols << "] time: " << (long)(time_b - time_a) << endl;
@@ -116,21 +115,21 @@ void LearningRF::CreateNorm(const cv::Mat* input, cv::Mat* normalization, cv::Ma
 	Mat nzation;
 	Mat nzed;
 
-	cv::Mat temp1, temp2, mean, std, norm_i, ret;
-	nzed = cv::Mat(input->size(), CV_64F);
-	nzation = cv::Mat(input->cols, 2, CV_64F);
-	//for (int i = trainSamples.cols - 1; i >= 0; i--)
+	cv::Mat temp1, temp2, mean, std, norm_i;
+	nzed = cv::Mat(input->size(), input->type());
+	nzation = cv::Mat(input->cols, 2, input->type());
 	for (int i = 0; i < input->cols; i++)
 	{
 		cv::meanStdDev(input->col(i), mean, std);
+		//mean.convertTo(mean,CV_32F);
+		//std.convertTo(std,CV_32F);
 		cv::subtract(input->col(i), mean, temp1);
 		cv::divide(temp1, std, temp2);
-		norm_i = ret.colRange(i, i + 1);
+		norm_i = nzed.colRange(i, i + 1);
 		temp2.copyTo(norm_i);
 
-		nzation.at<double>(i, 0) = mean.at<double>(0, 0);
-		nzation.at<double>(i, 1) = std.at<double>(0, 0);
-		//file << mean.at<double>(0, 0) << ' ' << std.at<double>(0, 0) << std::endl;
+		nzation.at<float>(i, 0) = mean.at<double>(0, 0);
+		nzation.at<float>(i, 1) = std.at<double>(0, 0);
 	}
 
 	*normalization = nzation;
@@ -179,13 +178,13 @@ void LearningRF::Fit(CvRTrees** ret, const Mat* labels, const Mat* normFeatures)
 		cv::Mat trainClass_i;
 		//Prepare trainClasses for the oneVsAll classification strategy
 		trainClass_i = labels->col(i);
-		if (prop->verbose)
+		/*if (prop->verbose)
 		{
 			std::cout << "Columna_Labels[" << i << "]:";
 			for (int i = 0; i < 10; i++)
 				std::cout << trainClass_i.at<int>(i, 0) << " ";
 			std::cout << std::endl;
-		}
+		}*/
 		// Fit the classifier with the training data
 		/*cv::FileStorage file_train("trainClass" + std::to_string((long double)i) + ".txt", cv::FileStorage::WRITE);
 		file_train << "trainClass_i" << trainClass_i;*/
@@ -202,7 +201,7 @@ void LearningRF::Fit(CvRTrees** ret, const Mat* labels, const Mat* normFeatures)
 void LearningRF::Normalize(const Mat* input, Mat* output, const Mat* normalization)
 {
 	// initialize matrices
-	cv::Mat normSample = cv::Mat(input->size(), CV_64F);
+	cv::Mat normSample = cv::Mat(input->size(), input->type());
 	cv::Mat temp1, temp2, norm_i;
 	std::string line;
 	for (int i = 0; i < input->cols; i++)
@@ -211,8 +210,8 @@ void LearningRF::Normalize(const Mat* input, Mat* output, const Mat* normalizati
 		Mat row_i = normalization->row(i);
 
 		float a, b;
-		a = row_i.at<double>(i, 0);
-		b = row_i.at<double>(i, 1);
+		a = row_i.at<float>(0, 0);
+		b = row_i.at<float>(0, 1);
 
 		cv::subtract(input->col(i), a, temp1);
 		cv::divide(temp1, b, temp2);

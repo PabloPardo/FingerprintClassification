@@ -2,12 +2,12 @@
 #include "MainRF.h"
 
 MainRF* obj = new MainRF();
-extern "C" __declspec(dllexport) ReturnType ExtractNormalizeAndFit(const char* labelsPath, const char* imgPath, const char* modelPath)
+extern "C" __declspec(dllexport) ReturnType Extraction(const char* labelsPath, const char* imagesPath,const char* outPath)
 {
 	ReturnType ret = { 0, "No Error" };
 	try
 	{
-		obj->ExtractNormalizeAndFit(labelsPath, imgPath, modelPath);
+		obj->Extraction(labelsPath, imagesPath, outPath);
 	}
 	catch (std::exception& ex)
 	{
@@ -24,5 +24,12 @@ extern "C" __declspec(dllexport) ReturnType ExtractNormalizeAndFit(const char* l
 		ret.code = 3;
 		ret.message = "Unknown error";
 	}
+	return ret;
+}
+
+extern "C" __declspec(dllexport) ReturnType NormalizeFitAndPredict(TrainPaths tPaths, PredictPaths pPaths, const char* results)
+{
+	ReturnType ret = { 0, "No Error" };
+	obj->NormalizeFitAndPredict(tPaths, pPaths, results);
 	return ret;
 }

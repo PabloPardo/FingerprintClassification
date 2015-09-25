@@ -150,7 +150,7 @@ cv::Mat LoadImage_and_FeatExtr (unsigned char* data, int w, int h, const cv::Mat
 	if(cont > 0)
 	{
 		cv::Mat matCont = cv::Mat(1,1,CV_32F);
-		matCont.at<float>(0,0) = cont;
+		matCont.at<float>(0,0) = (float)cont;
 		cv:hconcat(matCont, ret, ret);
 	}
 	return ret;
@@ -649,7 +649,7 @@ ReturnType PredictFromLabelsAndFeatureFile(const char* labelsPath, const char* i
 		
 		CvRTrees* handle;
 		InitModel(&handle,modelPath);
-		for(int i = 0; i < imgFileNames.size(); i++)
+		//for(int i = 0; i < imgFileNames.size(); i++)
 		for(unsigned int i = 0; i < imgFileNames.size(); i++)
 		{
 			clock_t time_a = clock();
@@ -673,9 +673,4 @@ ReturnType PredictFromLabelsAndFeatureFile(const char* labelsPath, const char* i
 		ret.message = ex.what();
 	}
 	return ret;
-}
-
-ReturnType TrainPredictAndEvaluateFromData(char *csvPath, char *dataPath, char *outPath, bool normalized) {
-
-	
 }

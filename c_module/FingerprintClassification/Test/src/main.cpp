@@ -201,8 +201,12 @@ void PredictFromDirectory() {
 int main(void){
 	//PredictFromDirectory();
 	//FitAndPredict();
-	ExtractFeatures();
+	//ExtractFeatures();
 	//ExportNormalizationVector();
+	char* labelsPath = "D:/GoogleDrive/Projectes/GEYCE/FP/Data/CSVs/RandomizedData3.csv";
+	char* imagesPath = "D:/GoogleDrive/Projectes/GEYCE/FP/Data/Training/";
+	char* modelPath = "D:/GoogleDrive/Projectes/GEYCE/FP/Data/out/Test_Nova_API/";
+	FitRF(labelsPath,imagesPath,modelPath);
 	return 0;
 }
 

@@ -1,16 +1,24 @@
 #include "LearningRF.h"
 
+struct TrainPaths
+{
+	char* labelsPath;
+	char* dataPath;
+};
+
+struct PredictPaths
+{
+	char* labelsPath;
+	char* dataPath;
+};
+
 class MainRF
 {
 	LearningRF* learner;
 public:
 	MainRF();
 	~MainRF();
-	void ExtractNormalizeAndFit(const char*,const char*,const char*);
-	void NormalizeAndFit();
-	void Fit();
-	void ExtractNormalizeAndPredict();
-	void NormalizeAndPredict();
-	void Predict();
+	void Extraction(const char*, const char*, const char*);
+	void NormalizeFitAndPredict(TrainPaths,PredictPaths, const char*);
 };
 
