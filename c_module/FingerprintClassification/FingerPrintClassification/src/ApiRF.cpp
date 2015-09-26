@@ -9,13 +9,13 @@ extern "C" __declspec(dllexport) ReturnType Extraction(const char* labelsPath, c
 	{
 		obj->Extraction(labelsPath, imagesPath, outPath);
 	}
-	catch (std::exception& ex)
-	{
+	catch (cv::Exception& ex)
+	{ 
 		ret.code = 1;
 		ret.message = ex.what();
 	}
-	catch (cv::Exception& ex)
-	{ 
+	catch (std::exception& ex)
+	{
 		ret.code = 2;
 		ret.message = ex.what();
 	}

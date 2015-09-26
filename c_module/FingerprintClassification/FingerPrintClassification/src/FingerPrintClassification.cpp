@@ -85,18 +85,19 @@ cv::Mat LoadImage_and_FeatExtr (unsigned char* data, int w, int h, const cv::Mat
 
 	// Read image
 	//cv::Mat in = cv::imread(path, cv::IMREAD_GRAYSCALE); //CV_8U
-	cv::Mat img = cv::Mat(w,h,CV_8U,data);
+	cv::Mat* img = new cv::Mat(w,h,CV_8U,data);
 	// Segmentation
 	// This call makes the histogram extraction perform slower
 	//cv::Mat seg_img = Segmenta(in, 250);
 	
 	// Add Geyce features
 	cv::Mat ret = features;
-	cv::Mat dif = diferentiate_img(&img);
+	cv::Mat dif;
+	diferentiate_img(&dif, img);
 	//std::cout << "dif fet" << std::endl;
 	cv::hconcat(dif, ret, ret);
 	//std::cout << "dif concat" << std::endl;
-	cv::Mat** regions = GetImageRegions(&img);
+	cv::Mat** regions = GetImageRegions(img);
 	//std::cout << "regions fetes" << std::endl;
 
 	for(int i = Constants::NUM_ROW_SEGMENTS - 1; i >= 0; i--)
@@ -111,15 +112,19 @@ cv::Mat LoadImage_and_FeatExtr (unsigned char* data, int w, int h, const cv::Mat
 			cfg.fileName = (char*)os.str().c_str();
 			setConfig(&cfg);	
 			*/
-			cv::Mat in = regions[i][j];
+			cv::Mat* in = new Mat(regions[i][j]);
 
-			cv::Mat out_grad = hist_grad(&in, prop->rad_grad, prop->n_bins);
+			cv::Mat out_grad;
+			hist_grad(&out_grad, in, prop->rad_grad, prop->n_bins);
 
-			cv::Mat out_dens = hist_density(&in, prop->rad_dens, prop->n_bins);
+			cv::Mat out_dens;
+			hist_density(&out_dens, in, prop->rad_dens, prop->n_bins);
 			
-			cv::Mat out_hough = hist_hough(&in, prop->n_bins);
+			cv::Mat out_hough;
+			hist_hough(&out_hough, in, prop->n_bins);
 
-			cv::Mat out_entropy = hist_entropy(&in, prop->rad_entr, prop->n_bins);	
+			cv::Mat out_entropy;
+			hist_entropy(&out_entropy, in, prop->rad_entr, prop->n_bins);	
 
 			// Join histograms
 			cv::hconcat(out_hough, ret,  ret);
@@ -134,13 +139,17 @@ cv::Mat LoadImage_and_FeatExtr (unsigned char* data, int w, int h, const cv::Mat
 	}
 	delete [] regions;
 	
-	cv::Mat out_grad = hist_grad(&img, prop->rad_grad, prop->n_bins);
+	cv::Mat out_grad;
+	hist_grad(&out_grad, img, prop->rad_grad, prop->n_bins);
 
-	cv::Mat out_dens = hist_density(&img, prop->rad_dens, prop->n_bins);
+	cv::Mat out_dens;
+	hist_density(&out_dens, img, prop->rad_dens, prop->n_bins);
 
-	cv::Mat out_hough = hist_hough(&img, prop->n_bins);
+	cv::Mat out_hough;
+	hist_hough(&out_hough, img, prop->n_bins);
 
-	cv::Mat out_entropy = hist_entropy(&img, prop->rad_entr, prop->n_bins);	
+	cv::Mat out_entropy;
+	hist_entropy(&out_entropy,img, prop->rad_entr, prop->n_bins);	
 
 	// Join histograms	
 	cv::hconcat(out_hough, ret,  ret);
@@ -151,7 +160,7 @@ cv::Mat LoadImage_and_FeatExtr (unsigned char* data, int w, int h, const cv::Mat
 	{
 		cv::Mat matCont = cv::Mat(1,1,CV_32F);
 		matCont.at<float>(0,0) = (float)cont;
-		cv:hconcat(matCont, ret, ret);
+		cv::hconcat(matCont, ret, ret);
 	}
 	return ret;
 }
@@ -263,7 +272,7 @@ ReturnType FitRF(char *csvPath, char *imagesPath, char *outPath) {
 
 				// Save Model
 				char fileName[10000];
-				sprintf(fileName, "%smodel_%d.xml", outPath, i);
+				sprintf_s(fileName, "%smodel_%d.xml", outPath, i);
 				rtrees[i]->save(fileName);
 			}
 			releaseRTrees(rtrees,Constants::NUM_CLASSIFIERS,1);
@@ -383,7 +392,7 @@ ReturnType FitFromDataRF(char *csvPath, char *dataPath, char *outPath, bool norm
 					std::cout << "time:" <<  clock() - start << "ms" << std::endl;
 				// Save Model
 				char fileName[10000];
-				sprintf(fileName, "%smodel_%d.xml", outPath, i);
+				sprintf_s(fileName, "%smodel_%d.xml", outPath, i);
 				rtrees[i]->save(fileName);
 			}
 			//releaseRTrees(rtrees, Constants::NUM_CLASSIFIERS,1);
@@ -456,34 +465,52 @@ ReturnType PredictRF(float** probs, unsigned char* data, int w, int h, const cha
 ReturnType InitModel(CvRTrees** handle,const char *modelPath)
 {
 	ReturnType ret = { 0, "No Error" };
-	clock_t begin;
-	double load_rtree = 0;
-	CvRTrees* models = new CvRTrees[Constants::NUM_CLASSIFIERS];
-	for(int i=0; i<Constants::NUM_CLASSIFIERS; i++){
-			// Initialice rtree;
+	try
+	{
+		clock_t begin;
+		double load_rtree = 0;
+		CvRTrees* models = new CvRTrees[Constants::NUM_CLASSIFIERS];
+		for(int i=0; i<Constants::NUM_CLASSIFIERS; i++){
+				// Initialice rtree;
 			
 		
-			// Load the trained model
-			char modelName[10000];
-			sprintf(modelName,"%smodel_%i.xml", modelPath, i);
-			if(_access(modelName, 0) != -1)
-			{
-				begin = clock();
-				models[i].load(modelName);
-				load_rtree += double(clock() - begin);
-			}
-			else
-			{
-				std::string err = "ERROR: file " + (std::string)modelName + " could not be opened. Is the path okay?";
-				std::cerr << err << std::endl;
-				throw std::exception(err.c_str());
-			}
-	}
+				// Load the trained model
+				char modelName[10000];
+				sprintf_s(modelName,"%smodel_%i.xml", modelPath, i);
+				if(_access(modelName, 0) != -1)
+				{
+					begin = clock();
+					models[i].load(modelName);
+					load_rtree += double(clock() - begin);
+				}
+				else
+				{
+					std::string err = "ERROR: file " + (std::string)modelName + " could not be opened. Is the path okay?";
+					std::cerr << err << std::endl;
+					throw std::exception(err.c_str());
+				}
+		}
 	
-	*handle = models;
+		*handle = models;
 
-	if(prop->verbose)
-		std::cout << "Load Trees[" << load_rtree << "]" << std::endl;
+		if(prop->verbose)
+			std::cout << "Load Trees[" << load_rtree << "]" << std::endl;
+	}
+	catch(cv::Exception ex)
+	{
+		ret.code = 1;
+		ret.message = ex.what();
+	}
+	catch(std::exception ex)
+	{
+		ret.code = 2;
+		ret.message = ex.what();
+	}
+	catch(...)
+	{
+		ret.code = 3;
+		ret.message = "Unknown error";
+	}
 	return ret;
 }
 

@@ -44,7 +44,7 @@ Computes the histogram of densities from an image.
 */
 
 
-Mat FingerPrintFeatures::hist_density(const Mat* img, int radius, int n_bins=64)
+void FingerPrintFeatures::hist_density(Mat* ret, const Mat* img, int radius, int n_bins=64)
 {	
 	Mat dens_img = dens_api->density_img(img, radius,cfg);
 	
@@ -66,11 +66,11 @@ Mat FingerPrintFeatures::hist_density(const Mat* img, int radius, int n_bins=64)
 	if(!(minVal == 0 && maxVal == 0))
 	{
 		calcHist(&dens_flatten, 1, channels, Mat(), hist, 1, histSize, ranges, true, false);
-		return hist.reshape(0,1);
+		*ret = hist.reshape(0,1);
 	}
 	else
 	{
-		return Mat(1,32,CV_32F,0.);
+		*ret = Mat(1,32,CV_32F,0.);
 	}
 }
 
@@ -90,7 +90,7 @@ Computes the histogram of gradients from an image.
 : return : list of int
 """
 */
-Mat FingerPrintFeatures::hist_grad(const Mat* img, int radius, int n_bins)
+void FingerPrintFeatures::hist_grad(Mat* ret, const Mat* img, int radius, int n_bins)
 {	
 	Mat grad_img = grad_api->gradient_img(img, radius,cfg);
 	
@@ -108,20 +108,20 @@ Mat FingerPrintFeatures::hist_grad(const Mat* img, int radius, int n_bins)
 	int channels[] = { 0 };
 	if(cfg->verboseGrad)
 		cfg->writeMatToFile("GradImage", &grad_flatten);
-	Mat ret;
+	
 	if(!(minVal == 0 && maxVal == 0))
 	{
 		calcHist(&grad_flatten, 1, channels, Mat(), hist, 1, histSize, ranges, true, false);
-		ret = Mat(hist.reshape(0,1));
+		*ret = Mat(hist.reshape(0,1));
 	}
 	else
 	{
-		ret = Mat(1,32,CV_32F,0.);
+		*ret = Mat(1,32,CV_32F,0.);
 	}	
-	return ret;
+	
 }
 
-Mat FingerPrintFeatures::diferentiate_img(const Mat* img)
+void FingerPrintFeatures::diferentiate_img(Mat* ret, const Mat* img)
 {
 	int m, n;
 	m = img->rows;
@@ -167,7 +167,7 @@ Mat FingerPrintFeatures::diferentiate_img(const Mat* img)
 	}
 	if (cfg->verboseDiff)
 		cfg->writeMatToFile("DiffImage", &dif);
-	return dif;
+	*ret = dif;
 
 	/*
 	m, n = img.shape
@@ -393,7 +393,7 @@ Computes the histogram of entropies from an image.
 : return : list of int
 """
 */
-Mat FingerPrintFeatures::hist_entropy(const Mat* img, int radius, int n_bins) {
+void FingerPrintFeatures::hist_entropy(Mat* ret, const Mat* img, int radius, int n_bins) {
 	
 	Mat disk = Mat(cv::getStructuringElement(MORPH_ELLIPSE, cv::Size(radius*2+1,radius*2+1)));
 	
@@ -437,11 +437,11 @@ Mat FingerPrintFeatures::hist_entropy(const Mat* img, int radius, int n_bins) {
 	if(!(minVal == 0 && maxVal == 0))
 	{
 		calcHist(&output_flatten, 1, channels, Mat(), hist, 1, histSize, ranges, true, false);
-		return hist.reshape(0,1);
+		*ret = hist.reshape(0,1);
 	}
 	else
 	{
-		return Mat(1,32,CV_32F,0.);
+		*ret = Mat(1,32,CV_32F,0.);
 	}
 }
 
@@ -459,7 +459,7 @@ Computes the histogram of hough line magnitudes.
 : return : histogram of hough lines magnitudes
 """
 */
-Mat FingerPrintFeatures::hist_hough(const Mat* img, int n_bins) {
+void FingerPrintFeatures::hist_hough(Mat* ret, const Mat* img, int n_bins) {
 	int threshold = 10;
 	int line_length = 8;
 	int line_gap = 3;
@@ -506,10 +506,10 @@ Mat FingerPrintFeatures::hist_hough(const Mat* img, int n_bins) {
 	if(!(minVal == 0 && maxVal == 0) && magnitudes.cols >= 32)
 	{
 		calcHist(&magnitudes, 1, channels, Mat(), hist, 1, histSize, ranges, true, false);
-		return hist.reshape(0,1);
+		*ret = hist.reshape(0,1);
 	}
 	else
 	{
-		return cv::Mat(1,32,CV_32F,0.);
+		*ret = cv::Mat(1,32,CV_32F,0.);
 	}
 }

@@ -101,7 +101,7 @@ LabelsAndFeaturesData readCSV(const char *path){
 			
 				if(cnt > head_img_labels_end)
 				{
-					F.at<float>(lcnt,cnt-head_img_labels_end - 1) = atof(value.c_str());
+					F.at<float>(lcnt,cnt-head_img_labels_end - 1) = (float)atof(value.c_str());
 				}
 			
 				++cnt;
@@ -122,7 +122,8 @@ LabelsAndFeaturesData readCSV(const char *path){
 
 int countLines(const char *path) {
    unsigned int number_of_lines = 0;
-    FILE *infile = fopen(path, "r");
+    FILE *infile;
+	fopen_s(&infile, path, "r");
     int ch;
 
 	if(NULL == infile)
@@ -233,7 +234,7 @@ cv::Mat importNormalization(const char* normFile)
 		for(int j = 0; j < ret.cols; j++)
 		{
 			std::getline(iss, value, ' ');
-			ret.at<float>(i,j) = atof(value.c_str());
+			ret.at<float>(i,j) = (float)atof(value.c_str());
 		}
 	}
 	return ret;
@@ -280,7 +281,7 @@ cv::Mat importFileFeatures(const char* c_path_normalized, bool verbose, const in
 				j--;
 				continue;
 			}
-			ret.at<float>(i,j) = atof(value.c_str());
+			ret.at<float>(i,j) = (float)atof(value.c_str());
 		}
 	}
 
@@ -294,7 +295,7 @@ cv::Mat createNormalizationFile(const char* outPath, cv::Mat trainSamples)
 	// Write the mean and std into a file as part of the model
 	char fname[10000];
 		
-	sprintf(fname, "%snormalization.csv", outPath);
+	sprintf_s(fname, "%snormalization.csv", outPath);
 		
 	std::ofstream file;
 	file.open(fname);
@@ -321,7 +322,7 @@ cv::Mat readTrainedMeanStd(const char* normalizationFilePath,cv::Mat sample)
 	// Read train mean and std to normalize the test mean
 	//TODO: Normalize test
 	char fname[10000];
-	sprintf(fname, "%snormalization.csv", normalizationFilePath);
+	sprintf_s(fname, "%snormalization.csv", normalizationFilePath);
 	std::ifstream file;
 	file.open(fname);
 

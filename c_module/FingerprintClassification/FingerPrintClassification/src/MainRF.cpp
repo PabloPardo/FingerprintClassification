@@ -30,6 +30,8 @@ void MainRF::Extraction(const char* labelsAndFeaturesPath, const char* imagesPat
 		Mat featurei = lfData.features.row(i);
 		Mat* in = new Mat(imread(imagesPath + lfData.imgFileNames[i], IMREAD_GRAYSCALE));
 		imgData->push_back(in);
+		if(learner->prop->verbose)
+			cout << "Loading image " << i << " of " << lfData.imgFileNames.size() << endl;
 	}
 	Mat rawFeaturesWithoutNFIQ;
 	learner->Extract(imgData, &rawFeaturesWithoutNFIQ);
@@ -43,13 +45,12 @@ void MainRF::Extraction(const char* labelsAndFeaturesPath, const char* imagesPat
 		rowi.copyTo(rawFeatures.row(i));
 	}
 	
-	exportFileFeatures(rawFeatures, lfData.imgFileNames, ((std::string)outPath + "/RawData.csv").c_str());
+	exportFileFeatures(rawFeatures, lfData.imgFileNames, outPath);
 }
 
 void MainRF::NormalizeFitAndPredict(TrainPaths tPaths, PredictPaths pPaths, const char* results)
 {
 	LearnData result;
-	//result.normalization = importNormalization(tPaths.normalizationFile);
 	LabelsAndFeaturesData lfTData = readCSV(tPaths.labelsPath);	
 	Mat trainData = importFileFeatures(tPaths.dataPath,false,Constants::TOTAL_FEATURES);
 				

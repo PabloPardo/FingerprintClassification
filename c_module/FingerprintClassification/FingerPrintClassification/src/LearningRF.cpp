@@ -48,7 +48,8 @@ LearningRF::~LearningRF()
 
 void LearningRF::ImageExtraction(const Mat* img, Mat* output)
 {
-	Mat ret = diferentiate_img(img);
+	Mat ret;
+	diferentiate_img(&ret, img);
 	
 	cv::Mat** regions = GetImageRegions(img);
 	
@@ -56,11 +57,15 @@ void LearningRF::ImageExtraction(const Mat* img, Mat* output)
 	{
 		for (int j = Constants::NUM_COL_SEGMENTS - 1; j >= 0; j--)
 		{
-			cv::Mat in = regions[i][j];
-			cv::Mat out_grad = hist_grad(&in, prop->rad_grad, prop->n_bins);
-			cv::Mat out_dens = hist_density(&in, prop->rad_dens, prop->n_bins);
-			cv::Mat out_hough = hist_hough(&in, prop->n_bins);
-			cv::Mat out_entropy = hist_entropy(&in, prop->rad_entr, prop->n_bins);
+			cv::Mat *in = new Mat(regions[i][j]);
+			cv::Mat out_grad;
+			hist_grad(&out_grad, in, prop->rad_grad, prop->n_bins);
+			cv::Mat out_dens;
+			hist_density(&out_dens, in, prop->rad_dens, prop->n_bins);
+			cv::Mat out_hough;
+			hist_hough(&out_hough, in, prop->n_bins);
+			cv::Mat out_entropy;
+			hist_entropy(&out_entropy, in, prop->rad_entr, prop->n_bins);
 			// Join histograms
 			cv::hconcat(out_hough, ret, ret);
 			cv::hconcat(out_entropy, ret, ret);
@@ -74,10 +79,14 @@ void LearningRF::ImageExtraction(const Mat* img, Mat* output)
 	}
 	delete[] regions;
 
-	cv::Mat out_grad = hist_grad(img, prop->rad_grad, prop->n_bins);
-	cv::Mat out_dens = hist_density(img, prop->rad_dens, prop->n_bins);
-	cv::Mat out_hough = hist_hough(img, prop->n_bins);
-	cv::Mat out_entropy = hist_entropy(img, prop->rad_entr, prop->n_bins);
+	cv::Mat out_grad;
+	hist_grad(&out_grad, img, prop->rad_grad, prop->n_bins);
+	cv::Mat out_dens;
+	hist_density(&out_dens, img, prop->rad_dens, prop->n_bins);
+	cv::Mat out_hough;
+	hist_hough(&out_hough, img, prop->n_bins);
+	cv::Mat out_entropy;
+	hist_entropy(&out_entropy, img, prop->rad_entr, prop->n_bins);
 	// Join histograms	
 	cv::hconcat(out_hough, ret, ret);
 	cv::hconcat(out_entropy, ret, ret);
@@ -104,7 +113,7 @@ void LearningRF::Extract(const vector<Mat*>* imgData, Mat* rawFeatures)
 		
 		clock_t time_b = clock();
 		if (prop->verbose)
-			cout << "train. length: [" << tmp.rows << "," << tmp.cols << "] time: " << (long)(time_b - time_a) << endl;
+			cout << "extract " << (i+1) << " of " << imgData->size() << ". length: [" << tmp.rows << "," << tmp.cols << "] time: " << (long)(time_b - time_a) << endl;
 	}
 	
 	*rawFeatures = tmp;
@@ -128,8 +137,8 @@ void LearningRF::CreateNorm(const cv::Mat* input, cv::Mat* normalization, cv::Ma
 		norm_i = nzed.colRange(i, i + 1);
 		temp2.copyTo(norm_i);
 
-		nzation.at<float>(i, 0) = mean.at<double>(0, 0);
-		nzation.at<float>(i, 1) = std.at<double>(0, 0);
+		nzation.at<float>(i, 0) = (float)mean.at<double>(0, 0);
+		nzation.at<float>(i, 1) = (float)std.at<double>(0, 0);
 	}
 
 	*normalization = nzation;
