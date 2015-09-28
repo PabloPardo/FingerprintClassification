@@ -7,6 +7,7 @@
 #include "opencv2\imgproc\imgproc.hpp"
 #include "opencv2\ml\ml.hpp"
 
+using namespace std;
 
 void throwError(std::string error) {
 	std::string err = error;
@@ -213,7 +214,7 @@ bool has_suffix(const std::string &str, const std::string &suffix)
            str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
 }
 
-cv::Mat importNormalization(const char* normFile)
+void loadNormalization(Mat* norMat, const char* normFile)
 {
 	std::ifstream ifs(normFile, std::ifstream::in);
 	if (!ifs.is_open()) {
@@ -237,7 +238,20 @@ cv::Mat importNormalization(const char* normFile)
 			ret.at<float>(i,j) = (float)atof(value.c_str());
 		}
 	}
-	return ret;
+	*norMat = ret;
+}
+
+void saveNormalization(const Mat* norMat, const char* normFile)
+{	
+	ofstream file;
+	file.open(normFile);
+	
+	for (int i = 0; i < norMat->rows; i++)
+	{
+		file << norMat->at<float>(i,0) << ' ' << norMat->at<float>(i,1) << endl;
+	}
+
+	file.close();
 }
 
 cv::Mat importFileFeatures(const char* c_path_normalized, bool verbose, const int total_features)

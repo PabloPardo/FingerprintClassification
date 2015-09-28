@@ -7,21 +7,25 @@ struct ReturnType{
 };
 struct TrainPaths
 {
-	char* labelsPath;
-	char* dataPath;
+	const char* labelsPath;
+	const char* dataPath;
 };
 
 struct PredictPaths
 {
-	char* labelsPath;
-	char* dataPath;
+	const char* labelsPath;
+	const char* dataPath;
+	const char* modelDir;
 };
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-	__declspec(dllimport) ReturnType Extraction(const char* labelsPath, const char* imgPath, const char* modelPath);
-	__declspec(dllimport) ReturnType NormalizeFitAndPredict(TrainPaths tPaths, PredictPaths pPaths, const char* results);
+	__declspec(dllimport) ReturnType Extraction(const char*, const char*, const char*);
+	__declspec(dllimport) ReturnType ExtractFingerPrint(float**, unsigned char*, int w, int h, float*);
+	__declspec(dllimport) ReturnType Fit(TrainPaths, const char*);
+	__declspec(dllimport) ReturnType PredictTest(PredictPaths, const char*);
+	__declspec(dllimport) ReturnType Predict(float**, PredictPaths, float*);
 #ifdef __cplusplus
 }
 #endif

@@ -17,7 +17,6 @@
   <ItemGroup>
     <ClInclude Include="include\FoldSplitter.h" />
     <ClInclude Include="inc\apirf.h" />
-    <ClInclude Include="inc\FingerPrintClassification.h" />
     <ClInclude Include="inc\utils.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

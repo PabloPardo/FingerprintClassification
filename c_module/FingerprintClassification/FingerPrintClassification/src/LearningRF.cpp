@@ -201,6 +201,7 @@ void LearningRF::Fit(CvRTrees** ret, const Mat* labels, const Mat* normFeatures)
 			std::cout << "Training(" << i << ")...";
 		clock_t start = clock();
 		rtrees[i].train(*normFeatures, CV_ROW_SAMPLE, trainClass_i);
+		//rtrees[i].train(*normFeatures, CV_ROW_SAMPLE, trainClass_i, Mat(), Mat(), var_type, Mat(), params);
 		if (prop->verbose)
 			std::cout << "time:" << clock() - start << "ms" << std::endl;
 	}

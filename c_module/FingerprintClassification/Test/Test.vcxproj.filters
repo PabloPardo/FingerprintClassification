@@ -23,9 +23,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="inc\FingerPrintClassification.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\FoldSplitter.h">
       <Filter>Header Files</Filter>
     </ClInclude>

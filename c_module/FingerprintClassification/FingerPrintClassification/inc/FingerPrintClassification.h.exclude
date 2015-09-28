@@ -4,40 +4,6 @@
 #ifndef FINGER_PRINT_CLASSIFICATION_H
 #define FINGER_PRINT_CLASSIFICATION_H
 
-struct ReturnType{
-	int         code;
-	const char* message;
-};
-
-struct Properties
-{
-	int n_bins; //	Number of histogram bins.
-	int rad_grad; // Gradient Radius.
-	int rad_dens; // Density Radius.
-	int rad_entr; // Entropy Radius.
-	int max_depth; // Max depth of the trees in the Random Forest.
-	int min_samples_count; // Min samples needed to split a leaf.
-	int max_categories; // Max number of categories.
-	int max_num_of_trees_in_forest; // Max number of trees in the forest.
-	int nactive_vars; // nactive_vars,
-
-	bool verbose;
-
-	Properties() {  
-		n_bins = 32; 
-		rad_grad=1; 
-		rad_dens=3; 
-		rad_entr=5; 
-		max_depth=16; 
-		min_samples_count=2; 
-		max_categories=3; 
-		max_num_of_trees_in_forest=10;
-		nactive_vars = 0;
-		verbose = false;
-	};
-	friend std::ostream& operator<<(std::ostream& os, const Properties& prop);
-};
-
 extern "C" __declspec(dllexport) ReturnType ReleaseFloatPointer(float*);
 
 extern "C" __declspec(dllexport) ReturnType InitModel(CvRTrees**,const char*);
