@@ -105,6 +105,7 @@
     <ClInclude Include="inc\LearningRF.h" />
     <ClInclude Include="inc\MainRF.h" />
     <ClInclude Include="inc\utils.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

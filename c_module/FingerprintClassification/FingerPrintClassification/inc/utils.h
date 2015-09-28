@@ -13,12 +13,12 @@ using namespace cv;
 
 struct Constants
 {
-	static const int TOTAL_FEATURES = 914;
+	static const int TOTAL_FEATURES = 923;
 
 	static const int NUM_ROW_SEGMENTS = 3;
 	static const int NUM_COL_SEGMENTS = 2;
 	static const int NUM_CLASSIFIERS = 6;
-	static const int NUM_FEATURES = 13;
+	static const int NUM_FEATURES = 22;
 };
 
 enum CSV_HEADERS 

@@ -50,9 +50,12 @@ LabelsAndFeaturesData readCSV(const char *path){
 	std::vector<std::string> imgPaths(0);
 	
 	int lcnt = 0;
+
+	int head_ruta_fitxer = 1;
 	int head_nom_fitxer = 2;
 	int head_img_labels_ini = 3;
 	int head_img_labels_end = 9;
+	int head_features_end = 22;
 
 	
 	std::getline(ifs, line);
@@ -63,15 +66,28 @@ LabelsAndFeaturesData readCSV(const char *path){
 	if(find == 0) // Header
 	{
 		n_lines -= 1;			 // Substract the heather line from the count
+		head_ruta_fitxer = -1;
+		head_nom_fitxer = -1;
+		head_img_labels_ini = -1;
+		head_img_labels_end = -1;
+		head_features_end = -1;
 		M = cv::Mat(n_lines, Constants::NUM_CLASSIFIERS, CV_32SC1);
 		F = cv::Mat(n_lines, Constants::NUM_FEATURES, CV_32F);
 		do  { 
+			if (strcmp(value.c_str(), "EmRutaFitxer") == 0)
+				head_ruta_fitxer = header_index;
 			if(strcmp(value.c_str(),"EmNomFitxer") == 0)
 				head_nom_fitxer = header_index;
 			if(strcmp(value.c_str(),"EmBorrosa") == 0)
 				head_img_labels_ini = header_index;
-			if(strcmp(value.c_str(),"EmDefectuosa") == 0)
+			if (strcmp(value.c_str(), "dedo") == 0)
+			{
 				head_img_labels_end = header_index;
+			}
+			if (strcmp(value.c_str(), ">.9") == 0)
+			{	
+				head_features_end = header_index;
+			}
 			header_index++;
 		} while (std::getline(iss, value, ';'));
 		std::getline(ifs, line);
@@ -85,26 +101,54 @@ LabelsAndFeaturesData readCSV(const char *path){
 
 		// Read Line
 		int cnt = 0;
-
+		string pathFitxer = "";
 		while (std::getline(iss, value, ';')) { 
 			try
 			{
+				if (cnt == head_ruta_fitxer) {
+					pathFitxer = value;
+				}
+				
 				if(cnt == head_nom_fitxer) {
 					// Image name
 					// Store it into std::string *imgPaths
-					imgPaths.push_back(value);
+					if (pathFitxer != "")
+					{
+						pathFitxer += "/" + value;
+					}
+					imgPaths.push_back(pathFitxer);
 				}
 
-				if(cnt >= head_img_labels_ini && cnt <= head_img_labels_end) {
-					// Image Labels
-					M.at<int>(lcnt,cnt-head_img_labels_ini) = atoi(value.c_str());
-				}
-			
-				if(cnt > head_img_labels_end)
+				if (head_img_labels_ini > 0)
 				{
-					F.at<float>(lcnt,cnt-head_img_labels_end - 1) = (float)atof(value.c_str());
+
+					if (cnt >= head_img_labels_ini && cnt < head_img_labels_end) {
+						// Image Labels
+						M.at<int>(lcnt, cnt - head_img_labels_ini) = atoi(value.c_str());
+					}
 				}
-			
+				if (head_img_labels_end > 0)
+				{
+					if (cnt >= head_img_labels_end && cnt <= head_features_end)
+					{
+						if (cnt == head_img_labels_end) //dedo
+						{
+							int dedo = atoi(value.c_str());
+							for (int i = 0; i < 10; i++)
+							{
+								if (dedo == i+1)
+									F.at<float>(lcnt, cnt - head_img_labels_end + i) = 1;
+								else
+									F.at<float>(lcnt, cnt - head_img_labels_end + i) = 0;
+							}
+						}
+						else
+						{
+							F.at<float>(lcnt, cnt - head_img_labels_end + 9) = (float)atof(value.c_str());
+						}
+						
+					}
+				}
 				++cnt;
 			} 
 			catch(...)
