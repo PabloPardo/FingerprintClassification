@@ -7,6 +7,7 @@
 #include "opencv2\imgproc\imgproc.hpp"
 #include "opencv2\ml\ml.hpp"
 
+using namespace std;
 
 void throwError(std::string error) {
 	std::string err = error;
@@ -101,7 +102,7 @@ LabelsAndFeaturesData readCSV(const char *path){
 			
 				if(cnt > head_img_labels_end)
 				{
-					F.at<float>(lcnt,cnt-head_img_labels_end - 1) = atof(value.c_str());
+					F.at<float>(lcnt,cnt-head_img_labels_end - 1) = (float)atof(value.c_str());
 				}
 			
 				++cnt;
@@ -122,7 +123,8 @@ LabelsAndFeaturesData readCSV(const char *path){
 
 int countLines(const char *path) {
    unsigned int number_of_lines = 0;
-    FILE *infile = fopen(path, "r");
+    FILE *infile;
+	fopen_s(&infile, path, "r");
     int ch;
 
 	if(NULL == infile)
@@ -206,28 +208,50 @@ void printParamsRF(const Properties& prop)
 	std::cout << "NUM_FEATURES:" << Constants::NUM_FEATURES << std::endl;
 }
 
-void printParamsSVM(const PropertiesSVM& propSVM)
-{
-	std::cout << "n_bins:" << propSVM.n_bins << std::endl;
-	std::cout << "rad_grad:" << propSVM.rad_grad << std::endl;
-	std::cout << "rad_dens:" << propSVM.rad_dens << std::endl;
-	std::cout << "rad_entr:" << propSVM.rad_entr << std::endl;
-	std::cout << "svm_type:" << propSVM.svm_type << std::endl;
-	std::cout << "kernel_type:" << propSVM.kernel_type << std::endl;
-	std::cout << "gamma:" << propSVM.gamma << std::endl;
-	std::cout << "Cvalue:" << propSVM.Cvalue << std::endl;
-
-	std::cout << "TOTAL_FEATURES:" << Constants::TOTAL_FEATURES << std::endl;
-	std::cout << "NUM_ROW_SEGMENTS:" << Constants::NUM_ROW_SEGMENTS << std::endl;
-	std::cout << "NUM_COL_SEGMENTS:" << Constants::NUM_COL_SEGMENTS << std::endl;
-	std::cout << "NUM_CLASSIFIERS:" << Constants::NUM_CLASSIFIERS << std::endl;
-	std::cout << "NUM_FEATURES:" << Constants::NUM_FEATURES << std::endl;
-}
-
 bool has_suffix(const std::string &str, const std::string &suffix)
 {
     return str.size() >= suffix.size() &&
            str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
+}
+
+void loadNormalization(Mat* norMat, const char* normFile)
+{
+	std::ifstream ifs(normFile, std::ifstream::in);
+	if (!ifs.is_open()) {
+		throwError((std::string)"ERROR: file " + normFile + " could not be opened. Is the path okay?");
+	}
+
+	std::string line;
+	std::string value;
+	cv::Mat ret = cv::Mat(Constants::TOTAL_FEATURES,2,CV_32F);
+	
+	for(int i = 0; i < ret.rows; i++)
+	{
+		std::getline(ifs, line);
+		if (line.empty())
+			continue; 
+		std::istringstream iss(line);
+		// Read Line
+		for(int j = 0; j < ret.cols; j++)
+		{
+			std::getline(iss, value, ' ');
+			ret.at<float>(i,j) = (float)atof(value.c_str());
+		}
+	}
+	*norMat = ret;
+}
+
+void saveNormalization(const Mat* norMat, const char* normFile)
+{	
+	ofstream file;
+	file.open(normFile);
+	
+	for (int i = 0; i < norMat->rows; i++)
+	{
+		file << norMat->at<float>(i,0) << ' ' << norMat->at<float>(i,1) << endl;
+	}
+
+	file.close();
 }
 
 cv::Mat importFileFeatures(const char* c_path_normalized, bool verbose, const int total_features)
@@ -235,7 +259,7 @@ cv::Mat importFileFeatures(const char* c_path_normalized, bool verbose, const in
 	char* path = (char*)c_path_normalized;
 
 	if(verbose)
-		std::cout << "Counting lines...";
+		std::cout << "Counting lines..." << std::endl;
 	int n_lines = countLines(path);
 	if(verbose)
 		std::cout << "{" << n_lines << "}" << std::endl;
@@ -252,7 +276,7 @@ cv::Mat importFileFeatures(const char* c_path_normalized, bool verbose, const in
 	cv::Mat ret = cv::Mat(n_lines,total_features,CV_32F);
 	int percent = n_lines / 10;
 	if(verbose)
-		std::cout << "Loading data";
+		std::cout << "Loading data..." << std::endl;
 	for(int i = 0; i < ret.rows; i++)
 	{
 		std::getline(ifs, line);
@@ -265,14 +289,14 @@ cv::Mat importFileFeatures(const char* c_path_normalized, bool verbose, const in
 			std::getline(iss, value, ',');
 			if(has_suffix(value,".png"))
 			{
+				if(verbose && i % percent == 0)
+					std::cout << "imagen[" << i << "]" << value << std::endl;
 				//Useless fileName header
 				j--;
 				continue;
 			}
-			ret.at<float>(i,j) = atof(value.c_str());
+			ret.at<float>(i,j) = (float)atof(value.c_str());
 		}
-		if(verbose && i % percent == 0)
-			std::cout << ".";
 	}
 
 
@@ -285,7 +309,7 @@ cv::Mat createNormalizationFile(const char* outPath, cv::Mat trainSamples)
 	// Write the mean and std into a file as part of the model
 	char fname[10000];
 		
-	sprintf(fname, "%snormalization.csv", outPath);
+	sprintf_s(fname, "%snormalization.csv", outPath);
 		
 	std::ofstream file;
 	file.open(fname);
@@ -312,7 +336,7 @@ cv::Mat readTrainedMeanStd(const char* normalizationFilePath,cv::Mat sample)
 	// Read train mean and std to normalize the test mean
 	//TODO: Normalize test
 	char fname[10000];
-	sprintf(fname, "%snormalization.csv", normalizationFilePath);
+	sprintf_s(fname, "%snormalization.csv", normalizationFilePath);
 	std::ifstream file;
 	file.open(fname);
 
@@ -352,14 +376,6 @@ void allocateRtrees(CvRTrees*** data, const int rows, const int cols)
 	*data = rtrees;
 }
 
-void allocateSVMs(CvSVM*** data, const int rows, const int cols)
-{
-	CvSVM** svms = new CvSVM*[rows];
-	for (int i = 0; i < rows; ++i)
-		svms[i] = new CvSVM[cols];
-	*data = svms;
-}
-
 void releaseRTrees(CvRTrees** matrix, const int rows, const int cols) 
 {
 	for (int i = 0; i < rows; ++i)
@@ -367,9 +383,59 @@ void releaseRTrees(CvRTrees** matrix, const int rows, const int cols)
 	delete [] matrix;
 }
 
-void releaseSVMs(CvSVM** matrix, const int rows, const int cols) 
+/**************************************************************************
+*						CropImage
+*						----------------------
+*		params->
+*			row			: Row selected
+*			col			: Col selected
+*			img			: Reference to the image.
+*		returns->
+*			cv::Mat subset of img region(row,col)
+*
+***************************************************************************/
+cv::Mat CropImage(int row, int col, const cv::Mat* img)
 {
-	for (int i = 0; i < rows; ++i)
-		delete [] matrix[i];
-	delete [] matrix;
+	int row_split = img->rows / Constants::NUM_ROW_SEGMENTS;
+	int col_split = img->cols / Constants::NUM_COL_SEGMENTS;
+	int mod_row_split = img->rows % Constants::NUM_ROW_SEGMENTS;
+	int mod_col_split = img->cols % Constants::NUM_COL_SEGMENTS;
+
+	int start_row = row*row_split;
+	int end_row = (row + 1)*row_split;
+	int start_col = col*col_split;
+	int end_col = (col + 1)*col_split;
+
+	if (end_row == img->rows - mod_row_split)
+		end_row += mod_row_split;
+
+	if (end_col == img->cols - mod_col_split)
+		end_col += mod_col_split;
+
+	cv::Rect rect = cv::Rect(start_col, start_row, end_col - start_col, end_row - start_row);
+
+	return cv::Mat((*img)(rect));
+}
+
+/**************************************************************************
+*						GetImageRegions
+*						----------------------
+*		params->
+*			img		 : Reference to the image.
+*		returns->
+*			array of cv::Mat with every region
+*
+***************************************************************************/
+cv::Mat** GetImageRegions(const cv::Mat *img) {
+
+	cv::Mat** ret = new cv::Mat*[Constants::NUM_ROW_SEGMENTS];
+	for (int i = 0; i < Constants::NUM_ROW_SEGMENTS; ++i)
+		ret[i] = new cv::Mat[Constants::NUM_COL_SEGMENTS];
+
+	for (int i = 0; i < Constants::NUM_ROW_SEGMENTS; i++) {
+		for (int j = 0; j < Constants::NUM_COL_SEGMENTS; j++) {
+			ret[i][j] = CropImage(i, j, img);
+		}
+	}
+	return ret;
 }

@@ -15,21 +15,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\main.cpp">
+    <ClCompile Include="src\utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\utils.cpp">
+    <ClCompile Include="src\main_api.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="inc\FingerPrintClassification.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\FoldSplitter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="inc\utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\apirf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -151,14 +151,10 @@ void FitAndPredict(void)
 void ExtractFeatures(void) 
 {
 	Input input = Input();
-	input.csvPath = "E:\\results_20049.csv";
-	input.imagesPath = "E:\\BadQualityPNG\\";
-	input.outPutPath = "E:\\";
-
-	/*input.csvPath = "//ssd2015/Data/CSVs/RandomizedData.csv";
+	input.csvPath = "//ssd2015/Data/CSVs/RandomizedData.csv";
 	input.imagesPath = "//ssd2015/data/Training/";
 	input.outPutPath = "//ssd2015/data/Cache/";
-	input.prefix = "Train_5824_FP";*/
+	input.prefix = "Train_5824_FP";
 	Properties* prop = new Properties();
 	prop->verbose = true;
 	input.prop = prop;
@@ -203,9 +199,14 @@ void PredictFromDirectory() {
 
 
 int main(void){
+	//PredictFromDirectory();
 	//FitAndPredict();
-	ExtractFeatures();
+	//ExtractFeatures();
 	//ExportNormalizationVector();
+	char* labelsPath = "D:/GoogleDrive/Projectes/GEYCE/FP/Data/CSVs/RandomizedData3.csv";
+	char* imagesPath = "D:/GoogleDrive/Projectes/GEYCE/FP/Data/Training/";
+	char* modelPath = "D:/GoogleDrive/Projectes/GEYCE/FP/Data/out/Test_Nova_API/";
+	FitRF(labelsPath,imagesPath,modelPath);
 	return 0;
 }
 

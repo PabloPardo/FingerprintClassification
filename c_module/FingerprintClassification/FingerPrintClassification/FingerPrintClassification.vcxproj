@@ -95,12 +95,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\FingerPrintClassification.cpp" />
+    <ClCompile Include="src\ApiRF.cpp" />
+    <ClCompile Include="src\LearningRF.cpp" />
+    <ClCompile Include="src\MainRF.cpp" />
     <ClCompile Include="src\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="inc\FingerPrintClassification.h" />
     <ClInclude Include="inc\FpFeaturesLibrary.h" />
+    <ClInclude Include="inc\LearningRF.h" />
+    <ClInclude Include="inc\MainRF.h" />
     <ClInclude Include="inc\utils.h" />
   </ItemGroup>
   <ItemGroup>
