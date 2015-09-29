@@ -6,10 +6,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-void throwError(std::string error);
-int countLines(const char *path);
-
 using namespace cv;
+using namespace std;
 
 struct Constants
 {
@@ -49,9 +47,10 @@ enum CSV_HEADERS
 };
 
 struct LabelsAndFeaturesData {
-	cv::Mat matrix;
-	std::vector<std::string> imgFileNames;
-	cv::Mat features;
+	Mat matrix;
+	vector<string> imgFileNames;
+	vector<string> imgPaths;
+	Mat features;
 };
 
 struct Properties
@@ -83,31 +82,17 @@ struct Properties
 	friend std::ostream& operator<<(std::ostream& os, const Properties& prop);
 };
 
-
-LabelsAndFeaturesData readCSV(const char*);
-
-cv::Mat CropImage(int, int, const cv::Mat*);
-
-cv::Mat** GetImageRegions(const cv::Mat*);
-
-cv::Mat oneVsAll(cv::Mat labels, int tar_class);
-
-void printParamsRF(const Properties& prop);
-
+void throwError(string error);
+int countLines(const char*);
+LabelsAndFeaturesData readCSV(const char*, const char* = NULL);
+Mat CropImage(int, int, const Mat);
+Mat** GetImageRegions(const Mat);
+void printParamsRF(const Properties&);
 void loadNormalization(Mat*, const char*);
-
-void saveNormalization(const Mat*, const char*);
-
-cv::Mat importFileFeatures(const char*, bool, const int);
-
-void exportFileFeatures(cv::Mat, std::vector<std::string>,const char*);
-
-cv::Mat createNormalizationFile(const char* outPath, cv::Mat trainSamples);
-
-cv::Mat readTrainedMeanStd(const char* normalizationFilePath,cv::Mat sample);
-
+void saveNormalization(const Mat, const char*);
+Mat importFileFeatures(const char*, bool, const int);
+void exportFileFeatures(Mat, vector<string>, const char*);
 void allocateRtrees(CvRTrees***, const int, const int);
-
 void releaseRTrees(CvRTrees**, const int, const int);
 
 #endif /* UTILS_H */

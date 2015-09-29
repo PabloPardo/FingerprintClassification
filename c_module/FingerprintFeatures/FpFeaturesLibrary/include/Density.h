@@ -6,12 +6,11 @@ using namespace cv;
 #pragma once
 class Density
 {
-	//FingerPrintFeatures* padre;
 	Integral* integr_api;
 public:
 	Density();
 	~Density();
-	int density_pix(int i, int j, const Mat* ii, int sz_area);
-	Mat density_img(const cv::Mat* img, int radius, Config* = NULL);
+	int density_pix(int, int, const Mat, int);
+	Mat density_img(const Mat, int, Config* = NULL);
 };
 

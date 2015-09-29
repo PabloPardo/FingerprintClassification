@@ -3,38 +3,10 @@
 #include <time.h>
 #include <fstream>
 #include "utils.h"
+#include "opencv2\highgui\highgui.hpp"
 
 using namespace cv;
 using namespace std;
-
-void LearnData::write(const char* outPath)
-{
-	string fileName = outPath;
-	fileName += "/normalization.csv";
-	
-	ofstream myfile(fileName);
-	if (myfile.is_open())
-	{
-		for (int i = 0; i < normalization.rows; i++)
-		{
-			for (int j = 0; j < normalization.cols; j++)
-				myfile << " " << normalization.at<float>(i, j);
-			myfile << endl;
-		}
-		myfile.close();
-	}
-	else
-	{
-		throwError("Unable to open file " + fileName);
-	}
-
-	for (int m = 0; m < Constants::NUM_CLASSIFIERS; m++)
-	{
-		char fileName[10000];
-		sprintf(fileName, "%smodel_%d.xml", outPath, m);
-		rtrees->save((const char*)fileName);
-	}
-}
 
 LearningRF::LearningRF()
 {
@@ -46,7 +18,7 @@ LearningRF::~LearningRF()
 	delete prop;
 }
 
-void LearningRF::ImageExtraction(const Mat* img, Mat* output)
+void LearningRF::ImageExtraction(const Mat img, Mat* output)
 {
 	Mat ret;
 	diferentiate_img(&ret, img);
@@ -57,7 +29,7 @@ void LearningRF::ImageExtraction(const Mat* img, Mat* output)
 	{
 		for (int j = Constants::NUM_COL_SEGMENTS - 1; j >= 0; j--)
 		{
-			cv::Mat *in = new Mat(regions[i][j]);
+			cv::Mat in = regions[i][j];
 			cv::Mat out_grad;
 			hist_grad(&out_grad, in, prop->rad_grad, prop->n_bins);
 			cv::Mat out_dens;
@@ -96,15 +68,31 @@ void LearningRF::ImageExtraction(const Mat* img, Mat* output)
 	*output = ret;
 }
 
-void LearningRF::Extract(const vector<Mat*>* imgData, Mat* rawFeatures)
+void LearningRF::Extract(const vector<string> imgPaths, const vector<string> imgFileNames, Mat* rawFeatures)
 {
 	Mat tmp = Mat();
-
-	for (unsigned int i = 0; i < imgData->size(); i++)
+	
+	for (unsigned int i = 0; i < imgPaths.size(); i++)
 	{
 		clock_t time_a = clock();
-		cv::Mat hist;
-		ImageExtraction((*imgData)[i], &hist);
+		Mat in = imread(imgPaths[i] + "/" + imgFileNames[i], IMREAD_GRAYSCALE);
+		if(in.rows == 0)
+		{
+			if(prop->verbose)
+			{
+				cout << "[" << imgFileNames[i] << "]" << (i+1) << " of " << imgPaths.size() << ". Not Found!" << endl;
+			}
+			ofstream myfile("extractNF.txt", ios_base::app);
+			if (myfile.is_open())
+			{
+				myfile << imgPaths[i] + "/" + imgFileNames[i] << endl;
+				myfile.close();
+			}
+			else cout << "Unable to open file";
+			continue;
+		}
+		Mat hist;
+		ImageExtraction(in, &hist);
 		// Join features
 		if (tmp.rows == 0)
 			tmp = hist;
@@ -113,26 +101,26 @@ void LearningRF::Extract(const vector<Mat*>* imgData, Mat* rawFeatures)
 		
 		clock_t time_b = clock();
 		if (prop->verbose)
-			cout << "extract " << (i+1) << " of " << imgData->size() << ". length: [" << tmp.rows << "," << tmp.cols << "] time: " << (long)(time_b - time_a) << endl;
+			cout << "[" << imgFileNames[i] << "]" << (i+1) << " of " << imgPaths.size() << ". length: [" << tmp.rows << "," << tmp.cols << "] time: " << (long)(time_b - time_a) << endl;
 	}
 	
 	*rawFeatures = tmp;
 }
 
-void LearningRF::CreateNorm(const cv::Mat* input, cv::Mat* normalization, cv::Mat* output)
+void LearningRF::CreateNorm(const Mat input, Mat* normalization, Mat* output)
 {
 	Mat nzation;
 	Mat nzed;
 
 	cv::Mat temp1, temp2, mean, std, norm_i;
-	nzed = cv::Mat(input->size(), input->type());
-	nzation = cv::Mat(input->cols, 2, input->type());
-	for (int i = 0; i < input->cols; i++)
+	nzed = cv::Mat(input.size(), input.type());
+	nzation = cv::Mat(input.cols, 2, input.type());
+	for (int i = 0; i < input.cols; i++)
 	{
-		cv::meanStdDev(input->col(i), mean, std);
+		cv::meanStdDev(input.col(i), mean, std);
 		//mean.convertTo(mean,CV_32F);
 		//std.convertTo(std,CV_32F);
-		cv::subtract(input->col(i), mean, temp1);
+		cv::subtract(input.col(i), mean, temp1);
 		cv::divide(temp1, std, temp2);
 		norm_i = nzed.colRange(i, i + 1);
 		temp2.copyTo(norm_i);
@@ -146,7 +134,7 @@ void LearningRF::CreateNorm(const cv::Mat* input, cv::Mat* normalization, cv::Ma
 		*output = nzed;
 }
 
-void LearningRF::Fit(CvRTrees** ret, const Mat* labels, const Mat* normFeatures)
+void LearningRF::Fit(CvRTrees** ret, const Mat labels, const Mat normFeatures)
 {
 	/****************************************************/
 	/*					  Train RF						*/
@@ -186,21 +174,12 @@ void LearningRF::Fit(CvRTrees** ret, const Mat* labels, const Mat* normFeatures)
 
 		cv::Mat trainClass_i;
 		//Prepare trainClasses for the oneVsAll classification strategy
-		trainClass_i = labels->col(i);
-		/*if (prop->verbose)
-		{
-			std::cout << "Columna_Labels[" << i << "]:";
-			for (int i = 0; i < 10; i++)
-				std::cout << trainClass_i.at<int>(i, 0) << " ";
-			std::cout << std::endl;
-		}*/
-		// Fit the classifier with the training data
-		/*cv::FileStorage file_train("trainClass" + std::to_string((long double)i) + ".txt", cv::FileStorage::WRITE);
-		file_train << "trainClass_i" << trainClass_i;*/
+		trainClass_i = labels.col(i);
+		
 		if (prop->verbose)
 			std::cout << "Training(" << i << ")...";
 		clock_t start = clock();
-		rtrees[i].train(*normFeatures, CV_ROW_SAMPLE, trainClass_i);
+		rtrees[i].train(normFeatures, CV_ROW_SAMPLE, trainClass_i);
 		//rtrees[i].train(*normFeatures, CV_ROW_SAMPLE, trainClass_i, Mat(), Mat(), var_type, Mat(), params);
 		if (prop->verbose)
 			std::cout << "time:" << clock() - start << "ms" << std::endl;
@@ -208,22 +187,22 @@ void LearningRF::Fit(CvRTrees** ret, const Mat* labels, const Mat* normFeatures)
 	*ret = rtrees;
 }
 
-void LearningRF::Normalize(const Mat* input, Mat* output, const Mat* normalization)
+void LearningRF::Normalize(const Mat input, Mat* output, const Mat normalization)
 {
 	// initialize matrices
-	cv::Mat normSample = cv::Mat(input->size(), input->type());
+	cv::Mat normSample = cv::Mat(input.size(), input.type());
 	cv::Mat temp1, temp2, norm_i;
 	std::string line;
-	for (int i = 0; i < input->cols; i++)
+	for (int i = 0; i < input.cols; i++)
 	{
 		// Read mean and std from normalization Mat
-		Mat row_i = normalization->row(i);
+		Mat row_i = normalization.row(i);
 
 		float a, b;
 		a = row_i.at<float>(0, 0);
 		b = row_i.at<float>(0, 1);
 
-		cv::subtract(input->col(i), a, temp1);
+		cv::subtract(input.col(i), a, temp1);
 		cv::divide(temp1, b, temp2);
 		norm_i = normSample.colRange(i, i + 1);
 		temp2.copyTo(norm_i);
@@ -232,14 +211,14 @@ void LearningRF::Normalize(const Mat* input, Mat* output, const Mat* normalizati
 	*output = normSample;
 }
 
-void LearningRF::Predict(float** ret, CvRTrees* rtrees, const Mat* normFeatures)
+void LearningRF::Predict(float** ret, CvRTrees* rtrees, const Mat normFeatures)
 {
 	float *prediction = new float[Constants::NUM_CLASSIFIERS];
 
 	// Initialice rtree;
-	for (int i = 0; i<Constants::NUM_CLASSIFIERS; i++){
+	for (int i = 0; i < Constants::NUM_CLASSIFIERS; i++){
 
-		prediction[i] = rtrees[i].predict_prob(*normFeatures);
+		prediction[i] = rtrees[i].predict_prob(normFeatures);
 	}
 
 	*ret = prediction;
