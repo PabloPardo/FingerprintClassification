@@ -63,7 +63,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)opencv\build\x86\vc12\lib;$(SolutionDir)opencv\build\x86\vc12\staticlib;$(SolutionDir)lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>IlmImfd.lib;libjpegd.lib;zlibd.lib;libpngd.lib;libtiffd.lib;libjasperd.lib;opencv_core2411d.lib;opencv_ml2411d.lib;opencv_highgui2411d.lib;opencv_imgproc2411d.lib;opencv_ts2411d.lib;FpFeaturesLibraryd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ImportLibrary>$(SolutionDir)lib\$(TargetName)d.lib</ImportLibrary>
+      <ImportLibrary>$(SolutionDir)lib\$(TargetName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -92,12 +92,16 @@
     <ClInclude Include="inc\LearningRF.h" />
     <ClInclude Include="inc\MainRF.h" />
     <ClInclude Include="inc\utils.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ApiRF.cpp" />
     <ClCompile Include="src\LearningRF.cpp" />
     <ClCompile Include="src\MainRF.cpp" />
     <ClCompile Include="src\utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="FingerprintClassification.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
