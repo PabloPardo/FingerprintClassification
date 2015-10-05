@@ -5,13 +5,6 @@
 using namespace cv;
 using namespace std;
 
-struct LearnData
-{
-	CvRTrees* rtrees;
-	cv::Mat normalization;
-	void write(const char* outPath);
-};
-
 class LearningRF
 {
 public:

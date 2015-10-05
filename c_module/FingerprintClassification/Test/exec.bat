@@ -1,0 +1,1 @@
+Test.exe //ssd2015/DataFase1/Empremptes/CSVs/%1.csv //ssd2015/DataFase1/Empremptes/PNGs/2014/All/ //ssd2015/DataFase1/Empremptes/Extracted/%1.csv

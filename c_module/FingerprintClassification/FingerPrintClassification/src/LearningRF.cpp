@@ -72,20 +72,37 @@ void LearningRF::Extract(const vector<string> imgPaths, const vector<string> img
 {
 	Mat tmp = Mat();
 	
-	for (unsigned int i = 0; i < imgPaths.size(); i++)
+	string base = "";
+	bool samePath = false;
+	if (imgPaths.size() == 1)
+	{
+		base = imgPaths[0];
+		samePath = true;
+	}
+
+	for (unsigned int i = 0; i < imgFileNames.size(); i++)
 	{
 		clock_t time_a = clock();
-		Mat in = imread(imgPaths[i] + "/" + imgFileNames[i], IMREAD_GRAYSCALE);
+		
+		Mat in;
+		string path = "";
+		if (samePath)
+			path = base + "/" + imgFileNames[i];
+		else
+			path = imgPaths[i] + "/" + imgFileNames[i];
+		
+		in = imread(path, IMREAD_GRAYSCALE);
+
 		if(in.rows == 0)
 		{
 			if(prop->verbose)
 			{
-				cout << "[" << imgFileNames[i] << "]" << (i+1) << " of " << imgPaths.size() << ". Not Found!" << endl;
+				cout << "[" << imgFileNames[i] << "]" << (i+1) << " of " << imgFileNames.size() << ". Not Found!" << endl;
 			}
 			ofstream myfile("extractNF.txt", ios_base::app);
 			if (myfile.is_open())
 			{
-				myfile << imgPaths[i] + "/" + imgFileNames[i] << endl;
+				myfile << path << endl;
 				myfile.close();
 			}
 			else cout << "Unable to open file";
@@ -101,7 +118,7 @@ void LearningRF::Extract(const vector<string> imgPaths, const vector<string> img
 		
 		clock_t time_b = clock();
 		if (prop->verbose)
-			cout << "[" << imgFileNames[i] << "]" << (i+1) << " of " << imgPaths.size() << ". length: [" << tmp.rows << "," << tmp.cols << "] time: " << (long)(time_b - time_a) << endl;
+			cout << "[" << imgFileNames[i] << "]" << (i+1) << " of " << imgFileNames.size() << ". length: [" << tmp.rows << "," << tmp.cols << "] time: " << (long)(time_b - time_a) << endl;
 	}
 	
 	*rawFeatures = tmp;

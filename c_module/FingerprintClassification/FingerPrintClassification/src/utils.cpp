@@ -162,6 +162,10 @@ LabelsAndFeaturesData readCSV(const char *path, const char* imagesBasePath){
 		
 	} while(getline(ifs, line));
 
+	if (head_ruta_fitxer = -1 && imagesBasePath != NULL)
+	{
+		imgPaths.push_back(imagesBasePath);
+	}
 	LabelsAndFeaturesData ret = { M, imgFileNames, imgPaths, F};
 
 	return ret;
@@ -172,7 +176,7 @@ int countLines(const char *path) {
     string line;
     ifstream myfile(path);
 
-	if(NULL == myfile)
+	if(!myfile.is_open())
 	{
 		throwError((string)"ERROR: file " + path + " could not be opened. Is the path okay?");
 	}
