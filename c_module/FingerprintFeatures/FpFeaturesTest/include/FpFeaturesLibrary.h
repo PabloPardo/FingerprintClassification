@@ -3,12 +3,12 @@
 #ifndef FPFEATURESLIBRARY_H
 #define	FPFEATURESLIBRARY_H
 
+using namespace cv;
 struct Config {
 	bool verboseGrad;
 	bool verboseHough;
 	bool verboseDens;
 	bool verboseEntropy;
-	bool verboseDiff;
 	char* path;
 	char* fileName;
 };
@@ -17,13 +17,12 @@ struct Config {
 #ifdef __cplusplus
 extern "C" {
 #endif
-	__declspec(dllimport) void setConfig(Config* cfg);
-	__declspec(dllimport) cv::Mat hist_density(const cv::Mat* image, int radius, int n_bins);
-	__declspec(dllimport) cv::Mat hist_grad(const cv::Mat* image, int radius, int n_bins);
-	__declspec(dllimport) cv::Mat diferentiate_img(const cv::Mat* image);
-	__declspec(dllimport) cv::Mat hist_entropy(const cv::Mat* img, int radius, int n_bins);
-	__declspec(dllimport) float entropy(const cv::Mat*, const cv::Mat*);
-	__declspec(dllimport) cv::Mat hist_hough(const cv::Mat* img, int n_bins);
+	__declspec(dllimport) void setConfig(Config*);
+	__declspec(dllimport) void hist_density(Mat*, const Mat, int, int);
+	__declspec(dllimport) void hist_grad(Mat*, const Mat, int, int);
+	__declspec(dllimport) void diferentiate_img(Mat*, const Mat);
+	__declspec(dllimport) void hist_entropy(Mat*, const Mat, int, int);
+	__declspec(dllimport) void hist_hough(Mat*, const Mat, int);
 #ifdef __cplusplus
 }
 #endif

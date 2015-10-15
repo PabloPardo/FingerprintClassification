@@ -2,25 +2,22 @@
 
 #include "opencv2\imgproc\imgproc.hpp"
 #include "opencv2\ml\ml.hpp"
-#include "FingerPrintClassification.h"
 
 #ifndef UTILS_H
 #define UTILS_H
 
-void throwError(std::string error);
-int countLines(const char *path);
+using namespace cv;
+using namespace std;
 
 struct Constants
 {
-	static const int TOTAL_FEATURES = 914;
+	static const int TOTAL_FEATURES = 923;
 
 	static const int NUM_ROW_SEGMENTS = 3;
 	static const int NUM_COL_SEGMENTS = 2;
 	static const int NUM_CLASSIFIERS = 6;
-	static const int NUM_FEATURES = 13;
+	static const int NUM_FEATURES = 22;
 };
-
-
 
 enum CSV_HEADERS 
 {
@@ -50,33 +47,52 @@ enum CSV_HEADERS
 };
 
 struct LabelsAndFeaturesData {
-	cv::Mat matrix;
-	std::vector<std::string> imgFileNames;
-	cv::Mat features;
+	Mat matrix;
+	vector<string> imgFileNames;
+	vector<string> imgPaths;
+	Mat features;
 };
 
-LabelsAndFeaturesData readCSV(const char*);
+struct Properties
+{
+	int n_bins; //	Number of histogram bins.
+	int rad_grad; // Gradient Radius.
+	int rad_dens; // Density Radius.
+	int rad_entr; // Entropy Radius.
+	int max_depth; // Max depth of the trees in the Random Forest.
+	int min_samples_count; // Min samples needed to split a leaf.
+	int max_categories; // Max number of categories.
+	int max_num_of_trees_in_forest; // Max number of trees in the forest.
+	int nactive_vars; // nactive_vars,
 
-cv::Mat oneVsAll(cv::Mat labels, int tar_class);
+	bool verbose;
 
-void printParamsRF(const Properties& prop);
+	Properties() {
+		n_bins = 32;
+		rad_grad = 1;
+		rad_dens = 3;
+		rad_entr = 5;
+		max_depth = 16;
+		min_samples_count = 2;
+		max_categories = 3;
+		max_num_of_trees_in_forest = 10;
+		nactive_vars = 0;
+		verbose = false;
+	};
+	friend std::ostream& operator<<(std::ostream& os, const Properties& prop);
+};
 
-void printParamsSVM(const PropertiesSVM& propSVM);
-
-cv::Mat importFileFeatures(const char*, bool, const int);
-
-void exportFileFeatures(cv::Mat, std::vector<std::string>,const char*);
-
-cv::Mat createNormalizationFile(const char* outPath, cv::Mat trainSamples);
-
-cv::Mat readTrainedMeanStd(const char* normalizationFilePath,cv::Mat sample);
-
+void throwError(string error);
+int countLines(const char*);
+LabelsAndFeaturesData readCSV(const char*, const char* = NULL);
+Mat CropImage(int, int, const Mat);
+Mat** GetImageRegions(const Mat);
+void printParamsRF(const Properties&);
+void loadNormalization(Mat*, const char*);
+void saveNormalization(const Mat, const char*);
+Mat importFileFeatures(const char*, bool, const int);
+void exportFileFeatures(Mat, vector<string>, const char*);
 void allocateRtrees(CvRTrees***, const int, const int);
-
-void allocateSVMs(CvSVM***, const int, const int);
-
 void releaseRTrees(CvRTrees**, const int, const int);
-
-void releaseSVMs(CvSVM**, const int, const int);
 
 #endif /* UTILS_H */

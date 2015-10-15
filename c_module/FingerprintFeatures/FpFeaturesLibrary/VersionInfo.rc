@@ -14,8 +14,8 @@ LANGUAGE LANG_SPANISH, SUBLANG_SPANISH_MODERN
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 3,0,0,3
- PRODUCTVERSION 3,0,0,3
+ FILEVERSION 0,0,0,6
+ PRODUCTVERSION 0,0,0,6
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -32,9 +32,9 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "GEYCE BIOMETRICS"
             VALUE "FileDescription", "Fingerprint Features"
-            VALUE "FileVersion", "3.0.0.3"
+            VALUE "FileVersion", "0.0.0.6"
             VALUE "ProductName", "FingerPrintFeatures"
-            VALUE "ProductVersion", "3.0.0.3"
+            VALUE "ProductVersion", "0.0.0.6"
         END
     END
     BLOCK "VarFileInfo"

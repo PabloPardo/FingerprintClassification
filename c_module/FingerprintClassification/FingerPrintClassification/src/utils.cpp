@@ -7,11 +7,13 @@
 #include "opencv2\imgproc\imgproc.hpp"
 #include "opencv2\ml\ml.hpp"
 
+using namespace std;
+using namespace cv;
 
-void throwError(std::string error) {
-	std::string err = error;
-	std::cerr << err << std::endl;
-	throw std::exception(err.c_str());
+void throwError(string error) {
+	string err = error;
+	cerr << err << endl;
+	throw exception(err.c_str());
 }
 
 /**************************************************************************
@@ -21,156 +23,176 @@ void throwError(std::string error) {
 *		head  : Boolean to determine whether the csv file has heather or not.
 *
 ***************************************************************************/
-LabelsAndFeaturesData readCSV(const char *path){
+LabelsAndFeaturesData readCSV(const char *path, const char* imagesBasePath){
 
 	// Count the number of lines in the file to allocate memory.
 	int n_lines = countLines(path);
 	if(n_lines == 0)
-		throwError("ERROR: CSV " + (std::string)path + " contains no data");
+		throwError("ERROR: CSV " + (string)path + " contains no data");
 	// Use string instead of char*
-	std::string spath(path);
+	string spath(path);
 
 	// Open CSV file
-	std::ifstream ifs(path, std::ifstream::in);
+	ifstream ifs(path, ifstream::in);
 	if (!ifs.is_open()) {
 		throwError("ERROR: file " + spath + " could not be opened. Is the path okay?");
 	}
 
-	std::string line;
+	string line;
 
 	// Read File
-	std::string value;
-	//std::string dir = spath.substr(0, spath.find_last_of("\\/"));
+	string value;
+	//string dir = spath.substr(0, spath.find_last_of("\\/"));
 	
-	cv::Mat M(n_lines, Constants::NUM_CLASSIFIERS, CV_32SC1);
+	Mat M(n_lines, Constants::NUM_CLASSIFIERS, CV_32SC1);
 	
-	cv::Mat F(n_lines, Constants::NUM_FEATURES, CV_32F);
+	Mat F(n_lines, Constants::NUM_FEATURES, CV_32F);
 	
-	std::vector<std::string> imgPaths(0);
+	vector<string> imgFileNames(0);
+	vector<string> imgPaths(0);
 	
 	int lcnt = 0;
+
+	int head_ruta_fitxer = 1;
 	int head_nom_fitxer = 2;
 	int head_img_labels_ini = 3;
 	int head_img_labels_end = 9;
+	int head_features_end = 22;
 
 	
-	std::getline(ifs, line);
-	std::istringstream iss(line);
-	std::getline(iss, value, ';');
+	getline(ifs, line);
+	istringstream iss(line);
+	getline(iss, value, ';');
 	int header_index = 0;
 	int find = value.find("Em");
 	if(find == 0) // Header
 	{
 		n_lines -= 1;			 // Substract the heather line from the count
-		M = cv::Mat(n_lines, Constants::NUM_CLASSIFIERS, CV_32SC1);
-		F = cv::Mat(n_lines, Constants::NUM_FEATURES, CV_32F);
+		head_ruta_fitxer = -1;
+		head_nom_fitxer = -1;
+		head_img_labels_ini = -1;
+		head_img_labels_end = -1;
+		head_features_end = -1;
+		M = Mat(n_lines, Constants::NUM_CLASSIFIERS, CV_32SC1);
+		F = Mat(n_lines, Constants::NUM_FEATURES, CV_32F);
 		do  { 
+			if (strcmp(value.c_str(), "EmRutaFitxer") == 0)
+				head_ruta_fitxer = header_index;
 			if(strcmp(value.c_str(),"EmNomFitxer") == 0)
 				head_nom_fitxer = header_index;
 			if(strcmp(value.c_str(),"EmBorrosa") == 0)
 				head_img_labels_ini = header_index;
-			if(strcmp(value.c_str(),"EmDefectuosa") == 0)
+			if (strcmp(value.c_str(), "dedo") == 0)
+			{
 				head_img_labels_end = header_index;
+			}
+			if (strcmp(value.c_str(), ">.9") == 0)
+			{	
+				head_features_end = header_index;
+			}
 			header_index++;
-		} while (std::getline(iss, value, ';'));
-		std::getline(ifs, line);
+		} while (getline(iss, value, ';'));
+		getline(ifs, line);
 	}
 	do
 	{
 		if (line.empty())
 		continue; 
 
-		std::istringstream iss(line);
+		istringstream iss(line);
 
 		// Read Line
 		int cnt = 0;
-
-		while (std::getline(iss, value, ';')) { 
+		while (getline(iss, value, ';')) { 
 			try
 			{
+				if (cnt == head_ruta_fitxer) {
+					string pathFitxer;
+					if(imagesBasePath != NULL)
+						pathFitxer = imagesBasePath + value;
+					else
+						pathFitxer = value;
+					imgPaths.push_back(pathFitxer);
+				}
+				
 				if(cnt == head_nom_fitxer) {
 					// Image name
-					// Store it into std::string *imgPaths
-					imgPaths.push_back(value);
+					// Store it into string *imgPaths
+					imgFileNames.push_back(value);
 				}
 
-				if(cnt >= head_img_labels_ini && cnt <= head_img_labels_end) {
-					// Image Labels
-					M.at<int>(lcnt,cnt-head_img_labels_ini) = atoi(value.c_str());
-				}
-			
-				if(cnt > head_img_labels_end)
+				if (head_img_labels_ini > 0)
 				{
-					F.at<float>(lcnt,cnt-head_img_labels_end - 1) = atof(value.c_str());
+
+					if (cnt >= head_img_labels_ini && cnt < head_img_labels_end) {
+						// Image Labels
+						M.at<int>(lcnt, cnt - head_img_labels_ini) = atoi(value.c_str());
+					}
 				}
-			
+				if (head_img_labels_end > 0)
+				{
+					if (cnt >= head_img_labels_end && cnt <= head_features_end)
+					{
+						if (cnt == head_img_labels_end) //dedo
+						{
+							int dedo = atoi(value.c_str());
+							for (int i = 0; i < 10; i++)
+							{
+								if (dedo == i+1)
+									F.at<float>(lcnt, cnt - head_img_labels_end + i) = 1;
+								else
+									F.at<float>(lcnt, cnt - head_img_labels_end + i) = 0;
+							}
+						}
+						else
+						{
+							F.at<float>(lcnt, cnt - head_img_labels_end + 9) = (float)atof(value.c_str());
+						}
+						
+					}
+				}
 				++cnt;
 			} 
 			catch(...)
 			{
-				std::cout << "Línia:" << lcnt << std::endl;
+				cout << "Línia:" << lcnt << endl;
 			}
 		}
 		++lcnt;
-	} while(std::getline(ifs, line));
+		
+	} while(getline(ifs, line));
 
-
-	LabelsAndFeaturesData ret = { M, imgPaths, F};
+	if (head_ruta_fitxer = -1 && imagesBasePath != NULL)
+	{
+		imgPaths.push_back(imagesBasePath);
+	}
+	LabelsAndFeaturesData ret = { M, imgFileNames, imgPaths, F};
 
 	return ret;
 }
 
 int countLines(const char *path) {
-   unsigned int number_of_lines = 0;
-    FILE *infile = fopen(path, "r");
-    int ch;
+	int number_of_lines = 0;
+    string line;
+    ifstream myfile(path);
 
-	if(NULL == infile)
+	if(!myfile.is_open())
 	{
-		throwError((std::string)"ERROR: file " + path + " could not be opened. Is the path okay?");
+		throwError((string)"ERROR: file " + path + " could not be opened. Is the path okay?");
 	}
-		
 
-    while (EOF != (ch=getc(infile)))
-        if ('\n' == ch)
-            ++number_of_lines;
-
-	fclose(infile);
+    while (getline(myfile, line))
+        ++number_of_lines;
+	
+	myfile.close();
 
     return number_of_lines;
 }
 
-cv::Mat oneVsAll(cv::Mat labels, int tar_class){
-	cv::Mat res(labels.cols, 1, labels.type());
-
-	for(int i = 0; i<labels.cols; i++){
-		// Set 0 if the class is not tar_class
-		// Set 1 if the class is tar_class
-		if(labels.at<int>(tar_class, i) != 1)
-			res.at<int>(i, 0) = 0;
-		else
-			res.at<int>(i, 0) = 1;
-	}
-	return res;
-}
-
 void exportFileFeatures(cv::Mat trainSamples, std::vector<std::string> imgPaths, const char* outFile)
 {
-	/*char path_buffer[_MAX_PATH];
-	char drive[_MAX_DRIVE];
-	char dir[_MAX_DIR];
-	char fname[_MAX_FNAME];
-	char ext[_MAX_EXT];
-				
-	errno_t err;
-				
-	err = _splitpath_s(outPath,drive,_MAX_DRIVE,dir,_MAX_DIR,fname,_MAX_FNAME,ext,_MAX_EXT);
-	if(err != 0)
-	{
-		throwError("Couldn't split path:" + (std::string)outPath);
-	}*/
-	std::string fileName = outFile;
-	std::ofstream myfile (fileName);
+	string fileName = outFile;
+	ofstream myfile (fileName);
 	if (myfile.is_open())
 	{
 		for(int i = 0; i < trainSamples.rows; i++)
@@ -190,52 +212,74 @@ void exportFileFeatures(cv::Mat trainSamples, std::vector<std::string> imgPaths,
 
 void printParamsRF(const Properties& prop)
 {
-	std::cout << "n_bins:" << prop.n_bins << std::endl;
-	std::cout << "rad_grad:" << prop.rad_grad << std::endl;
-	std::cout << "rad_dens:" << prop.rad_dens << std::endl;
-	std::cout << "rad_entr:" << prop.rad_entr << std::endl;
-	std::cout << "max_depth:" << prop.max_depth << std::endl;
-	std::cout << "min_samples_count:" << prop.min_samples_count << std::endl;
-	std::cout << "max_categories:" << prop.max_categories << std::endl;
-	std::cout << "max_num_of_trees_in_forest:" << prop.max_num_of_trees_in_forest << std::endl;
+	cout << "n_bins:" << prop.n_bins << endl;
+	cout << "rad_grad:" << prop.rad_grad << endl;
+	cout << "rad_dens:" << prop.rad_dens << endl;
+	cout << "rad_entr:" << prop.rad_entr << endl;
+	cout << "max_depth:" << prop.max_depth << endl;
+	cout << "min_samples_count:" << prop.min_samples_count << endl;
+	cout << "max_categories:" << prop.max_categories << endl;
+	cout << "max_num_of_trees_in_forest:" << prop.max_num_of_trees_in_forest << endl;
 
-	std::cout << "TOTAL_FEATURES:" << Constants::TOTAL_FEATURES << std::endl;
-	std::cout << "NUM_ROW_SEGMENTS:" << Constants::NUM_ROW_SEGMENTS << std::endl;
-	std::cout << "NUM_COL_SEGMENTS:" << Constants::NUM_COL_SEGMENTS << std::endl;
-	std::cout << "NUM_CLASSIFIERS:" << Constants::NUM_CLASSIFIERS << std::endl;
-	std::cout << "NUM_FEATURES:" << Constants::NUM_FEATURES << std::endl;
+	cout << "TOTAL_FEATURES:" << Constants::TOTAL_FEATURES << endl;
+	cout << "NUM_ROW_SEGMENTS:" << Constants::NUM_ROW_SEGMENTS << endl;
+	cout << "NUM_COL_SEGMENTS:" << Constants::NUM_COL_SEGMENTS << endl;
+	cout << "NUM_CLASSIFIERS:" << Constants::NUM_CLASSIFIERS << endl;
+	cout << "NUM_FEATURES:" << Constants::NUM_FEATURES << endl;
 }
 
-void printParamsSVM(const PropertiesSVM& propSVM)
-{
-	std::cout << "n_bins:" << propSVM.n_bins << std::endl;
-	std::cout << "rad_grad:" << propSVM.rad_grad << std::endl;
-	std::cout << "rad_dens:" << propSVM.rad_dens << std::endl;
-	std::cout << "rad_entr:" << propSVM.rad_entr << std::endl;
-	std::cout << "svm_type:" << propSVM.svm_type << std::endl;
-	std::cout << "kernel_type:" << propSVM.kernel_type << std::endl;
-	std::cout << "gamma:" << propSVM.gamma << std::endl;
-	std::cout << "Cvalue:" << propSVM.Cvalue << std::endl;
-
-	std::cout << "TOTAL_FEATURES:" << Constants::TOTAL_FEATURES << std::endl;
-	std::cout << "NUM_ROW_SEGMENTS:" << Constants::NUM_ROW_SEGMENTS << std::endl;
-	std::cout << "NUM_COL_SEGMENTS:" << Constants::NUM_COL_SEGMENTS << std::endl;
-	std::cout << "NUM_CLASSIFIERS:" << Constants::NUM_CLASSIFIERS << std::endl;
-	std::cout << "NUM_FEATURES:" << Constants::NUM_FEATURES << std::endl;
-}
-
-bool has_suffix(const std::string &str, const std::string &suffix)
+bool has_suffix(const string &str, const string &suffix)
 {
     return str.size() >= suffix.size() &&
            str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
 }
 
-cv::Mat importFileFeatures(const char* c_path_normalized, bool verbose, const int total_features)
+void loadNormalization(Mat* norMat, const char* normFile)
+{
+	ifstream ifs(normFile, ifstream::in);
+	if (!ifs.is_open()) {
+		throwError((string)"ERROR: file " + normFile + " could not be opened. Is the path okay?");
+	}
+
+	string line;
+	string value;
+	Mat ret = cv::Mat(Constants::TOTAL_FEATURES,2,CV_32F);
+	
+	for(int i = 0; i < ret.rows; i++)
+	{
+		getline(ifs, line);
+		if (line.empty())
+			continue; 
+		istringstream iss(line);
+		// Read Line
+		for(int j = 0; j < ret.cols; j++)
+		{
+			getline(iss, value, ' ');
+			ret.at<float>(i,j) = (float)atof(value.c_str());
+		}
+	}
+	*norMat = ret;
+}
+
+void saveNormalization(const Mat norMat, const char* normFile)
+{	
+	ofstream file;
+	file.open(normFile);
+	
+	for (int i = 0; i < norMat.rows; i++)
+	{
+		file << norMat.at<float>(i,0) << ' ' << norMat.at<float>(i,1) << endl;
+	}
+
+	file.close();
+}
+
+Mat importFileFeatures(const char* c_path_normalized, bool verbose, const int total_features)
 {
 	char* path = (char*)c_path_normalized;
 
 	if(verbose)
-		std::cout << "Counting lines...";
+		std::cout << "Counting lines..." << std::endl;
 	int n_lines = countLines(path);
 	if(verbose)
 		std::cout << "{" << n_lines << "}" << std::endl;
@@ -247,101 +291,34 @@ cv::Mat importFileFeatures(const char* c_path_normalized, bool verbose, const in
 		throwError((std::string)"ERROR: file " + path + " could not be opened. Is the path okay?");
 	}
 
-	std::string line;
-	std::string value;
-	cv::Mat ret = cv::Mat(n_lines,total_features,CV_32F);
+	string line;
+	string value;
+	Mat ret = cv::Mat(n_lines,total_features,CV_32F);
 	int percent = n_lines / 10;
 	if(verbose)
-		std::cout << "Loading data";
+		std::cout << "Loading data..." << std::endl;
 	for(int i = 0; i < ret.rows; i++)
 	{
-		std::getline(ifs, line);
+		getline(ifs, line);
 		if (line.empty())
 			continue; 
-		std::istringstream iss(line);
+		istringstream iss(line);
 		// Read Line
 		for(int j = 0; j < ret.cols; j++)
 		{
-			std::getline(iss, value, ',');
+			getline(iss, value, ',');
 			if(has_suffix(value,".png"))
 			{
+				if(verbose && i % percent == 0)
+					cout << "imagen[" << i << "]" << value << endl;
 				//Useless fileName header
 				j--;
 				continue;
 			}
-			ret.at<float>(i,j) = atof(value.c_str());
+			ret.at<float>(i,j) = (float)atof(value.c_str());
 		}
-		if(verbose && i % percent == 0)
-			std::cout << ".";
 	}
-
-
 	return ret;
-}
-
-cv::Mat createNormalizationFile(const char* outPath, cv::Mat trainSamples) 
-{
-	//NORMALIZE
-	// Write the mean and std into a file as part of the model
-	char fname[10000];
-		
-	sprintf(fname, "%snormalization.csv", outPath);
-		
-	std::ofstream file;
-	file.open(fname);
-	cv::Mat temp1, temp2, mean, std, norm_i,ret;
-	ret = cv::Mat(trainSamples.size(), trainSamples.type());
-	//for (int i = trainSamples.cols - 1; i >= 0; i--)
-	for (int i = 0; i < trainSamples.cols; i++)
-	{
-		cv::meanStdDev(trainSamples.col(i), mean, std);
-		cv::subtract(trainSamples.col(i), mean, temp1);
-		cv::divide(temp1, std, temp2);
-		norm_i = ret.colRange(i, i+1);
-		temp2.copyTo(norm_i);
-		file << mean.at<double>(0,0) << ' ' << std.at<double>(0,0) << std::endl;
-	}
-	
-	file.close();
-	return ret;
-}
-
-cv::Mat readTrainedMeanStd(const char* normalizationFilePath,cv::Mat sample) 
-{
-	//NORMALIZE
-	// Read train mean and std to normalize the test mean
-	//TODO: Normalize test
-	char fname[10000];
-	sprintf(fname, "%snormalization.csv", normalizationFilePath);
-	std::ifstream file;
-	file.open(fname);
-
-	// initialize matrices
-	cv::Mat normSample = cv::Mat(sample.size(), sample.type());
-	cv::Mat temp1, temp2, norm_i;
-	std::string line;
-	for (int i = sample.cols - 1; i >= 0; i--){
-		// Read mean and std from csv line
-		std::getline(file, line);
-		std::istringstream iss(line);
-		float a, b;
-		if (!(iss >> a >> b)) 
-			break;// error
-		/*else {
-			cv::Mat mean(a);
-			cv::Mat std(b);
-		}*/
-
-		cv::subtract(sample.col(i), a, temp1);
-		cv::divide(temp1, b, temp2);
-		norm_i = normSample.colRange(i, i+1);
-		temp2.copyTo(norm_i);
-		//mean.release();
-		//std.release();
-	}
-
-	file.close();
-	return normSample;
 }
 
 void allocateRtrees(CvRTrees*** data, const int rows, const int cols)
@@ -352,14 +329,6 @@ void allocateRtrees(CvRTrees*** data, const int rows, const int cols)
 	*data = rtrees;
 }
 
-void allocateSVMs(CvSVM*** data, const int rows, const int cols)
-{
-	CvSVM** svms = new CvSVM*[rows];
-	for (int i = 0; i < rows; ++i)
-		svms[i] = new CvSVM[cols];
-	*data = svms;
-}
-
 void releaseRTrees(CvRTrees** matrix, const int rows, const int cols) 
 {
 	for (int i = 0; i < rows; ++i)
@@ -367,9 +336,59 @@ void releaseRTrees(CvRTrees** matrix, const int rows, const int cols)
 	delete [] matrix;
 }
 
-void releaseSVMs(CvSVM** matrix, const int rows, const int cols) 
+/**************************************************************************
+*						CropImage
+*						----------------------
+*		params->
+*			row			: Row selected
+*			col			: Col selected
+*			img			: Reference to the image.
+*		returns->
+*			cv::Mat subset of img region(row,col)
+*
+***************************************************************************/
+cv::Mat CropImage(int row, int col, const Mat img)
 {
-	for (int i = 0; i < rows; ++i)
-		delete [] matrix[i];
-	delete [] matrix;
+	int row_split = img.rows / Constants::NUM_ROW_SEGMENTS;
+	int col_split = img.cols / Constants::NUM_COL_SEGMENTS;
+	int mod_row_split = img.rows % Constants::NUM_ROW_SEGMENTS;
+	int mod_col_split = img.cols % Constants::NUM_COL_SEGMENTS;
+
+	int start_row = row*row_split;
+	int end_row = (row + 1)*row_split;
+	int start_col = col*col_split;
+	int end_col = (col + 1)*col_split;
+
+	if (end_row == img.rows - mod_row_split)
+		end_row += mod_row_split;
+
+	if (end_col == img.cols - mod_col_split)
+		end_col += mod_col_split;
+
+	cv::Rect rect = cv::Rect(start_col, start_row, end_col - start_col, end_row - start_row);
+
+	return cv::Mat((img)(rect));
+}
+
+/**************************************************************************
+*						GetImageRegions
+*						----------------------
+*		params->
+*			img		 : Reference to the image.
+*		returns->
+*			array of cv::Mat with every region
+*
+***************************************************************************/
+cv::Mat** GetImageRegions(const Mat img) {
+
+	cv::Mat** ret = new cv::Mat*[Constants::NUM_ROW_SEGMENTS];
+	for (int i = 0; i < Constants::NUM_ROW_SEGMENTS; ++i)
+		ret[i] = new cv::Mat[Constants::NUM_COL_SEGMENTS];
+
+	for (int i = 0; i < Constants::NUM_ROW_SEGMENTS; i++) {
+		for (int j = 0; j < Constants::NUM_COL_SEGMENTS; j++) {
+			ret[i][j] = CropImage(i, j, img);
+		}
+	}
+	return ret;
 }

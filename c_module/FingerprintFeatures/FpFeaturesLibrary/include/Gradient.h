@@ -1,14 +1,14 @@
 #include "opencv2\core\core.hpp"
 #include "types.h"
 using namespace std;
+using namespace cv;
 #pragma once
 class Gradient
 {
-	//FingerPrintFeatures* padre;
 public:
 	Gradient();
 	~Gradient();
-	cv::Mat gradient_pix(int i, int j, const cv::Mat* img, int radius);
-	cv::Mat gradient_img(const cv::Mat* img, int radius, Config* = NULL);
+	cv::Mat gradient_pix(int, int, const Mat, int);
+	cv::Mat gradient_img(const cv::Mat , int, Config* = NULL);
 };
 
