@@ -83,14 +83,14 @@ struct Properties
 };
 
 void throwError(string error);
-int countLines(const char*);
+int countLines(const char*, bool = false);
 LabelsAndFeaturesData readCSV(const char*, const char* = NULL);
 Mat CropImage(int, int, const Mat);
 Mat** GetImageRegions(const Mat);
 void printParamsRF(const Properties&);
 void loadNormalization(Mat*, const char*);
 void saveNormalization(const Mat, const char*);
-Mat importFileFeatures(const char*, bool, const int);
+void importFileFeatures(vector<string>*, Mat*, const char*, bool, const int);
 void exportFileFeatures(Mat, vector<string>, const char*);
 void allocateRtrees(CvRTrees***, const int, const int);
 void releaseRTrees(CvRTrees**, const int, const int);

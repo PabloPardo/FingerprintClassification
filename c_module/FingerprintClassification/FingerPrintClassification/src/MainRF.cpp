@@ -12,7 +12,7 @@ using namespace cv;
 MainRF::MainRF()
 {
 	learner = new LearningRF();
-	learner->prop->verbose = false;
+	learner->prop->verbose = true;
 }
 
 MainRF::~MainRF()
@@ -65,12 +65,27 @@ void MainRF::ExtractFingerPrint(int* lenFeatures, float** features, unsigned cha
 		*/
 }
 
+void MainRF::Normalize(const char* inputDir, const char* dataFile, const char* outputDir)
+{
+	Mat normalization;
+	Mat normTrainData;
+	Mat trainData;
+	vector<string> fNames;
+	string dataPath = ((string)inputDir + "/" + (string)dataFile);
+	importFileFeatures(&fNames, &trainData, dataPath.c_str(), learner->prop->verbose, Constants::TOTAL_FEATURES);
+	learner->CreateNorm(trainData, &normalization, &normTrainData);
+	exportFileFeatures(normTrainData, fNames, ((string)outputDir + "/Norm_" + dataFile).c_str());
+	saveNormalization(normalization, ((string)outputDir + "/normalization.csv").c_str());
+}
+
 void MainRF::Fit(const TrainPaths tPaths, const char* outputDir)
 {
 	Mat normalization;
 	CvRTrees* rtrees;
 	LabelsAndFeaturesData lfTData = readCSV(tPaths.labelsPath);	
-	Mat trainData = importFileFeatures(tPaths.dataPath,false,Constants::TOTAL_FEATURES);
+	Mat trainData;
+	vector<string> fNames;
+	importFileFeatures(&fNames, &trainData, tPaths.dataPath,false,Constants::TOTAL_FEATURES);
 				
 	Mat normTrainData;
 	
@@ -105,7 +120,8 @@ void MainRF::PredictTest(PredictPaths pPaths, const char* results)
 	
 
 	LabelsAndFeaturesData lfPData = readCSV(pPaths.labelsPath);	
-	Mat predictData = importFileFeatures(pPaths.dataPath, false, Constants::TOTAL_FEATURES);
+	Mat predictData;
+	importFileFeatures(NULL, &predictData, pPaths.dataPath, false, Constants::TOTAL_FEATURES);
 	Mat normPredictData;
 	learner->Normalize(predictData, &normPredictData, norMat);
 		

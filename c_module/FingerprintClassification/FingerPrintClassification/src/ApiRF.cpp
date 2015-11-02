@@ -37,6 +37,31 @@ extern "C" {
 		return ret;
 	}
 
+	__declspec(dllexport) ReturnType Normalize(const char* inputDir, const char* inputFile, const char* outDir)
+	{
+		ReturnType ret = { 0, "No Error" };
+		try
+		{
+			obj->Normalize(inputDir, inputFile, outDir);
+		}
+		catch (cv::Exception& ex)
+		{
+			ret.code = 1;
+			ret.message = ex.what();
+		}
+		catch (std::exception& ex)
+		{
+			ret.code = 2;
+			ret.message = ex.what();
+		}
+		catch (...)
+		{
+			ret.code = 3;
+			ret.message = "Unknown error";
+		}
+		return ret;
+	}
+
 	__declspec(dllexport) ReturnType Fit(const TrainPaths tPaths, const char* outputDir)
 	{
 		ReturnType ret = { 0, "No Error" };

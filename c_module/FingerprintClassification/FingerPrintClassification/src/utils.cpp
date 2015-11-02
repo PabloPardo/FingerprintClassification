@@ -1,3 +1,4 @@
+#include <time.h>
 #include <utils.h>
 #include <iostream>
 #include <fstream>
@@ -171,7 +172,7 @@ LabelsAndFeaturesData readCSV(const char *path, const char* imagesBasePath){
 	return ret;
 }
 
-int countLines(const char *path) {
+int countLines(const char *path, bool verbose) {
 	int number_of_lines = 0;
     string line;
     ifstream myfile(path);
@@ -180,9 +181,20 @@ int countLines(const char *path) {
 	{
 		throwError((string)"ERROR: file " + path + " could not be opened. Is the path okay?");
 	}
+	clock_t begin = clock();
+	while (getline(myfile, line))
+	{
 
-    while (getline(myfile, line))
-        ++number_of_lines;
+		++number_of_lines;
+		if (number_of_lines % 10000 == 0 && verbose)
+		{ 
+			clock_t end = clock();
+			cout << number_of_lines << " lines... " << double(end - begin) / CLOCKS_PER_SEC << " secs." << endl;
+			begin = clock();
+		}
+	}
+        
+
 	
 	myfile.close();
 
@@ -274,23 +286,23 @@ void saveNormalization(const Mat norMat, const char* normFile)
 	file.close();
 }
 
-Mat importFileFeatures(const char* c_path_normalized, bool verbose, const int total_features)
+void importFileFeatures(vector<string>* fNames, Mat* normData, const char* c_path_normalized, bool verbose, const int total_features)
 {
 	char* path = (char*)c_path_normalized;
 
 	if(verbose)
 		std::cout << "Counting lines..." << std::endl;
-	int n_lines = countLines(path);
+	int n_lines = countLines(path, verbose);
 	if(verbose)
 		std::cout << "{" << n_lines << "}" << std::endl;
 
 
 	// Open CSV file
-	std::ifstream ifs(path, std::ifstream::in);
+	ifstream ifs(path, ifstream::in);
 	if (!ifs.is_open()) {
-		throwError((std::string)"ERROR: file " + path + " could not be opened. Is the path okay?");
+		throwError((string)"ERROR: file " + path + " could not be opened. Is the path okay?");
 	}
-
+	vector<string> imgFileNames(0);
 	string line;
 	string value;
 	Mat ret = cv::Mat(n_lines,total_features,CV_32F);
@@ -311,14 +323,15 @@ Mat importFileFeatures(const char* c_path_normalized, bool verbose, const int to
 			{
 				if(verbose && i % percent == 0)
 					cout << "imagen[" << i << "]" << value << endl;
-				//Useless fileName header
+				imgFileNames.push_back(value);
 				j--;
 				continue;
 			}
 			ret.at<float>(i,j) = (float)atof(value.c_str());
 		}
 	}
-	return ret;
+	*normData = ret;
+	*fNames = imgFileNames;
 }
 
 void allocateRtrees(CvRTrees*** data, const int rows, const int cols)

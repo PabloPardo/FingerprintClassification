@@ -30,6 +30,7 @@ extern "C" {
 	__declspec(dllimport) ReturnType Extraction(const char*, const char*, const char*);
 	__declspec(dllimport) ReturnType ExtractFingerPrint(int*, float**, unsigned char*, int w, int h, float*);
 	__declspec(dllimport) ReturnType Fit(TrainPaths, const char*);
+	__declspec(dllimport) ReturnType Normalize(const char*, const char*, const char*);
 	__declspec(dllimport) ReturnType PredictTest(PredictPaths, const char*);
 	__declspec(dllimport) ReturnType Predict(int*, float**, Handle*, float*);
 	__declspec(dllimport) ReturnType InitModel(Handle**, const char*);

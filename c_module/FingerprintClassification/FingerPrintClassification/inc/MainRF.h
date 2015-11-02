@@ -27,6 +27,7 @@ public:
 	~MainRF();
 	void ExtractFingerPrint(int*, float**, unsigned char*, int w, int h, float*);
 	void Extraction(const char*, const char*, const char*);
+	void Normalize(const char*, const char*, const char*);
 	void Fit(const TrainPaths,const char*);
 	void Predict(int*,float**, Handle*, float*);
 	void PredictTest(PredictPaths, const char*);

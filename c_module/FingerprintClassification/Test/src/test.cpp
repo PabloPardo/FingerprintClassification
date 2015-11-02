@@ -112,6 +112,10 @@ void Predict_Main(int argc, char* argv[])
 
 int main(int argc, char* argv[]){
 
+	
+	/*long size = 1179855 * 914;
+	float* f = new float[size];*/
+
 	/*for (int i = 0; i < 1000; i++)
 	{ 
 		CvRTrees* arr = new CvRTrees[6];
@@ -124,7 +128,13 @@ int main(int argc, char* argv[]){
 	//InitModel(&hnd,argv[1]);
 	//ReleaseModel(hnd);
 
-	Predict_Main(argc,argv);
+	const char* inputDir = "D:/Data/Empremptes/Extracted";
+	const char* inputFile = "201411_0404.csv";
+	const char* outputDir = "D:/Data/Empremptes/Extracted";
+
+	Normalize(inputDir, inputFile, outputDir);
+
+	//Predict_Main(argc,argv);
 
 	//Fit_And_Predict_Main();
 
