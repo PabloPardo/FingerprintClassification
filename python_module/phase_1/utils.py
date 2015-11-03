@@ -80,7 +80,7 @@ def eval_pred(pred_y, y, verbose=True):
         FPR = false_pos/float(false_pos + true_neg + 1e-16)
         pre = true_pos/float(true_pos + true_neg + 1e-16)
         rec = true_pos/float(true_pos + false_neg + 1e-16)
-        f1 = 2*pre*rec/(pre+rec)
+        f1 = 2*pre*rec/(pre+rec) if pre+rec != 0 else 0
         print '\tAccuracy: {0}\n\tError Rate: {1}\n\tPrecision: ' \
               '{2}\n\tRecall: {3}\n\tF1 Score: {4}\n\tNPV: {5}\n\tFPR: {6}\n' \
               '\tTP: {7}\n\tTN: {8}\n\tFP: {9}\n\tFN: {10}\n'.format(acc, err, pre, rec, f1,
