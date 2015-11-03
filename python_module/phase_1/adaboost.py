@@ -65,8 +65,8 @@ def build_stump(data_arr, class_labels, weigh_arr, num_steps=10.0):
                 err_arr = ones.copy()
                 err_arr[predicted_vals == label_mat] = 0
                 # err_arr[(predicted_vals == 1) & (label_mat == 1)] = -0.5
-                # err_arr[(predicted_vals == -1) & (label_mat == 1)] = 1
-                err_arr[(predicted_vals == 1) & (label_mat == -1)] = 3
+                err_arr[(predicted_vals == -1) & (label_mat == 1)] = 1
+                err_arr[(predicted_vals == 1) & (label_mat == -1)] = 1
 
                 weighted_error = np.dot(weigh_arr.T, err_arr)
                 # print "split: dim %d, thresh %.2f, thresh ineqal: %s, the weighted error is %.3f" % (i, thresh_val, inequal, weighted_error)
