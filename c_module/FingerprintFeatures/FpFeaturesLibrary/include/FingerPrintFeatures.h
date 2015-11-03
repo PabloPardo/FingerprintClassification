@@ -8,17 +8,15 @@ class FingerPrintFeatures
 {
 	Gradient* grad_api;
 	Density* dens_api;
-	float logTable[131072];
-	void initLogTable(int);
 public:
 	Config* cfg;
 	FingerPrintFeatures(Config*);
 	~FingerPrintFeatures(void);
-	void hist_density(Mat*, const Mat*, int, int);
-	void hist_grad(Mat*, const Mat*, int, int);
-	void diferentiate_img(Mat*, const Mat*);
-	void hist_entropy(Mat*, const Mat*, int, int);
-	float entropy(const Mat*, const Mat*);
-	void hist_hough(Mat*, const Mat*, int);
+	void hist_density(Mat*, const Mat, int, int);
+	void hist_grad(Mat*, const Mat, int, int);
+	void diferentiate_img(Mat*, const Mat);
+	void hist_entropy(Mat*, const Mat, int, int);
+	float entropy(const Mat, const Mat);
+	void hist_hough(Mat*, const Mat, int);
 };
 

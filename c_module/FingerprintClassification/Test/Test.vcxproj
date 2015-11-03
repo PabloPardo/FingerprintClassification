@@ -1,26 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="src\main_api.cpp" />
-    <ClCompile Include="src\utils.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="include\FoldSplitter.h" />
-    <ClInclude Include="inc\apirf.h" />
-    <ClInclude Include="inc\utils.h" />
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{87FA18B5-DDDB-4154-B0C1-83454B4C9A5D}</ProjectGuid>
+    <ProjectGuid>{1D091419-F4E4-4173-B8BF-4ED38AF6AD06}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Test</RootNamespace>
   </PropertyGroup>
@@ -28,11 +27,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
@@ -42,24 +56,33 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
-    <LibraryPath>$(ProjectDir)lib;$(LibraryPath)</LibraryPath>
-    <SourcePath>$(ProjectDir)src;$(SourcePath)</SourcePath>
-    <IncludePath>$(ProjectDir)inc;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;</IncludePath>
     <TargetName>$(ProjectName)</TargetName>
+    <IncludePath>$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <TargetName>$(ProjectName)</TargetName>
+    <IncludePath>$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
-    <SourcePath>$(ProjectDir)src;$(SourcePath)</SourcePath>
-    <IncludePath>$(ProjectDir)inc;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;</IncludePath>
-    <LibraryPath>$(ProjectDir)\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -67,14 +90,32 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\opencv\build\include</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>IlmImfd.lib;libjpegd.lib;zlibd.lib;libpngd.lib;libtiffd.lib;libjasperd.lib;opencv_core2411d.lib;opencv_ml2411d.lib;opencv_highgui2411d.lib;opencv_imgproc2411d.lib;opencv_ts2411d.lib;FpFeaturesLibraryd.lib;FingerPrintClassificationd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)opencv\build\x86\vc10\staticlib;$(SolutionDir)opencv\build\x86\vc10\lib;$(SolutionDir)lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\opencv\build\x86\vc12\lib;$(SolutionDir)..\opencv\build\x86\vc12\staticlib;$(SolutionDir)lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>IlmImfd.lib;libjpegd.lib;zlibd.lib;libpngd.lib;libtiffd.lib;libjasperd.lib;opencv_core2411d.lib;opencv_ml2411d.lib;opencv_highgui2411d.lib;opencv_imgproc2411d.lib;opencv_ts2411d.lib;FingerprintClassificationd.lib;FpFeaturesLibraryd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\opencv\build\include</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\opencv\build\x64\vc12\lib;$(SolutionDir)..\opencv\build\x64\vc12\staticlib;$(SolutionDir)lib\x64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>IlmImfd.lib;libjpegd.lib;zlibd.lib;libpngd.lib;libtiffd.lib;libjasperd.lib;opencv_core2411d.lib;opencv_ml2411d.lib;opencv_highgui2411d.lib;opencv_imgproc2411d.lib;opencv_ts2411d.lib;FingerprintClassificationd.lib;FpFeaturesLibraryd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -85,66 +126,99 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\opencv\build\include</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>IlmImf.lib;libjpeg.lib;zlib.lib;libpng.lib;libtiff.lib;libjasper.lib;opencv_core2411.lib;opencv_ml2411.lib;opencv_highgui2411.lib;opencv_imgproc2411.lib;opencv_ts2411.lib;FpFeaturesLibrary.lib;FingerPrintClassification.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)opencv\build\x86\vc10\staticlib;$(SolutionDir)opencv\build\x86\vc10\lib;$(SolutionDir)lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\opencv\build\x86\vc12\lib;$(SolutionDir)..\opencv\build\x86\vc12\staticlib;$(SolutionDir)lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>IlmImf.lib;libjpeg.lib;zlib.lib;libpng.lib;libtiff.lib;libjasper.lib;opencv_core2411.lib;opencv_ml2411.lib;opencv_highgui2411.lib;opencv_imgproc2411.lib;opencv_ts2411.lib;FingerprintClassification.lib;FpFeaturesLibrary.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\opencv\build\include</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\opencv\build\x64\vc12\lib;$(SolutionDir)..\opencv\build\x64\vc12\staticlib;$(SolutionDir)lib\x64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>IlmImf.lib;libjpeg.lib;zlib.lib;libpng.lib;libtiff.lib;libjasper.lib;opencv_core2411.lib;opencv_ml2411.lib;opencv_highgui2411.lib;opencv_imgproc2411.lib;opencv_ts2411.lib;FingerprintClassification.lib;FpFeaturesLibrary.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Content Include="..\opencv\build\x86\vc10\bin\opencv_core2411.dll">
+    <Content Include="..\..\opencv\build\x64\vc12\bin\opencv_core2411.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\opencv\build\x86\vc10\bin\opencv_core2411d.dll">
+    <Content Include="..\..\opencv\build\x64\vc12\bin\opencv_core2411d.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\opencv\build\x86\vc10\bin\opencv_highgui2411.dll">
+    <Content Include="..\..\opencv\build\x64\vc12\bin\opencv_highgui2411.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\opencv\build\x86\vc10\bin\opencv_highgui2411d.dll">
+    <Content Include="..\..\opencv\build\x64\vc12\bin\opencv_highgui2411d.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\opencv\build\x86\vc10\bin\opencv_imgproc2411.dll">
+    <Content Include="..\..\opencv\build\x64\vc12\bin\opencv_imgproc2411.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\opencv\build\x86\vc10\bin\opencv_imgproc2411d.dll">
+    <Content Include="..\..\opencv\build\x64\vc12\bin\opencv_imgproc2411d.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\opencv\build\x86\vc10\bin\opencv_objdetect2411.dll">
+    <Content Include="..\..\opencv\build\x64\vc12\bin\opencv_objdetect2411.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\opencv\build\x86\vc10\bin\opencv_objdetect2411d.dll">
+    <Content Include="..\..\opencv\build\x64\vc12\bin\opencv_objdetect2411d.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\opencv\build\x86\vc10\bin\opencv_ml2411.dll">
+    <Content Include="..\..\opencv\build\x64\vc12\bin\opencv_ml2411.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\opencv\build\x86\vc10\bin\opencv_ml2411d.dll">
+    <Content Include="..\..\opencv\build\x64\vc12\bin\opencv_ml2411d.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\opencv\build\x86\vc10\bin\tbb.dll">
+    <Content Include="..\..\opencv\build\x64\vc12\bin\tbb.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\opencv\build\x86\vc10\bin\tbb_debug.dll">
+    <Content Include="..\..\opencv\build\x64\vc12\bin\tbb_debug.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\dlls\FpFeaturesLibrary.dll">
+    <Content Include="..\dlls\x64\FpFeaturesLibrary.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\dlls\FpFeaturesLibraryd.dll">
+    <Content Include="..\dlls\x64\FpFeaturesLibraryd.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="exec.bat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FingerPrintClassification\FingerPrintClassification.vcxproj">
-      <Project>{fe4fc001-cdd3-4ea6-92ab-350901e593bb}</Project>
-    </ProjectReference>
+    <ClInclude Include="inc\apirf.h" />
+    <ClInclude Include="inc\FoldSplitter.h" />
+    <ClInclude Include="inc\utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\FoldSplitter.cpp" />
+    <ClCompile Include="src\test.cpp" />
+    <ClCompile Include="src\utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="exec.bat" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

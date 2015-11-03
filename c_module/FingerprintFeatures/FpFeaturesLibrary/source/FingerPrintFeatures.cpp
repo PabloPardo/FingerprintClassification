@@ -44,7 +44,7 @@ Computes the histogram of densities from an image.
 */
 
 
-void FingerPrintFeatures::hist_density(Mat* ret, const Mat* img, int radius, int n_bins=64)
+void FingerPrintFeatures::hist_density(Mat* ret, const Mat img, int radius, int n_bins)
 {	
 	Mat dens_img = dens_api->density_img(img, radius,cfg);
 	
@@ -58,7 +58,7 @@ void FingerPrintFeatures::hist_density(Mat* ret, const Mat* img, int radius, int
 	// Set histogram bins count
 	int histSize[] = { n_bins };
 	// Set ranges for histogram bins
-	float lranges[] = { minVal , maxVal };
+	float lranges[] = { (float)minVal , (float)maxVal };
 	const float* ranges[] = { lranges };
 	// create matrix for histogram
 	cv::Mat hist;
@@ -90,9 +90,9 @@ Computes the histogram of gradients from an image.
 : return : list of int
 """
 */
-void FingerPrintFeatures::hist_grad(Mat* ret, const Mat* img, int radius, int n_bins)
+void FingerPrintFeatures::hist_grad(Mat* ret, const Mat img, int radius, int n_bins)
 {	
-	Mat grad_img = grad_api->gradient_img(img, radius,cfg);
+	Mat grad_img = grad_api->gradient_img(img, radius, cfg);
 	
 	Mat grad_flatten = grad_img.reshape(0, 1);
 
@@ -101,7 +101,7 @@ void FingerPrintFeatures::hist_grad(Mat* ret, const Mat* img, int radius, int n_
 	// Set histogram bins count
 	int histSize[] = { n_bins };
 	// Set ranges for histogram bins
-	float lranges[] = { minVal, maxVal };
+	float lranges[] = { (float)minVal , (float)maxVal };
 	const float* ranges[] = { lranges };
 	// create matrix for histogram
 	cv::Mat hist;
@@ -121,11 +121,11 @@ void FingerPrintFeatures::hist_grad(Mat* ret, const Mat* img, int radius, int n_
 	
 }
 
-void FingerPrintFeatures::diferentiate_img(Mat* ret, const Mat* img)
+void FingerPrintFeatures::diferentiate_img(Mat* ret, const Mat img)
 {
 	int m, n;
-	m = img->rows;
-	n = img->cols;
+	m = img.rows;
+	n = img.cols;
 	Integral* api = new Integral();
 
 	int row_split = m / 3;
@@ -144,9 +144,9 @@ void FingerPrintFeatures::diferentiate_img(Mat* ret, const Mat* img)
 		int y2 = col_split;
 		int x3 = x1;
 		int y3 = n - 1;
-		int int1 = api->integrate(&ii, x0, y0, x1, y1);
-		int int2 = api->integrate(&ii, x2, y2, x3, y3);
-		dif.at<float>(0,i) = (abs(int1 - int2));
+		int int1 = api->integrate(ii, x0, y0, x1, y1);
+		int int2 = api->integrate(ii, x2, y2, x3, y3);
+		dif.at<float>(0,i) = (float)(abs(int1 - int2));
 	}
 	row_split = m / 2;
 
@@ -160,153 +160,26 @@ void FingerPrintFeatures::diferentiate_img(Mat* ret, const Mat* img)
 		int y2 = y0;
 		int x3 = m - 1;
 		int y3 = y1;
-		int int1 = api->integrate(&ii, x0, y0, x1, y1);
-		int int2 = api->integrate(&ii, x2, y2, x3, y3);
+		int int1 = api->integrate(ii, x0, y0, x1, y1);
+		int int2 = api->integrate(ii, x2, y2, x3, y3);
 
-		dif.at<float>(0,i+3) = (abs(int1 - int2));
+		dif.at<float>(0,i+3) = (float)(abs(int1 - int2));
 	}
 	if (cfg->verboseDiff)
 		cfg->writeMatToFile("DiffImage", &dif);
 	*ret = dif;
-
-	/*
-	m, n = img.shape
-
-	row_split = m / 3
-	col_split = n / 2
-
-	ii = integral_image(img)
-
-	dif = []
-	for i in range(3) :
-		x0 = i*row_split
-		y0 = 0
-		x1 = (i + 1)*row_split - 1
-		y1 = col_split
-
-		x2 = x0
-		y2 = col_split
-		x3 = x1
-		y3 = n - 1
-		int1 = integrate(ii, x0, y0, x1, y1)
-		int2 = integrate(ii, x2, y2, x3, y3)
-
-		dif.append(np.abs(int1 - int2))
-
-		row_split = m / 2
-
-		for i in range(2) :
-			x0 = 0
-			y0 = i*col_split
-			x1 = row_split
-			y1 = (i + 1)*col_split - 1
-
-			x2 = row_split
-			y2 = y0
-			x3 = m - 1
-			y3 = y1
-			int1 = integrate(ii, x0, y0, x1, y1)
-			int2 = integrate(ii, x2, y2, x3, y3)
-
-			dif.append(np.abs(int1 - int2))
-
-			return dif
-			*/
 }
 
-
-
-void FingerPrintFeatures::initLogTable(int r)
-{
-	int total = 0;
-	int d = r*2;
-	for(int i = (r) + 1; i <= d; i++)
-	{
-		for(int j = (r) + 1; j <= d; j++)
-		{
-			if(i>=j)
-				total += (i*j)+1;		
-		}	
-	}
-
-	int next = 0;
-	for(int i = (r) + 1; i <= d; i++)
-	{
-		for(int j = (r) + 1; j <= d; j++)
-		{
-			if(i>=j)
-			{
-				int n = i*j;
-				for(int k=0;k<=n;k++)
-				{
-					char buffer[100] = {0};
-					int number_base = 10;
-					float key = k/(float)n;
-					float logKey = log(key);
-					std::string key_str = _itoa(k,buffer,number_base);
-					key_str += _itoa(n,buffer,number_base);
-					logTable[atoi(key_str.c_str())] = logKey;
-				}
-			}
-		}	
-	}
-	
-}
-
-void logMeu(cv::Mat* in,int den,cv::Mat** out, float logTable[])
-{
-	(*out) = new Mat(in->rows,in->cols,CV_32F);
-	
-	for(int i=0;i<in->rows;i++)
-	{
-		for(int j=0;j<in->cols;j++)
-		{
-			(*out)->at<float>(i,j) = 0.;
-			/*
-			int numerador = (int)in->at<float>(i,j);
-			char buffer[100] = {0};
-			std::string key_str = (std::string)_itoa(numerador,buffer,10) + (std::string)_itoa(den,buffer,10);
-			(*out)->at<float>(i,j) = logTable[atoi(key_str.c_str())];
-			*/
-		}
-	}
-}
-
-/*************************************45 seconds!!!!*****************************************
-double log2( double number ) {
-   return log(number)/log(2.0f);
-}
- 
-float FingerPrintFeatures::entropy(cv::Mat* input) {
-   std::map<uchar , int> frequencies;
-   for(int i = 0; i < input->rows; i++)
-	   for(int j = 0; j < input->cols; j++)
-			frequencies[input->data[i*input->cols+j]]++;
-   int numlen = input->rows*input->cols;
-   double infocontent = 0 ;
-   for each ( std::pair<uchar , int> p in frequencies ) {
-      double freq = static_cast<double>( p.second ) / numlen ;
-	  char buffer[100] = {0};
-	  std::string key_str = (std::string)itoa(p.second,buffer,10) + (std::string)itoa(numlen,buffer,10);
-	  infocontent += freq * logTable[atoi(key_str.c_str())];// log2( freq ) ;
-   }
-   infocontent *= -1 ;
-   return infocontent;
-}
-*************************************************************************************************/
-/***
-* Calculates the entropy of a matrix as a single float value *
-*/
-float FingerPrintFeatures::entropy(const cv::Mat* input,const cv::Mat* disk) {
+float FingerPrintFeatures::entropy(const Mat input,const Mat disk) {
 	
 	float frequencies[256] = {0};
 	int nDisk = 0;
-	for(int i = 0; i < input->rows; i++)
-		for(int j = 0; j < input->cols; j++)
+	for(int i = 0; i < input.rows; i++)
+		for(int j = 0; j < input.cols; j++)
 		{
-			if(disk->at<unsigned char>(i,j) == 1)
+			if(disk.at<unsigned char>(i,j) == 1)
 			{
-				frequencies[input->at<unsigned char>(i,j)]++;
+				frequencies[input.at<unsigned char>(i,j)]++;
 				nDisk++;
 			}
 		}
@@ -321,46 +194,21 @@ float FingerPrintFeatures::entropy(const cv::Mat* input,const cv::Mat* disk) {
 	logP /= 0.6931471805599453;
 	//std::cout << logP << std::endl;
 
-    float entropy = -1*cv::sum(hist.mul(logP)).val[0];
+    float entropy = (float)(-1*cv::sum(hist.mul(logP)).val[0]);
 
 	return entropy;
 }
-/*
-float FingerPrintFeatures::entropy(cv::Mat* input, cv::Mat* disk) {
-	/// Establish the number of bins
-    int histSize = 256;
-    /// Set the ranges ( for B,G,R) )
-    float range[] = { 0, 256 } ;
-    const float* histRange = { range };
-    bool uniform = true; bool accumulate = false;
-    /// Compute the histograms:
-    cv::Mat hist;
-	//std::cout << *input << endl << endl;
-	calcHist( input, 1, 0, cv::Mat(), hist, 1, &histSize, &histRange, uniform, accumulate );
-    //std::cout << hist << endl << endl;
-	hist /= input->total();
-	//std::cout << hist << endl << endl;
-    cv::Mat logP;
-    //logMeu(&hist,logKeys,logValues,&logP);
-	cv::log(hist,logP);
-	//std::cout << hist << endl;
 
-    float entropy = -1*cv::sum(hist.mul(logP)).val[0];
-
-    return entropy;
-}
-*/
-
-Mat getSubSetNeighbours(const Mat* in,int row,int col, int radius)
+Mat getSubSetNeighbours(const Mat in,int row,int col, int radius)
 {
 	int start_row = cv::max(0, row - radius);
-	int end_row = cv::min(in->rows, row + radius + 1);
+	int end_row = cv::min(in.rows, row + radius + 1);
 	int start_col = cv::max(0, col - radius);
-	int end_col = cv::min(in->cols, col + radius + 1);
+	int end_col = cv::min(in.cols, col + radius + 1);
 	
 	cv::Rect rect = cv::Rect(start_col,start_row,end_col-start_col,end_row-start_row);
 
-	return Mat((*in)(rect));
+	return Mat((in)(rect));
 }
 Mat getDiskSubSet(const Mat disk, int i, int j, int rows, int cols, int radius)
 {
@@ -393,23 +241,23 @@ Computes the histogram of entropies from an image.
 : return : list of int
 """
 */
-void FingerPrintFeatures::hist_entropy(Mat* ret, const Mat* img, int radius, int n_bins) {
+void FingerPrintFeatures::hist_entropy(Mat* ret, const Mat img, int radius, int n_bins) {
 	
 	Mat disk = Mat(cv::getStructuringElement(MORPH_ELLIPSE, cv::Size(radius*2+1,radius*2+1)));
 	
 	//initLogTable(radius);
 
-	Mat output = Mat(img->rows,img->cols,CV_32F);
+	Mat output = Mat(img.rows,img.cols,CV_32F);
 
-	for(int i=0; i<img->rows;i++)
+	for(int i=0; i<img.rows;i++)
 	{
-		for(int j=0; j<img->cols;j++)
+		for(int j=0; j<img.cols;j++)
 		{
 			try
 			{
 			Mat subSet = getSubSetNeighbours(img,i,j,(radius));
-			Mat subDisk = getDiskSubSet((const Mat)disk,i,j,img->rows,img->cols,(radius));
-			output.at<float>(i,j) = entropy(&subSet,&subDisk);
+			Mat subDisk = getDiskSubSet((const Mat)disk,i,j,img.rows,img.cols,(radius));
+			output.at<float>(i,j) = entropy(subSet,subDisk);
 
 			//output->at<float>(i,j) = (i+j)/(float)img->rows*img->cols;
 			} catch (...) {
@@ -429,7 +277,7 @@ void FingerPrintFeatures::hist_entropy(Mat* ret, const Mat* img, int radius, int
 	// Set histogram bins count
 	int histSize[] = { n_bins };
 	// Set ranges for histogram bins
-	float lranges[] = { minVal, maxVal };
+	float lranges[] = { (float)minVal , (float)maxVal };
 	const float* ranges[] = { lranges };
 	// create matrix for histogram
 	cv::Mat hist;
@@ -459,13 +307,13 @@ Computes the histogram of hough line magnitudes.
 : return : histogram of hough lines magnitudes
 """
 */
-void FingerPrintFeatures::hist_hough(Mat* ret, const Mat* img, int n_bins) {
+void FingerPrintFeatures::hist_hough(Mat* ret, const Mat img, int n_bins) {
 	int threshold = 10;
 	int line_length = 8;
 	int line_gap = 3;
 	Mat edges;
 	
-	GaussianBlur(*img, edges, Size(17,17), 2.);
+	GaussianBlur(img, edges, Size(17,17), 2.);
 	
 	if (cfg->verboseHough)
 		cfg->writeMatToFile("blur", &edges);
@@ -498,7 +346,7 @@ void FingerPrintFeatures::hist_hough(Mat* ret, const Mat* img, int n_bins) {
 	// Set histogram bins count
 	int histSize[] = { n_bins };
 	// Set ranges for histogram bins
-	float lranges[] = { minVal, maxVal };
+	float lranges[] = { (float)minVal , (float)maxVal };
 	const float* ranges[] = { lranges };
 	// create matrix for histogram
 	cv::Mat hist;

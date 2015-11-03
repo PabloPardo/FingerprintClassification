@@ -1,4 +1,4 @@
-#include <Windows.h>
+#include <windows.h>
 #include <iostream>
 #include <fstream>
 #include "FpFeaturesLibrary.h"
@@ -29,15 +29,7 @@ std::string GetElapsedTime(clock_t time_a, clock_t time_b)
 }
 using namespace cv;
 int main(int argc, char** argv) {
-	/*
-	uchar data[121];
-	for(int i = 0; i < 121; i++)
-		data[i] = 255;
-	Mat* grayMat = new cv::Mat(11,11,CV_8U,data);
-	Mat* disk = new Mat(cv::getStructuringElement(MORPH_ELLIPSE, cv::Size(11,11)));
 	
-	std::cout << entropy(grayMat,disk) << std::endl;
-	*/
 	LList *files = getDirFiles((char *)"\\\\ssd2015\\Data\\FpFeatures_Comparison\\input\\");
 	
 	if (files != NULL){
@@ -48,12 +40,12 @@ int main(int argc, char** argv) {
 		long total_time_ticks;
 		int i = 0;
 		while (fp != NULL){
-			cv::Mat in;
-			cv::Mat out_grad;
+			Mat in;
+			
 			try
 			{
 				FName data = fp->element;
-				in = cv::imread((char *)data.fpath, cv::IMREAD_GRAYSCALE);
+				Mat in = cv::imread((char *)data.fpath, cv::IMREAD_GRAYSCALE);
 			
 				std::string pout = "\\\\ssd2015\\Data\\FpFeatures_Comparison\\opencv\\";
 				
@@ -68,58 +60,52 @@ int main(int argc, char** argv) {
 				std::cout << "imatge (" << i << ") " << cfg->fileName << std::endl;
 				
 				/*********************************/
-				diferentiate_img(&in);
+				Mat dif;
+				diferentiate_img(&dif,in);
 				/*********************************/
 				
 				clock_t time_a = clock();
-				out_grad = hist_grad(&in, 1, 32);
+				Mat out_grad;
+				hist_grad(&out_grad, in, 1, 32);
 				clock_t time_b = clock();
 				
 				total_time_ticks = (long)(time_b - time_a);
 				
-				/*if(i % 1000 == 0)
-				{*/
-					file_grad = cv::FileStorage((const std::string)pout + fp->element.fname + "_grad.txt", cv::FileStorage::WRITE);
-					file_grad << "GradHist" << out_grad;
-				/*}*/
+				file_grad = cv::FileStorage((const std::string)pout + fp->element.fname + "_grad.txt", cv::FileStorage::WRITE);
+				file_grad << "GradHist" << out_grad;
 				
 				std::cout << "\tGradHist OK..." + GetElapsedTime(time_a,time_b) + "ms" << std::endl;
 				
 				time_a = clock();
-				cv::Mat out_dens = hist_density(&in,3,32);
+				Mat out_dens;
+				hist_density(&out_dens, in, 3, 32);
 				time_b = clock();
 				total_time_ticks += (long)(time_b - time_a);
 				
-				/*if(i % 1000 == 0)
-				{*/
-					file_dens = cv::FileStorage((const std::string)pout + fp->element.fname + "_dens.txt", cv::FileStorage::WRITE);
-					file_dens << "DensHist" << out_dens;
-				/*}*/
+				file_dens = cv::FileStorage((const std::string)pout + fp->element.fname + "_dens.txt", cv::FileStorage::WRITE);
+				file_dens << "DensHist" << out_dens;
 				std::cout << "\tDensHist OK..." + GetElapsedTime(time_a,time_b) + "ms" << std::endl;
 				
 				time_a = clock();
-				cv::Mat out_hough = hist_hough(&in,32);
+				Mat out_hough;
+				hist_hough(&out_hough, in, 32);
 				time_b = clock();
 				total_time_ticks += (long)(time_b - time_a);
 				
-				/*if(i % 1000 == 0)
-				{*/
 				cv::FileStorage file_hough((const std::string)pout + fp->element.fname + "_hough.txt", cv::FileStorage::WRITE);
 				file_hough << "HoughHist" << out_hough;
-				/*}*/
 				
 				std::cout << "\tHoughHist OK..." + GetElapsedTime(time_a,time_b) + "ms" << std::endl;
 
 				time_a = clock();
-				cv::Mat out_entropy = hist_entropy(&in,5,32);
+				Mat out_entropy;
+				hist_entropy(&out_entropy, in,5,32);
 				time_b = clock();
 				total_time_ticks += (long)(time_b - time_a);
 				
-				/*if(i % 1000 == 0)
-				{*/
-					cv::FileStorage file_entropy((const std::string)pout + fp->element.fname + "_entropy.txt", cv::FileStorage::WRITE);
-					file_entropy << "EntropyHist" << out_entropy;
-				/*}*/
+				cv::FileStorage file_entropy((const std::string)pout + fp->element.fname + "_entropy.txt", cv::FileStorage::WRITE);
+				file_entropy << "EntropyHist" << out_entropy;
+				
 				std::cout << "\tEntropyHist OK..." + GetElapsedTime(time_a,time_b) + "ms" << std::endl;
 
 
@@ -243,7 +229,7 @@ void getMatchedFiles(char *dir, char *pattern, LList **ret, LList **cpos){
 	if (hFind == INVALID_HANDLE_VALUE) return;
 
 	// Build linked list with file paths
-	bool hasNext = true;
+	BOOL hasNext = true;
 	while (hasNext){
 		if (*ret == NULL){
 			*ret = new LList;
