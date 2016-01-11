@@ -94,5 +94,46 @@ void importFileFeatures(vector<string>*, Mat*, const char*, bool, const int);
 void exportFileFeatures(Mat, vector<string>, const char*);
 void allocateRtrees(CvRTrees***, const int, const int);
 void releaseRTrees(CvRTrees**, const int, const int);
-
+template<typename T> int saveMatToCSV(Mat mat, const char* outFile)
+{
+	string fileName = outFile;
+	ofstream myfile(fileName);
+	if (myfile.is_open())
+	{
+		for (int i = 0; i < mat.rows; i++)
+		{
+			//myfile << imgPaths[i];
+			myfile << mat.at<T>(i, 0);
+			for (int j = 1; j < mat.cols; j++)
+				myfile << "," << mat.at<T>(i, j);
+			myfile << "\n";
+		}
+		myfile.close();
+	}
+	else
+	{
+		throw new exception(("Unable to open file " + fileName).c_str());
+	}
+}
+template<typename T> int loadMatFromCSV(Mat* mat, const char* inFile)
+{
+	string fileName = inFile;
+	ofstream myfile(fileName);
+	if (myfile.is_open())
+	{
+		for (int i = 0; i < mat->rows; i++)
+		{
+			//myfile << imgPaths[i];
+			myfile << mat->at<T>(i, 0);
+			for (int j = 1; j < mat->cols; j++)
+				myfile << "," << mat->at<T>(i, j);
+			myfile << "\n";
+		}
+		myfile.close();
+	}
+	else
+	{
+		throw new exception(("Unable to open file " + fileName).c_str());
+	}
+}
 #endif /* UTILS_H */

@@ -1,0 +1,70 @@
+Fold 1 / 10
+-----------
+
+Iteration 0 ---- total error: 0.0138516579498
+Iteration 1 ---- total error: 0.0138516579498
+Iteration 2 ---- total error: 0.0138516579498
+Iteration 3 ---- total error: 0.0138516579498
+Iteration 4 ---- total error: 0.0138516579498
+Iteration 5 ---- total error: 0.0138516579498
+Iteration 6 ---- total error: 0.0138516579498
+Iteration 7 ---- total error: 0.0138516579498
+Iteration 8 ---- total error: 0.0138516579498
+Iteration 9 ---- total error: 0.0138516579498
+Iteration 10 ---- total error: 0.0138516579498
+Iteration 11 ---- total error: 0.0138516579498
+Iteration 12 ---- total error: 0.0138516579498
+Iteration 13 ---- total error: 0.0138516579498
+Iteration 14 ---- total error: 0.0138516579498
+Iteration 15 ---- total error: 0.0138516579498
+Iteration 16 ---- total error: 0.0138516579498
+Iteration 17 ---- total error: 0.0138516579498
+Iteration 18 ---- total error: 0.0138516579498
+Iteration 19 ---- total error: 0.0138516579498
+Iteration 20 ---- total error: 0.0138516579498
+Iteration 21 ---- total error: 0.0138516579498
+Iteration 22 ---- total error: 0.0138516579498
+Iteration 23 ---- total error: 0.0138516579498
+Iteration 24 ---- total error: 0.0138516579498
+Iteration 25 ---- total error: 0.0138516579498
+Iteration 26 ---- total error: 0.0138516579498
+Iteration 27 ---- total error: 0.0138516579498
+Iteration 28 ---- total error: 0.0138516579498
+Iteration 29 ---- total error: 0.0138516579498
+Iteration 30 ---- total error: 0.0138516579498
+Iteration 31 ---- total error: 0.0138516579498
+Iteration 32 ---- total error: 0.0138516579498
+Iteration 33 ---- total error: 0.0138516579498
+Iteration 34 ---- total error: 0.0138516579498
+Iteration 35 ---- total error: 0.0138516579498
+Iteration 36 ---- total error: 0.0138516579498
+Iteration 37 ---- total error: 0.0138516579498
+Iteration 38 ---- total error: 0.0138516579498
+Iteration 39 ---- total error: 0.0138516579498
+	Accuracy: 0.98609602946
+	Error Rate: 0.0139039705396
+	Precision: 0.99645704163
+	Recall: 0.99743602032
+	F1 Score: 0.996946290641
+	NPV: 0.580392156863
+	FPR: 0.765079365079
+	TP: 41625
+	TN: 148
+	FP: 482
+	FN: 107
+
+
+Geyce's Evaluation
+------------------
+
+	Accuracy: 0.947122421038
+	Error Rate: 0.0528775789623
+	Precision: 0.98656597378
+	Recall: 0.948504744561
+	F1 Score: 0.967161042832
+	NPV: 0.200520833333
+	FPR: 0.144444444444
+	TP: 39583
+	TN: 539
+	FP: 91
+	FN: 2149

@@ -1,0 +1,734 @@
+Fold 1 / 10
+-----------
+
+Iteration 0 ---- total error: 0.012149344363
+Iteration 1 ---- total error: 0.012149344363
+Iteration 2 ---- total error: 0.012149344363
+Iteration 3 ---- total error: 0.012149344363
+Iteration 4 ---- total error: 0.012149344363
+Iteration 5 ---- total error: 0.012149344363
+Iteration 6 ---- total error: 0.0121022575311
+Iteration 7 ---- total error: 0.0121022575311
+Iteration 8 ---- total error: 0.0119901908712
+Iteration 9 ---- total error: 0.0120617628556
+Iteration 10 ---- total error: 0.0119591135621
+Iteration 11 ---- total error: 0.0119996082376
+Iteration 12 ---- total error: 0.0118423382191
+Iteration 13 ---- total error: 0.0118715320548
+Iteration 14 ---- total error: 0.0118385712725
+Iteration 15 ---- total error: 0.0116153796894
+Iteration 16 ---- total error: 0.0113535769041
+Iteration 17 ---- total error: 0.0112537528205
+Iteration 18 ---- total error: 0.0112028990421
+Iteration 19 ---- total error: 0.0112339763511
+Iteration 20 ---- total error: 0.0109910082986
+Iteration 21 ---- total error: 0.0112047825153
+Iteration 22 ---- total error: 0.0104476262586
+Iteration 23 ---- total error: 0.0107838262383
+Iteration 24 ---- total error: 0.0103176666026
+Iteration 25 ---- total error: 0.0105728772314
+Iteration 26 ---- total error: 0.0102875310302
+Iteration 27 ---- total error: 0.010337443072
+Iteration 28 ---- total error: 0.0102347937785
+Iteration 29 ---- total error: 0.010251745038
+Iteration 30 ---- total error: 0.0100944750195
+Iteration 31 ---- total error: 0.0102300850953
+Iteration 32 ---- total error: 0.00996828231004
+Iteration 33 ---- total error: 0.01018676521
+Iteration 34 ---- total error: 0.00994944757729
+Iteration 35 ---- total error: 0.0100097187221
+Iteration 36 ---- total error: 0.00989294337903
+Iteration 37 ---- total error: 0.00980818708163
+Iteration 38 ---- total error: 0.0099023607454
+Iteration 39 ---- total error: 0.00971872210105
+	Accuracy: 0.972581492719
+	Error Rate: 0.0274185072805
+	Precision: 0.987538234961
+	Recall: 0.973606660194
+	F1 Score: 0.98052296404
+	NPV: 0.317636605953
+	FPR: 0.102322661645
+	TP: 113321
+	TN: 1430
+	FP: 163
+	FN: 3072
+
+
+Geyce's Evaluation
+------------------
+
+	Accuracy: 0.949655043819
+	Error Rate: 0.0503449561812
+	Precision: 0.987683629938
+	Recall: 0.950796010069
+	F1 Score: 0.968888849977
+	NPV: 0.194174757282
+	FPR: 0.133709981168
+	TP: 110666
+	TN: 1380
+	FP: 213
+	FN: 5727
+
+the Area Under the Curve is:  37.5227567357
+Fold 2 / 10
+-----------
+
+Iteration 0 ---- total error: 0.0121088496875
+Iteration 1 ---- total error: 0.0121088496875
+Iteration 2 ---- total error: 0.0121088496875
+Iteration 3 ---- total error: 0.0121088496875
+Iteration 4 ---- total error: 0.0121088496875
+Iteration 5 ---- total error: 0.0121088496875
+Iteration 6 ---- total error: 0.012060821119
+Iteration 7 ---- total error: 0.012060821119
+Iteration 8 ---- total error: 0.0119252110432
+Iteration 9 ---- total error: 0.0120231516535
+Iteration 10 ---- total error: 0.0118960172074
+Iteration 11 ---- total error: 0.0119496961958
+Iteration 12 ---- total error: 0.0117717079712
+Iteration 13 ---- total error: 0.011821620013
+Iteration 14 ---- total error: 0.0117688827613
+Iteration 15 ---- total error: 0.0115296816553
+Iteration 16 ---- total error: 0.0112885970761
+Iteration 17 ---- total error: 0.0113677029537
+Iteration 18 ---- total error: 0.0111463948438
+Iteration 19 ---- total error: 0.0111030749585
+Iteration 20 ---- total error: 0.0110154934512
+Iteration 21 ---- total error: 0.0110701141761
+Iteration 22 ---- total error: 0.0105681685483
+Iteration 23 ---- total error: 0.0107687584521
+Iteration 24 ---- total error: 0.0102329103052
+Iteration 25 ---- total error: 0.0105126060866
+Iteration 26 ---- total error: 0.0102027747328
+Iteration 27 ---- total error: 0.0104768200944
+Iteration 28 ---- total error: 0.0101001254393
+Iteration 29 ---- total error: 0.0100596307639
+Iteration 30 ---- total error: 0.010022903035
+Iteration 31 ---- total error: 0.00993814673764
+Iteration 32 ---- total error: 0.0100709316036
+Iteration 33 ---- total error: 0.00994097194755
+Iteration 34 ---- total error: 0.00998429183288
+Iteration 35 ---- total error: 0.0100304369281
+Iteration 36 ---- total error: 0.00988446774929
+Iteration 37 ---- total error: 0.00984774002042
+Iteration 38 ---- total error: 0.00978841061224
+Iteration 39 ---- total error: 0.00995321452384
+	Accuracy: 0.969725221636
+	Error Rate: 0.0302747783635
+	Precision: 0.987580191235
+	Recall: 0.970788621309
+	F1 Score: 0.979112418601
+	NPV: 0.294752126115
+	FPR: 0.107972379159
+	TP: 112993
+	TN: 1421
+	FP: 172
+	FN: 3400
+
+
+Geyce's Evaluation
+------------------
+
+	Accuracy: 0.94915498449
+	Error Rate: 0.0508450155103
+	Precision: 0.987605704234
+	Recall: 0.950220374077
+	F1 Score: 0.968552412646
+	NPV: 0.193260930103
+	FPR: 0.128688010044
+	TP: 110599
+	TN: 1388
+	FP: 205
+	FN: 5794
+
+the Area Under the Curve is:  37.5223970273
+Fold 3 / 10
+-----------
+
+Iteration 0 ---- total error: 0.0121323931035
+Iteration 1 ---- total error: 0.0121323931035
+Iteration 2 ---- total error: 0.0121323931035
+Iteration 3 ---- total error: 0.0121323931035
+Iteration 4 ---- total error: 0.0121323931035
+Iteration 5 ---- total error: 0.0121323931035
+Iteration 6 ---- total error: 0.0120834227983
+Iteration 7 ---- total error: 0.0120834227983
+Iteration 8 ---- total error: 0.011964763982
+Iteration 9 ---- total error: 0.0120438698595
+Iteration 10 ---- total error: 0.0119346284096
+Iteration 11 ---- total error: 0.0119779482949
+Iteration 12 ---- total error: 0.0118140861199
+Iteration 13 ---- total error: 0.0118498721122
+Iteration 14 ---- total error: 0.0118065522268
+Iteration 15 ---- total error: 0.011572059804
+Iteration 16 ---- total error: 0.0113290917515
+Iteration 17 ---- total error: 0.0113884211597
+Iteration 18 ---- total error: 0.0111944234123
+Iteration 19 ---- total error: 0.0110748228593
+Iteration 20 ---- total error: 0.0110362116572
+Iteration 21 ---- total error: 0.0111247349011
+Iteration 22 ---- total error: 0.0105954789107
+Iteration 23 ---- total error: 0.0107932436047
+Iteration 24 ---- total error: 0.0102583371945
+Iteration 25 ---- total error: 0.0105144895599
+Iteration 26 ---- total error: 0.0102244346755
+Iteration 27 ---- total error: 0.0104815287776
+Iteration 28 ---- total error: 0.0101170766988
+Iteration 29 ---- total error: 0.0100718733402
+Iteration 30 ---- total error: 0.0100351456113
+Iteration 31 ---- total error: 0.00994850584065
+Iteration 32 ---- total error: 0.0100822324432
+Iteration 33 ---- total error: 0.00996828231004
+Iteration 34 ---- total error: 0.0100012430924
+Iteration 35 ---- total error: 0.00997299099323
+Iteration 36 ---- total error: 0.00984585654714
+Iteration 37 ---- total error: 0.00983078876094
+Iteration 38 ---- total error: 0.00980253666181
+Iteration 39 ---- total error: 0.00996922404668
+	Accuracy: 0.96928449138
+	Error Rate: 0.0307155086197
+	Precision: 0.987539567339
+	Recall: 0.970307492719
+	F1 Score: 0.978847695608
+	NPV: 0.291948371235
+	FPR: 0.105461393597
+	TP: 112937
+	TN: 1425
+	FP: 168
+	FN: 3456
+
+
+Geyce's Evaluation
+------------------
+
+	Accuracy: 0.949756750801
+	Error Rate: 0.0502432491991
+	Precision: 0.987327990862
+	Recall: 0.950555445774
+	F1 Score: 0.968592827346
+	NPV: 0.197909407666
+	FPR: 0.108600125549
+	TP: 110638
+	TN: 1420
+	FP: 173
+	FN: 5755
+
+the Area Under the Curve is:  37.52300299
+Fold 4 / 10
+-----------
+
+Iteration 0 ---- total error: 0.0121813634086
+Iteration 1 ---- total error: 0.0121813634086
+Iteration 2 ---- total error: 0.0121813634086
+Iteration 3 ---- total error: 0.0121813634086
+Iteration 4 ---- total error: 0.0121813634086
+Iteration 5 ---- total error: 0.0121813634086
+Iteration 6 ---- total error: 0.0121323931035
+Iteration 7 ---- total error: 0.0121323931035
+Iteration 8 ---- total error: 0.011985482188
+Iteration 9 ---- total error: 0.0120909566914
+Iteration 10 ---- total error: 0.0119525214057
+Iteration 11 ---- total error: 0.0120156177604
+Iteration 12 ---- total error: 0.0118282121695
+Iteration 13 ---- total error: 0.0118828328945
+Iteration 14 ---- total error: 0.0118197365398
+Iteration 15 ---- total error: 0.0116116127428
+Iteration 16 ---- total error: 0.0113554603774
+Iteration 17 ---- total error: 0.0114223236786
+Iteration 18 ---- total error: 0.0112189085649
+Iteration 19 ---- total error: 0.0113403925912
+Iteration 20 ---- total error: 0.011086123699
+Iteration 21 ---- total error: 0.0111454531072
+Iteration 22 ---- total error: 0.0106387987961
+Iteration 23 ---- total error: 0.0109232032607
+Iteration 24 ---- total error: 0.0102432694083
+Iteration 25 ---- total error: 0.010576644178
+Iteration 26 ---- total error: 0.0102112503626
+Iteration 27 ---- total error: 0.0105380329759
+Iteration 28 ---- total error: 0.0101688722139
+Iteration 29 ---- total error: 0.0101189601721
+Iteration 30 ---- total error: 0.0100841159165
+Iteration 31 ---- total error: 0.00999276746262
+Iteration 32 ---- total error: 0.0101161349622
+Iteration 33 ---- total error: 0.0100652811837
+Iteration 34 ---- total error: 0.00993437979109
+Iteration 35 ---- total error: 0.0100455047143
+Iteration 36 ---- total error: 0.00973284815062
+Iteration 37 ---- total error: 0.00984585654714
+Iteration 38 ---- total error: 0.00982702181439
+Iteration 39 ---- total error: 0.00980442013508
+	Accuracy: 0.976014103368
+	Error Rate: 0.0239858966318
+	Precision: 0.987712320678
+	Recall: 0.977215124621
+	F1 Score: 0.98243568316
+	NPV: 0.347922301451
+	FPR: 0.111738857502
+	TP: 113741
+	TN: 1415
+	FP: 178
+	FN: 2652
+
+
+Geyce's Evaluation
+------------------
+
+	Accuracy: 0.951197599715
+	Error Rate: 0.0488024002848
+	Precision: 0.987659051217
+	Recall: 0.952316720078
+	F1 Score: 0.969665953696
+	NPV: 0.199711607787
+	FPR: 0.130571249215
+	TP: 110843
+	TN: 1385
+	FP: 208
+	FN: 5550
+
+the Area Under the Curve is:  37.5233689709
+Fold 5 / 10
+-----------
+
+Iteration 0 ---- total error: 0.0121804102013
+Iteration 1 ---- total error: 0.0121804102013
+Iteration 2 ---- total error: 0.0121804102013
+Iteration 3 ---- total error: 0.0121804102013
+Iteration 4 ---- total error: 0.0121804102013
+Iteration 5 ---- total error: 0.0121804102013
+Iteration 6 ---- total error: 0.0121333234137
+Iteration 7 ---- total error: 0.0121333234137
+Iteration 8 ---- total error: 0.0120080725589
+Iteration 9 ---- total error: 0.0120956539837
+Iteration 10 ---- total error: 0.0119798204863
+Iteration 11 ---- total error: 0.0120240820666
+Iteration 12 ---- total error: 0.011860220046
+Iteration 13 ---- total error: 0.011894122533
+Iteration 14 ---- total error: 0.0118555113672
+Iteration 15 ---- total error: 0.0116389121445
+Iteration 16 ---- total error: 0.0113695757198
+Iteration 17 ---- total error: 0.0112763438805
+Iteration 18 ---- total error: 0.0112160727924
+Iteration 19 ---- total error: 0.0112396161862
+Iteration 20 ---- total error: 0.0110032405127
+Iteration 21 ---- total error: 0.0111802868339
+Iteration 22 ---- total error: 0.0105446152021
+Iteration 23 ---- total error: 0.0107593309533
+Iteration 24 ---- total error: 0.0103525011089
+Iteration 25 ---- total error: 0.0105229552798
+Iteration 26 ---- total error: 0.0102263085183
+Iteration 27 ---- total error: 0.0103261325079
+Iteration 28 ---- total error: 0.0102573857981
+Iteration 29 ---- total error: 0.0103176568861
+Iteration 30 ---- total error: 0.0101359018862
+Iteration 31 ---- total error: 0.0100426700469
+Iteration 32 ---- total error: 0.0102442014975
+Iteration 33 ---- total error: 0.0100153597101
+Iteration 34 ---- total error: 0.0100360778966
+Iteration 35 ---- total error: 0.0099635642438
+Iteration 36 ---- total error: 0.00995320515054
+Iteration 37 ---- total error: 0.0098543228967
+Iteration 38 ---- total error: 0.00992966175677
+Iteration 39 ---- total error: 0.00980346916616
+	Accuracy: 0.972394795949
+	Error Rate: 0.0276052040514
+	Precision: 0.987544452967
+	Recall: 0.973417645391
+	F1 Score: 0.980430164286
+	NPV: 0.315940747292
+	FPR: 0.102386934673
+	TP: 113299
+	TN: 1429
+	FP: 163
+	FN: 3094
+
+
+Geyce's Evaluation
+------------------
+
+	Accuracy: 0.955104462432
+	Error Rate: 0.0448955375683
+	Precision: 0.9879933977
+	Recall: 0.956543778406
+	F1 Score: 0.972014265696
+	NPV: 0.211043518952
+	FPR: 0.150125628141
+	TP: 111335
+	TN: 1353
+	FP: 239
+	FN: 5058
+
+the Area Under the Curve is:  37.5458472341
+Fold 6 / 10
+-----------
+
+Iteration 0 ---- total error: 0.0122284387246
+Iteration 1 ---- total error: 0.0122284387246
+Iteration 2 ---- total error: 0.0122284387246
+Iteration 3 ---- total error: 0.0122284387246
+Iteration 4 ---- total error: 0.0122284387246
+Iteration 5 ---- total error: 0.0122284387246
+Iteration 6 ---- total error: 0.0121822936728
+Iteration 7 ---- total error: 0.0121822936728
+Iteration 8 ---- total error: 0.0120721105899
+Iteration 9 ---- total error: 0.0121427407712
+Iteration 10 ---- total error: 0.0120400915744
+Iteration 11 ---- total error: 0.0120721105899
+Iteration 12 ---- total error: 0.0119186076625
+Iteration 13 ---- total error: 0.0119440345278
+Iteration 14 ---- total error: 0.0119110737765
+Iteration 15 ---- total error: 0.0117048336471
+Iteration 16 ---- total error: 0.0114449145799
+Iteration 17 ---- total error: 0.0115051856679
+Iteration 18 ---- total error: 0.0112989455385
+Iteration 19 ---- total error: 0.0114232546576
+Iteration 20 ---- total error: 0.0111388504608
+Iteration 21 ---- total error: 0.0112386744504
+Iteration 22 ---- total error: 0.0106915259792
+Iteration 23 ---- total error: 0.01100606572
+Iteration 24 ---- total error: 0.0103120064716
+Iteration 25 ---- total error: 0.0106604486994
+Iteration 26 ---- total error: 0.0102733953058
+Iteration 27 ---- total error: 0.0106190123264
+Iteration 28 ---- total error: 0.0102253667825
+Iteration 29 ---- total error: 0.0103223655649
+Iteration 30 ---- total error: 0.0100558543474
+Iteration 31 ---- total error: 0.0101434357722
+Iteration 32 ---- total error: 0.0100417283111
+Iteration 33 ---- total error: 0.0100125345028
+Iteration 34 ---- total error: 0.0101246010572
+Iteration 35 ---- total error: 0.0100925820417
+Iteration 36 ---- total error: 0.0101575618085
+Iteration 37 ---- total error: 0.00998239895882
+Iteration 38 ---- total error: 0.00998145722307
+Iteration 39 ---- total error: 0.00998239895882
+	Accuracy: 0.977666652541
+	Error Rate: 0.0223333474594
+	Precision: 0.987516254876
+	Recall: 0.978667101973
+	F1 Score: 0.983071764843
+	NPV: 0.367066020902
+	FPR: 0.0954773869347
+	TP: 113910
+	TN: 1440
+	FP: 152
+	FN: 2483
+
+
+Geyce's Evaluation
+------------------
+
+	Accuracy: 0.957299656736
+	Error Rate: 0.042700343264
+	Precision: 0.987657928055
+	Recall: 0.958416743275
+	F1 Score: 0.97281765065
+	NPV: 0.223612447867
+	FPR: 0.124371859296
+	TP: 111553
+	TN: 1394
+	FP: 198
+	FN: 4840
+
+the Area Under the Curve is:  37.5479179618
+Fold 7 / 10
+-----------
+
+Iteration 0 ---- total error: 0.0122312639318
+Iteration 1 ---- total error: 0.0122312639318
+Iteration 2 ---- total error: 0.0122312639318
+Iteration 3 ---- total error: 0.0122312639318
+Iteration 4 ---- total error: 0.0122312639318
+Iteration 5 ---- total error: 0.0122312639318
+Iteration 6 ---- total error: 0.012181351937
+Iteration 7 ---- total error: 0.012181351937
+Iteration 8 ---- total error: 0.0120890618334
+Iteration 9 ---- total error: 0.0121455659785
+Iteration 10 ---- total error: 0.0120598680252
+Iteration 11 ---- total error: 0.0120768192687
+Iteration 12 ---- total error: 0.0119336754345
+Iteration 13 ---- total error: 0.011943092792
+Iteration 14 ---- total error: 0.0119270832843
+Iteration 15 ---- total error: 0.0116841154606
+Iteration 16 ---- total error: 0.0114364389581
+Iteration 17 ---- total error: 0.01130082901
+Iteration 18 ---- total error: 0.011270693466
+Iteration 19 ---- total error: 0.0113027124815
+Iteration 20 ---- total error: 0.0110578611863
+Iteration 21 ---- total error: 0.0111962963416
+Iteration 22 ---- total error: 0.0105954689326
+Iteration 23 ---- total error: 0.010805476005
+Iteration 24 ---- total error: 0.0103948792177
+Iteration 25 ---- total error: 0.0105945271969
+Iteration 26 ---- total error: 0.0103525011089
+Iteration 27 ---- total error: 0.0105596829741
+Iteration 28 ---- total error: 0.0101377853577
+Iteration 29 ---- total error: 0.0102526771193
+Iteration 30 ---- total error: 0.0100935237774
+Iteration 31 ---- total error: 0.00996262250805
+Iteration 32 ---- total error: 0.00990140968425
+Iteration 33 ---- total error: 0.0101641539587
+Iteration 34 ---- total error: 0.0100935237774
+Iteration 35 ---- total error: 0.0100502039329
+Iteration 36 ---- total error: 0.0100492621971
+Iteration 37 ---- total error: 0.00990706009875
+Iteration 38 ---- total error: 0.00984019686044
+Iteration 39 ---- total error: 0.0100002919381
+	Accuracy: 0.974784930288
+	Error Rate: 0.0252150697123
+	Precision: 0.987835840362
+	Recall: 0.976098218965
+	F1 Score: 0.98193195421
+	NPV: 0.334608945228
+	FPR: 0.121231155779
+	TP: 113611
+	TN: 1399
+	FP: 193
+	FN: 2782
+
+
+Geyce's Evaluation
+------------------
+
+	Accuracy: 0.959910158071
+	Error Rate: 0.0400898419291
+	Precision: 0.988486159551
+	Recall: 0.961836192898
+	F1 Score: 0.974979098446
+	NPV: 0.226940480334
+	FPR: 0.180904522613
+	TP: 111951
+	TN: 1304
+	FP: 288
+	FN: 4442
+
+the Area Under the Curve is:  37.5458699435
+Fold 8 / 10
+-----------
+
+Iteration 0 ---- total error: 0.0122491569111
+Iteration 1 ---- total error: 0.0122491569111
+Iteration 2 ---- total error: 0.0122491569111
+Iteration 3 ---- total error: 0.0122491569111
+Iteration 4 ---- total error: 0.0122491569111
+Iteration 5 ---- total error: 0.0122491569111
+Iteration 6 ---- total error: 0.0122020701235
+Iteration 7 ---- total error: 0.0122020701235
+Iteration 8 ---- total error: 0.0121060130769
+Iteration 9 ---- total error: 0.0121653424292
+Iteration 10 ---- total error: 0.0120787027402
+Iteration 11 ---- total error: 0.0120956539837
+Iteration 12 ---- total error: 0.0119543936211
+Iteration 13 ---- total error: 0.0119581605641
+Iteration 14 ---- total error: 0.0119478014708
+Iteration 15 ---- total error: 0.0117076588543
+Iteration 16 ---- total error: 0.0114449145799
+Iteration 17 ---- total error: 0.01133849844
+Iteration 18 ---- total error: 0.0112942368597
+Iteration 19 ---- total error: 0.0112998872742
+Iteration 20 ---- total error: 0.0110861132588
+Iteration 21 ---- total error: 0.0112546839582
+Iteration 22 ---- total error: 0.0106868173004
+Iteration 23 ---- total error: 0.0108704557719
+Iteration 24 ---- total error: 0.0103703940882
+Iteration 25 ---- total error: 0.0106011193471
+Iteration 26 ---- total error: 0.0103440254871
+Iteration 27 ---- total error: 0.0105935854611
+Iteration 28 ---- total error: 0.010200881653
+Iteration 29 ---- total error: 0.0102639779483
+Iteration 30 ---- total error: 0.0101613287515
+Iteration 31 ---- total error: 0.00989575926974
+Iteration 32 ---- total error: 0.00990706009875
+Iteration 33 ---- total error: 0.0102018233888
+Iteration 34 ---- total error: 0.00981382825942
+Iteration 35 ---- total error: 0.0102319589328
+Iteration 36 ---- total error: 0.00979405180865
+Iteration 37 ---- total error: 0.00998522416607
+Iteration 38 ---- total error: 0.00977050841488
+Iteration 39 ---- total error: 0.0099616807723
+	Accuracy: 0.967834894266
+	Error Rate: 0.0321651057338
+	Precision: 0.987065417287
+	Recall: 0.968382978358
+	F1 Score: 0.977634951406
+	NPV: 0.286406825674
+	FPR: 0.0722361809045
+	TP: 112713
+	TN: 1477
+	FP: 115
+	FN: 3680
+
+
+Geyce's Evaluation
+------------------
+
+	Accuracy: 0.956562274865
+	Error Rate: 0.0434377251346
+	Precision: 0.988100301258
+	Recall: 0.958107446324
+	F1 Score: 0.972872765024
+	NPV: 0.215951117543
+	FPR: 0.156407035176
+	TP: 111517
+	TN: 1343
+	FP: 249
+	FN: 4876
+
+the Area Under the Curve is:  37.5469562767
+Fold 9 / 10
+-----------
+
+Iteration 0 ---- total error: 0.0122472734396
+Iteration 1 ---- total error: 0.0122472734396
+Iteration 2 ---- total error: 0.0122472734396
+Iteration 3 ---- total error: 0.0122472734396
+Iteration 4 ---- total error: 0.0122472734396
+Iteration 5 ---- total error: 0.0122472734396
+Iteration 6 ---- total error: 0.012196419709
+Iteration 7 ---- total error: 0.012196419709
+Iteration 8 ---- total error: 0.01214744945
+Iteration 9 ---- total error: 0.0121483911857
+Iteration 10 ---- total error: 0.0122350308748
+Iteration 11 ---- total error: 0.0120758775329
+Iteration 12 ---- total error: 0.0119901795796
+Iteration 13 ---- total error: 0.011939325849
+Iteration 14 ---- total error: 0.0119817039578
+Iteration 15 ---- total error: 0.0117538039061
+Iteration 16 ---- total error: 0.0115051856679
+Iteration 17 ---- total error: 0.0114279633363
+Iteration 18 ---- total error: 0.011349799269
+Iteration 19 ---- total error: 0.0113780513415
+Iteration 20 ---- total error: 0.0108167768341
+Iteration 21 ---- total error: 0.0109241347096
+Iteration 22 ---- total error: 0.0106482061347
+Iteration 23 ---- total error: 0.0108864652796
+Iteration 24 ---- total error: 0.0103798114457
+Iteration 25 ---- total error: 0.0106566817564
+Iteration 26 ---- total error: 0.0102837543991
+Iteration 27 ---- total error: 0.0106124201761
+Iteration 28 ---- total error: 0.01023478414
+Iteration 29 ---- total error: 0.0102912882851
+Iteration 30 ---- total error: 0.010170746109
+Iteration 31 ---- total error: 0.00986750719722
+Iteration 32 ---- total error: 0.00983172123868
+Iteration 33 ---- total error: 0.0100436117826
+Iteration 34 ---- total error: 0.0100991741919
+Iteration 35 ---- total error: 0.00999275805208
+Iteration 36 ---- total error: 0.00989199232674
+Iteration 37 ---- total error: 0.0101217758499
+Iteration 38 ---- total error: 0.00985620636821
+Iteration 39 ---- total error: 0.00976674147188
+	Accuracy: 0.967784040344
+	Error Rate: 0.0322159596559
+	Precision: 0.987371260422
+	Recall: 0.968632134235
+	F1 Score: 0.977911933974
+	NPV: 0.283133712939
+	FPR: 0.0942211055276
+	TP: 112742
+	TN: 1442
+	FP: 150
+	FN: 3651
+
+
+Geyce's Evaluation
+------------------
+
+	Accuracy: 0.956036784337
+	Error Rate: 0.043963215663
+	Precision: 0.98793418323
+	Recall: 0.957420119767
+	F1 Score: 0.972437835692
+	NPV: 0.215450372012
+	FPR: 0.145100502513
+	TP: 111437
+	TN: 1361
+	FP: 231
+	FN: 4956
+
+the Area Under the Curve is:  37.5464112509
+Fold 10 / 10
+-----------
+
+Iteration 0 ---- total error: 0.0122133709525
+Iteration 1 ---- total error: 0.0122133709525
+Iteration 2 ---- total error: 0.0122133709525
+Iteration 3 ---- total error: 0.0122133709525
+Iteration 4 ---- total error: 0.0122133709525
+Iteration 5 ---- total error: 0.0122133709525
+Iteration 6 ---- total error: 0.0121728763153
+Iteration 7 ---- total error: 0.0121728763153
+Iteration 8 ---- total error: 0.0120391498386
+Iteration 9 ---- total error: 0.0121370903567
+Iteration 10 ---- total error: 0.0120108977661
+Iteration 11 ---- total error: 0.0120730523257
+Iteration 12 ---- total error: 0.01189035559
+Iteration 13 ---- total error: 0.0119421510563
+Iteration 14 ---- total error: 0.0118856469112
+Iteration 15 ---- total error: 0.011659630331
+Iteration 16 ---- total error: 0.0114157207716
+Iteration 17 ---- total error: 0.0112641013157
+Iteration 18 ---- total error: 0.0112612761084
+Iteration 19 ---- total error: 0.0112716352017
+Iteration 20 ---- total error: 0.0110653950723
+Iteration 21 ---- total error: 0.0112556256939
+Iteration 22 ---- total error: 0.010503178829
+Iteration 23 ---- total error: 0.0108440871708
+Iteration 24 ---- total error: 0.0103638019379
+Iteration 25 ---- total error: 0.0105606247098
+Iteration 26 ---- total error: 0.0103327246581
+Iteration 27 ---- total error: 0.0103845201244
+Iteration 28 ---- total error: 0.0103336663939
+Iteration 29 ---- total error: 0.0102988221711
+Iteration 30 ---- total error: 0.0101603870157
+Iteration 31 ---- total error: 0.0102611527411
+Iteration 32 ---- total error: 0.00999087458057
+Iteration 33 ---- total error: 0.0101387270935
+Iteration 34 ---- total error: 0.00994378779303
+Iteration 35 ---- total error: 0.0100925820417
+Iteration 36 ---- total error: 0.0098467890107
+Iteration 37 ---- total error: 0.0100436117826
+Iteration 38 ---- total error: 0.00966597574654
+Iteration 39 ---- total error: 0.00981759520242
+	Accuracy: 0.970750519134
+	Error Rate: 0.0292494808662
+	Precision: 0.987584472733
+	Recall: 0.971811019563
+	F1 Score: 0.979634256713
+	NPV: 0.30236019562
+	FPR: 0.106783919598
+	TP: 113112
+	TN: 1422
+	FP: 170
+	FN: 3281
+
+
+Geyce's Evaluation
+------------------
+
+	Accuracy: 0.957528499386
+	Error Rate: 0.0424715006145
+	Precision: 0.988156566998
+	Recall: 0.959129844578
+	F1 Score: 0.973426866114
+	NPV: 0.219524200164
+	FPR: 0.159547738693
+	TP: 111636
+	TN: 1338
+	FP: 254
+	FN: 4757
+
+the Area Under the Curve is:  37.5461981775
+Our Prediction Stats
+--------------------
+	TP = 113237.900000
+	TN = 1430.000000
+	FP = 162.400000
+	FN = 3155.100000
+Geyces Prediction Stats
+-----------------------
+	TP = 111217.500000
+	TN = 1366.600000
+	FP = 225.800000
+	FN = 5175.500000
+
+Process finished with exit code 0

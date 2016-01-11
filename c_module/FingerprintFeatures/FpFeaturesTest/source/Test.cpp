@@ -28,9 +28,10 @@ std::string GetElapsedTime(clock_t time_a, clock_t time_b)
 	}	
 }
 using namespace cv;
+using namespace std;
 int main(int argc, char** argv) {
 	
-	LList *files = getDirFiles((char *)"\\\\ssd2015\\Data\\FpFeatures_Comparison\\input\\");
+	LList *files = getDirFiles((char *)"//ssd2015/Data/PredictData/");
 	
 	if (files != NULL){
 		LList *fp = files;
@@ -46,9 +47,10 @@ int main(int argc, char** argv) {
 			{
 				FName data = fp->element;
 				Mat in = cv::imread((char *)data.fpath, cv::IMREAD_GRAYSCALE);
-			
+				cout << "files:" << in.rows << "cols:" << in.cols << endl;
+
+
 				std::string pout = "\\\\ssd2015\\Data\\FpFeatures_Comparison\\opencv\\";
-				
 				
 				cfg->path = (char*)pout.c_str();
 				cfg->fileName = (char*)data.fname;

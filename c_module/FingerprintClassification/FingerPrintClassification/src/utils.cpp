@@ -201,7 +201,7 @@ int countLines(const char *path, bool verbose) {
     return number_of_lines;
 }
 
-void exportFileFeatures(cv::Mat trainSamples, std::vector<std::string> imgPaths, const char* outFile)
+void exportFileFeatures(Mat trainSamples, vector<string> imgPaths, const char* outFile)
 {
 	string fileName = outFile;
 	ofstream myfile (fileName);
@@ -250,12 +250,14 @@ void loadNormalization(Mat* norMat, const char* normFile)
 {
 	ifstream ifs(normFile, ifstream::in);
 	if (!ifs.is_open()) {
-		throwError((string)"ERROR: file " + normFile + " could not be opened. Is the path okay?");
+		string err = (string)"ERROR: file " + normFile + " could not be opened. Is the path okay?";
+		cerr << err << endl;
+		return;
 	}
 
 	string line;
 	string value;
-	Mat ret = cv::Mat(Constants::TOTAL_FEATURES,2,CV_32F);
+	Mat ret = cv::Mat(Constants::NUM_FEATURES,2,CV_32F);
 	
 	for(int i = 0; i < ret.rows; i++)
 	{

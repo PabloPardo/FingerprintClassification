@@ -1,11 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FingerprintClassification", "FingerprintClassification\FingerprintClassification.vcxproj", "{66D06823-7898-41C4-8D58-2B4406220BBF}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test\Test.vcxproj", "{1D091419-F4E4-4173-B8BF-4ED38AF6AD06}"
+	ProjectSection(ProjectDependencies) = postProject
+		{66D06823-7898-41C4-8D58-2B4406220BBF} = {66D06823-7898-41C4-8D58-2B4406220BBF}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -16,16 +19,19 @@ Global
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{66D06823-7898-41C4-8D58-2B4406220BBF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{66D06823-7898-41C4-8D58-2B4406220BBF}.Debug|Win32.Build.0 = Debug|Win32
 		{66D06823-7898-41C4-8D58-2B4406220BBF}.Debug|x64.ActiveCfg = Debug|x64
-		{66D06823-7898-41C4-8D58-2B4406220BBF}.Release|Win32.ActiveCfg = Debug|x64
-		{66D06823-7898-41C4-8D58-2B4406220BBF}.Release|Win32.Build.0 = Debug|x64
+		{66D06823-7898-41C4-8D58-2B4406220BBF}.Debug|x64.Build.0 = Debug|x64
+		{66D06823-7898-41C4-8D58-2B4406220BBF}.Release|Win32.ActiveCfg = Release|Win32
+		{66D06823-7898-41C4-8D58-2B4406220BBF}.Release|Win32.Build.0 = Release|Win32
 		{66D06823-7898-41C4-8D58-2B4406220BBF}.Release|x64.ActiveCfg = Release|x64
+		{66D06823-7898-41C4-8D58-2B4406220BBF}.Release|x64.Build.0 = Release|x64
 		{1D091419-F4E4-4173-B8BF-4ED38AF6AD06}.Debug|Win32.ActiveCfg = Debug|Win32
 		{1D091419-F4E4-4173-B8BF-4ED38AF6AD06}.Debug|Win32.Build.0 = Debug|Win32
 		{1D091419-F4E4-4173-B8BF-4ED38AF6AD06}.Debug|x64.ActiveCfg = Debug|x64
 		{1D091419-F4E4-4173-B8BF-4ED38AF6AD06}.Debug|x64.Build.0 = Debug|x64
-		{1D091419-F4E4-4173-B8BF-4ED38AF6AD06}.Release|Win32.ActiveCfg = Debug|x64
-		{1D091419-F4E4-4173-B8BF-4ED38AF6AD06}.Release|Win32.Build.0 = Debug|x64
+		{1D091419-F4E4-4173-B8BF-4ED38AF6AD06}.Release|Win32.ActiveCfg = Release|Win32
+		{1D091419-F4E4-4173-B8BF-4ED38AF6AD06}.Release|Win32.Build.0 = Release|Win32
 		{1D091419-F4E4-4173-B8BF-4ED38AF6AD06}.Release|x64.ActiveCfg = Release|x64
 		{1D091419-F4E4-4173-B8BF-4ED38AF6AD06}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection

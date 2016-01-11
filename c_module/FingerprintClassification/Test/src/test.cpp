@@ -1,6 +1,7 @@
 #include <windows.h>
-#include "apirf.h"
+#include "apiF1F2.h"
 #include <iostream>
+#include <fstream>
 #include <string>
 #include "FoldSplitter.h"
 #include "utils.h"
@@ -9,12 +10,14 @@
 #include "opencv2\imgproc\imgproc.hpp"
 #include "opencv2\core\operations.hpp"
 #include "opencv2\ml\ml.hpp"
+#include <time.h>
 
 using namespace std;
 using namespace cv;
 
 LList *getDirFiles(char *dir);
 void getMatchedFiles(char *dir, char *pattern, LList **ret, LList **cpos);
+int digitalizeFingers(Mat* output, const Mat onlyFingerNumber);
 
 void Extract_Main(int argc, char* argv[])
 {
@@ -45,33 +48,49 @@ void Fit_And_Predict_Main()
 	res = new string(pathBase + "Data/out/Test_Nova_API5/results-fit-predict.csv");
 	const char* resultPath = res->c_str();
 
-	Fit(tPaths, pPaths.modelDir);
+	Fit2(tPaths, pPaths.modelDir);
 	PredictTest(pPaths, resultPath);
 }
 
 void Predict_Main(int argc, char* argv[])
 {
-	if (argc != 3)
-		cout << "Usage: Test.exe <modelDir> <predictImagesDir>" << endl;
+	bool paramsFromCMD = false;
+	char* modelDir = "//ssd2015/Data/out/Test_Nova_API5/";
+	char* predictImagesDir = "//ssd2015/Data/PredictData/";
 
+	if (argc == 3 && paramsFromCMD)
+	{
+		modelDir = argv[1];
+		predictImagesDir = argv[2];
+	}
+	else
+	{
+		cout << "Usage: Test.exe <modelDir> <predictImagesDir>" << endl;
+		cout << "Loading default params..." << endl;
+	}
+	
 	Handle* hnd;
-	ReturnType ret = InitModel(&hnd, argv[1]);
+	ReturnType ret = InitModel(&hnd, modelDir);
 	if (ret.code > 0)
 	{
 		cout << ret.message << endl;
 		throw new exception(ret.message);
 	}
 
-	LList *files = getDirFiles((char *)argv[2]);
+	LList *files = getDirFiles(predictImagesDir);
+	clock_t begin, end;
 	if (files != NULL)
 	{
 		LList *fp = files;
-		while (false)
+		while (fp != NULL)
 		{
 			try
 			{
+				begin = clock();
 				FName data = fp->element;
 				Mat in = imread((char *)data.fpath, cv::IMREAD_GRAYSCALE);
+				
+				cout << "Processant imatge:" << data.fpath << " en ";
 				int len;
 				float* features;
 				float dummy_nfiqs[] = { 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0. };
@@ -79,7 +98,7 @@ void Predict_Main(int argc, char* argv[])
 				if (ret.code > 0)
 					throw new exception(ret.message);
 				float* probs;
-				ret = Predict(&len, &probs, hnd, features);
+				ret = Predict2(&len, &probs, hnd, features);
 				if (ret.code > 0)
 					throw new exception(ret.message);
 				ret = ReleaseFloatArrayPointer(features);
@@ -88,6 +107,8 @@ void Predict_Main(int argc, char* argv[])
 				ret = ReleaseFloatArrayPointer(probs);
 				if (ret.code > 0)
 					throw new exception(ret.message);
+				end = clock();
+				cout << double(end - begin) / CLOCKS_PER_SEC << " sec" << endl;
 			}
 			catch (Exception cvEx)
 			{
@@ -101,18 +122,130 @@ void Predict_Main(int argc, char* argv[])
 			{
 				cout << "Unknown error" << endl;
 			}
+			fp = fp->next;
 		}
 		ret = ReleaseModel(hnd);
-
+		system("pause");
 	}
+}
 
+/*****************************Fase I*****************************/
+void ABTrain(int argc, char* argv[])
+{
+	LoadCsvParams params;
+	params.csvFile = argv[1];
+	params.separator = argv[2][0];
+	params.begin_header = atoi(argv[3]);
+	params.end_header = atoi(argv[4]);
+	params.with_headers = atoi(argv[5]);
+	Fit1(params, "./", 60, 10);
+}
 
+void ABTrain2(int argc, char* argv[])
+{
+	/*ProcessedCSV* params = new ProcessedCSV();
+	params->X.csvFile = "X_out_train.csv";
+	params->X.separator = ';';
+	params->X.begin_header = 1;
+	params->X.end_header = 22;
+	params->X.with_headers = false;
 
+	params->y.csvFile = "y_out_train.csv";
+	params->y.separator = ';';
+	params->y.begin_header = 1;
+	params->y.end_header = 2;
+	params->y.with_headers = false;
+	
+	Fit1(params, "./", 40, 10);*/
+}
+
+void ABTest(int argc, char* argv[])
+{
+	bool paramsFromCMD = false;
+	char* pathCsv = "//ssd2015/DataFase1/Empremptes/CSVs/VFS-BOGOTA/Vfs-Bogota-0715.csv";
+	char separator = ';';
+	int col_ini = 3;
+	int col_end = 19;
+	float thresh = 1.28f;
+	
+	
+	if (argc > 1 && paramsFromCMD)
+	{
+		pathCsv = argv[1];
+		if (argc > 2)
+		{
+			separator = argv[2][0];
+			if (argc > 3)
+			{
+				col_ini = atoi(argv[3]);
+				if (argc > 4)
+				{
+					col_end = atoi(argv[4]);
+					if (argc > 5)
+					{
+						thresh = atof(argv[5]);
+					}
+				}
+			}
+		}
+	}
+	Utils::verbose = true;
+	int ret = 0;
+	clock_t begin, end;
+
+	CsvData data;
+
+	cout << "Load CSV " << pathCsv << " ..." << endl;
+	begin = clock();
+	ret = Utils::loadCSV(&data, pathCsv, separator, col_ini, col_end);
+	
+	end = clock();
+	cout << double(end - begin) / CLOCKS_PER_SEC << "sec" << endl;
+
+	Mat geyce_y, kit4_y;
+	vector<string>::iterator it;
+	it = find(data.headers.begin(), data.headers.end(), "GEYCEResult");
+	int ind = (int)distance(data.headers.begin(), it);
+	geyce_y = data.body.col(ind);
+
+	it = find(data.headers.begin(), data.headers.end(), "SAGEMResult");
+	ind = (int)distance(data.headers.begin(), it);
+	kit4_y = data.body.col(ind);
+
+	data.body = data.body.colRange(0, 13);
+
+	it = find(data.headers.begin(), data.headers.end(), "dedo");
+	int posDedo = (int)distance(data.headers.begin(), it);
+	Mat digFingers;
+	digitalizeFingers(&digFingers, data.body.col(posDedo));
+
+	Mat output = data.body.colRange(0, posDedo);
+	if (output.cols == 0)
+		output = data.body.colRange(posDedo + 1, data.body.cols);
+	else
+		hconcat(output, data.body.colRange(posDedo + 1, data.body.cols), output);
+	hconcat(output, digFingers, output);
+
+	Handle* hnd;
+	InitModel(&hnd, "./");
+	
+	ofstream file;
+	file.open("results.csv");
+	file << "expected;obtained" << endl;
+	for (int i = 0; i < output.rows; i++)
+	{
+		bool kit4Good = kit4_y.row(i).at<float>(0, 0) > 0.0f;
+		bool adaGood;
+		Predict1(&adaGood, hnd, thresh, (float*)output.row(i).data);
+		file << (kit4Good ? "true" : "false") << ";" << (adaGood ? "true" : "false") << endl;
+	}
+	ReleaseModel(hnd);
 }
 
 int main(int argc, char* argv[]){
+	//ABTrain(argc, argv);
+	ABTest(argc, argv);
 
-	
 	/*long size = 1179855 * 914;
 	float* f = new float[size];*/
 
@@ -128,11 +261,11 @@ int main(int argc, char* argv[]){
 	//InitModel(&hnd,argv[1]);
 	//ReleaseModel(hnd);
 
-	const char* inputDir = "D:/Data/Empremptes/Extracted";
+	/*const char* inputDir = "D:/Data/Empremptes/Extracted";
 	const char* inputFile = "201411_0404.csv";
 	const char* outputDir = "D:/Data/Empremptes/Extracted";
 
-	Normalize(inputDir, inputFile, outputDir);
+	Normalize(inputDir, inputFile, outputDir);*/
 
 	//Predict_Main(argc,argv);
 
@@ -198,17 +331,17 @@ LList *getDirFiles(char *dir){
 	char *sst;
 
 	// List PNG files
-	sst = strconcat(dir, "*.png");
+	sst = Utils::strconcat(dir, "*.png");
 	getMatchedFiles(dir, sst, &ret, &cpos);
 	delete[] sst;
 
 	// List JPG files
-	sst = strconcat(dir, "*.jpg");
+	sst = Utils::strconcat(dir, "*.jpg");
 	getMatchedFiles(dir, sst, &ret, &cpos);
 	delete[] sst;
 
 	// List BIN files
-	sst = strconcat(dir, "*.bin");
+	sst = Utils::strconcat(dir, "*.bin");
 	getMatchedFiles(dir, sst, &ret, &cpos);
 	delete[] sst;
 
@@ -234,8 +367,33 @@ void getMatchedFiles(char *dir, char *pattern, LList **ret, LList **cpos){
 			*cpos = (*cpos)->next;
 		}
 
-		(*cpos)->element.fname = strclone(ffd.cFileName);
-		(*cpos)->element.fpath = strconcat(dir, ffd.cFileName);
+		(*cpos)->element.fname = Utils::strclone(ffd.cFileName);
+		(*cpos)->element.fpath = Utils::strconcat(dir, ffd.cFileName);
 		hasNext = FindNextFile(hFind, &ffd);
 	}
+}
+
+int digitalizeFingers(Mat* output, const Mat onlyFingerNumber)
+{
+	Mat tmp = Mat(onlyFingerNumber.rows, 10, onlyFingerNumber.type());
+	try
+	{
+		for (int i = 0; i < tmp.rows; i++)
+		{
+			int nFinger = (int)onlyFingerNumber.at<float>(i, 0);
+			for (int j = 0; j < tmp.cols; j++)
+			{
+				if (j + 1 != nFinger)
+					tmp.at<float>(i, j) = 0;
+				else
+					tmp.at<float>(i, j) = 1;
+			}
+		}
+	}
+	catch (...)
+	{
+		return -1;
+	}
+	*output = tmp;
+	return 0;
 }
