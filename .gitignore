@@ -2,3 +2,5 @@
 
 # IDE
 .idea
+c_module/FingerprintClassification/Test/results.csv
+c_module/FingerprintClassification/Test/results.txt
