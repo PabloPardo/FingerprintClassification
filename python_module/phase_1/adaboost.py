@@ -76,6 +76,7 @@ def build_stump(data_arr, class_labels, weigh_arr, num_steps=10.0):
                     best_stump['dim'] = i
                     best_stump['thresh'] = thresh_val
                     best_stump['ineq'] = inequal
+                    print 'fitting error: {0}'.format(weighted_error)
 
     return best_stump, min_error, best_class_est
 
@@ -100,9 +101,13 @@ def adaboost_train_ds(data_arr, class_labels, num_it=40, num_ds_steps=10):
         weigh_arr = weigh_arr/weigh_arr.sum()
         agg_class_est += alpha*class_est
         # print "agg_class_est: ", agg_class_est.T
-
+        np.savetxt("agg_class_est.csv", agg_class_est, delimiter=";")
         agg_errors = np.ma.multiply(sign(agg_class_est) != np.mat(class_labels).T, np.ones((m, 1)))
-        error_rate = agg_errors.sum()/m
+        np.savetxt("agg_errors.csv", agg_errors, delimiter=";")
+        acc_error = agg_errors.sum()
+
+        error_rate = acc_error / m
+        print "{0} errors over {1}".format(acc_error, m)
         print "Iteration {0} ---- total error: {1}".format(i, error_rate)
 
         if error_rate == 0.0:

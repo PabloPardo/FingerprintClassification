@@ -157,7 +157,7 @@ int Utils::countLines(const char* path, char separator) {
 	return number_of_lines;
 }
 
-int Utils::loadCSV(CsvData* out, const char* csvPath, char separator, int col_begin, int col_end, bool with_headers)
+int Utils::loadCSV(CsvData* out, const char* csvPath, char separator, int col_begin, int col_end, int file_names_index, bool with_headers)
 {
 	CsvData tmp;
 	int nLines;
@@ -207,6 +207,10 @@ int Utils::loadCSV(CsvData* out, const char* csvPath, char separator, int col_be
 		while (cont < col_begin)
 		{
 			getline(iss, value, separator);
+			if (cont == file_names_index - 1)
+			{
+				tmp.file_names.push_back(value);
+			}
 			cont++;
 		}
 		// Read Line
@@ -225,5 +229,4 @@ int Utils::loadCSV(CsvData* out, const char* csvPath, char separator, int col_be
 	*out = tmp;
 	return 0;
 }
-
 

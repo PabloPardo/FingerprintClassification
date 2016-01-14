@@ -246,7 +246,7 @@ bool has_suffix(const string &str, const string &suffix)
            str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
 }
 
-void loadNormalization(Mat* norMat, const char* normFile)
+void loadNormalization(Mat* norMat, const char* normFile, int nFeat)
 {
 	ifstream ifs(normFile, ifstream::in);
 	if (!ifs.is_open()) {
@@ -257,7 +257,7 @@ void loadNormalization(Mat* norMat, const char* normFile)
 
 	string line;
 	string value;
-	Mat ret = cv::Mat(Constants::NUM_FEATURES,2,CV_32F);
+	Mat ret = cv::Mat(nFeat, 2, CV_32F);
 	
 	for(int i = 0; i < ret.rows; i++)
 	{

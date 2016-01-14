@@ -8,6 +8,7 @@ using namespace cv;
 struct CsvData
 {
 	vector<string> headers;
+	vector<string> file_names;
 	Mat body;
 };
 
@@ -24,7 +25,7 @@ public:
 	static void dbl2str(double val, int minLen, char *ret);
 	static double str2dbl(char *string);
 	static int countLines(const char* path, char separator);
-	static int loadCSV(CsvData*, const char*, char, int, int, bool = true);
+	static int loadCSV(CsvData*, const char*, char, int, int, int, bool = true);
 };
 
 #endif /* UTILS_H */

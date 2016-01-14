@@ -106,7 +106,7 @@ void MainFP::LoadFitDataFromFile(Mat* X_out, Mat* y_out, LoadCsvParams impData)
 			output = csv_data.body.colRange(posDedo + 1, csv_data.body.cols);
 		else
 			hconcat(output, csv_data.body.colRange(posDedo + 1, csv_data.body.cols), output);
-		hconcat(output, digFingers, output);
+		hconcat(digFingers, output, output);
 		*X_out = output;
 	//	break;
 	//}
@@ -174,7 +174,7 @@ void MainFP::PredictTest(PredictPaths pPaths, const char* results)
 	}
 
 	Mat norMat;
-	loadNormalization(&norMat,((string)pPaths.modelDir + "/normalization.csv").c_str());
+	loadNormalization(&norMat,((string)pPaths.modelDir + "/normalization.csv").c_str(), Constants::TOTAL_FEATURES);
 	
 
 	LabelsAndFeaturesData lfPData = readCSV(pPaths.labelsPath);	
@@ -210,7 +210,6 @@ void MainFP::Predict1(bool* enoughQuality, Handle* hnd, float thresh, float* fea
 	Mat predictData = Mat(1, Constants::NUM_FEATURES, CV_32F, features);
 	Mat X;
 	fase2->Normalize(predictData, &X, nM);
-	saveMatToCSV<float>(X, "X_test.csv");
 	Mat Y;
 	Mat agg_class_est_test;
 	fase1->AdaboostTestDS(&Y, &agg_class_est_test, X, weak_class_arr, thresh);
@@ -259,8 +258,8 @@ void MainFP::InitModel(Handle** hnd, const char *modelPath)
 	}
 
 	Mat nM, nFase1;
-	loadNormalization(&nM, ((string)modelPath + "/normalization.csv").c_str());
-	loadNormalization(&nFase1, ((string)modelPath + "/norFase1.csv").c_str());
+	loadNormalization(&nM, ((string)modelPath + "/normalization.csv").c_str(), Constants::TOTAL_FEATURES);
+	loadNormalization(&nFase1, ((string)modelPath + "/norFase1.csv").c_str(), Constants::NUM_FEATURES);
 	ret->rTrees = models;
 	ret->norMat = new Mat(nM);
 	ret->norFase1 = new Mat(nFase1);

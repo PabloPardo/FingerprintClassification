@@ -9,11 +9,11 @@ from sklearn import svm, cross_validation
 
 # DATA EXTRACTION
 # Data to use in the prediction: dedo, nfiq, foregraund, numMinucias, >.1, ..., >.9
-data = load('data/results_20049.csv')
+data = load('//ssd2015/DataFase1/Empremptes/CSVs/Totes.csv')
 
 
-geyce_y = np.array(data.get(data.keys()[-3]).values, dtype=np.int8)  # Predictions given by Geyce
-kit4_y = np.array(data.get(data.keys()[-2]).values, dtype=np.int8)   # Labels given by Kit4
+geyce_y = np.array(data.get(data.keys()[-2]).values, dtype=np.int8)  # Predictions given by Geyce
+kit4_y = np.array(data.get(data.keys()[-1]).values, dtype=np.int8)   # Labels given by Kit4
 
 # Change Labels to -1, 1 instead of 0, 1
 for i in range(len(geyce_y)):
@@ -55,6 +55,7 @@ for out_train, out_test in outer:
     y_out_train = kit4_y[out_train]
     y_out_test = kit4_y[out_test]
 
+
     ## TRAIN
     # Grid search2
     # estimator = svm.LinearSVC(dual=False)
@@ -67,7 +68,7 @@ for out_train, out_test in outer:
 
     ## VALIDATE
     # y_out_test_pred = grid.predict(X_out_test)
-    y_out_test_pred, agg_class_est_test = adaboost_test_ds(X_out_test, weak_class_arr, thresh=1.5)
+    y_out_test_pred, agg_class_est_test = adaboost_test_ds(X_out_test, weak_class_arr, thresh=1.3)
 
     ## EVALUATE
     contingency_table = eval_pred(y_out_test_pred, y_out_test)
@@ -88,7 +89,7 @@ for out_train, out_test in outer:
 
     plotFP(agg_class_est_test, y_out_test, [0, 3], 80)
     plotROC(agg_class_est_test.T, y_out_test)
-    break
+
 
 print 'Our Prediction Stats\n--------------------'
 print '\tTP = %f' % np.mean(TP)

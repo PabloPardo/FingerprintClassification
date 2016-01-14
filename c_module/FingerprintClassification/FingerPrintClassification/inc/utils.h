@@ -88,7 +88,7 @@ LabelsAndFeaturesData readCSV(const char*, const char* = NULL);
 Mat CropImage(int, int, const Mat);
 Mat** GetImageRegions(const Mat);
 void printParamsRF(const Properties&);
-void loadNormalization(Mat*, const char*);
+void loadNormalization(Mat*, const char*, int);
 void saveNormalization(const Mat, const char*);
 void importFileFeatures(vector<string>*, Mat*, const char*, bool, const int);
 void exportFileFeatures(Mat, vector<string>, const char*);

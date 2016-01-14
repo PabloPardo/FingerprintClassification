@@ -98,6 +98,9 @@ void Predict_Main(int argc, char* argv[])
 				if (ret.code > 0)
 					throw new exception(ret.message);
 				float* probs;
+				bool isGood;
+				float feat[22];
+				ret = Predict1(&isGood, hnd, 1.28f, feat);
 				ret = Predict2(&len, &probs, hnd, features);
 				if (ret.code > 0)
 					throw new exception(ret.message);
@@ -162,7 +165,7 @@ void ABTrain2(int argc, char* argv[])
 void ABTest(int argc, char* argv[])
 {
 	bool paramsFromCMD = false;
-	char* pathCsv = "//ssd2015/DataFase1/Empremptes/CSVs/VFS-BOGOTA/Vfs-Bogota-0715.csv";
+	char* pathCsv = "//ssd2015/DataFase1/Empremptes/CSVs/Fase1/VFS/201503.csv";
 	char separator = ';';
 	int col_ini = 3;
 	int col_end = 19;
@@ -197,12 +200,14 @@ void ABTest(int argc, char* argv[])
 
 	cout << "Load CSV " << pathCsv << " ..." << endl;
 	begin = clock();
-	ret = Utils::loadCSV(&data, pathCsv, separator, col_ini, col_end);
+	vector<string> file_names;
+	ret = Utils::loadCSV(&data, pathCsv, separator, col_ini, col_end, 3);
 	
 	end = clock();
 	cout << double(end - begin) / CLOCKS_PER_SEC << "sec" << endl;
 
 	Mat geyce_y, kit4_y;
+	
 	vector<string>::iterator it;
 	it = find(data.headers.begin(), data.headers.end(), "GEYCEResult");
 	int ind = (int)distance(data.headers.begin(), it);
@@ -224,27 +229,31 @@ void ABTest(int argc, char* argv[])
 		output = data.body.colRange(posDedo + 1, data.body.cols);
 	else
 		hconcat(output, data.body.colRange(posDedo + 1, data.body.cols), output);
-	hconcat(output, digFingers, output);
+	hconcat(digFingers, output, output);
 
 	Handle* hnd;
 	InitModel(&hnd, "./");
 	
 	ofstream file;
-	file.open("results.csv");
-	file << "expected;obtained" << endl;
+	file.open("results.txt");
+	file << "file;obtained;expected" << endl;
 	for (int i = 0; i < output.rows; i++)
 	{
 		bool kit4Good = kit4_y.row(i).at<float>(0, 0) > 0.0f;
 		bool adaGood;
+		
+		/*for (int k = 0; k < output.row(i).cols; k++)
+			cout << output.row(i).at<float>(0, k) << " ";*/
+		string file_name = data.file_names.at(i);
 		Predict1(&adaGood, hnd, thresh, (float*)output.row(i).data);
-		file << (kit4Good ? "true" : "false") << ";" << (adaGood ? "true" : "false") << endl;
+		file << file_name << ";" << (adaGood ? "True" : "False") << ";" << (kit4Good ? "true" : "false") << endl;
 	}
 	ReleaseModel(hnd);
 }
 
 int main(int argc, char* argv[]){
 	//ABTrain(argc, argv);
-	ABTest(argc, argv);
+	//ABTest(argc, argv);
 
 	/*long size = 1179855 * 914;
 	float* f = new float[size];*/
@@ -267,7 +276,7 @@ int main(int argc, char* argv[]){
 
 	Normalize(inputDir, inputFile, outputDir);*/
 
-	//Predict_Main(argc,argv);
+	Predict_Main(argc,argv);
 
 	//Fit_And_Predict_Main();
 
@@ -307,10 +316,6 @@ int main(int argc, char* argv[]){
 	//string outPath = (pathBase + "Extracted/Errores.csv").c_str();
 
 	//Extraction(labelsPath.c_str(),imagesPath.c_str(),outPath.c_str());
-	//Fit(tPaths,pPaths.modelDir);
-	//PredictTest(pPaths,resultPath);
-	//NormalizeFitAndPredict(tPaths,pPaths,resultPath);
-
 }
 
 //** *****************************************************************
