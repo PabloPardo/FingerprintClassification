@@ -18,15 +18,193 @@ using namespace cv;
 LList *getDirFiles(char *dir);
 void getMatchedFiles(char *dir, char *pattern, LList **ret, LList **cpos);
 int digitalizeFingers(Mat* output, const Mat onlyFingerNumber);
+void getFileNameFromPath(string* output, const string path);
 
-void Extract_Main(int argc, char* argv[])
+string test_name = "VS2012";
+
+void ExtractForFitAll(int argc, char* argv[])
 {
-	if (argc != 4)
-		cout << "Usage: Test.exe <labelsPath> <imagesDir> <outputFile>" << endl;
+	/*************************** Phase 1************************************************/
+	string baseImgPathFase1 = "D:/Data/Empremptes/PNGs/2014/All/";
+	string csvFileFase1 = "D:/Data/Empremptes/CSVs/Fase1/VFS/2014.csv";
+	string extractedFase1 = "D:/Data/Empremptes/Extracted/Fase 1/2014-";
+	
+	/*************************** Phase 2************************************************/
+	string baseImgPathFase2 = "D:/Data/Empremptes/PNGs (Mala Qualitat)/Train/FullSize/";
+	string csvFileFase2 = "D:/Data/Empremptes/CSVs/Fase 2/RandomizedData.csv";
+	string extractedFase2 = "D:/Data/Empremptes/Extracted/Fase 2/RandomizedData-";
+	/*********************************************************************************/
 
-	Extraction(argv[1], argv[2], argv[3]);
+	extractedFase1 = extractedFase1 + test_name + ".csv";
+	extractedFase2 = extractedFase2 + test_name + ".csv";
+
+	Config cfg;
+	cfg.verbose = true;
+	ImgProcessingProperties* extractionProperties = new ImgProcessingProperties();
+	extractionProperties->n_bins = 32;
+	extractionProperties->rad_grad = 1;
+	extractionProperties->rad_dens = 3;
+	extractionProperties->rad_entr = 5;
+	cfg.extractionProperties = extractionProperties;
+	InitConfig(cfg);
+
+	LoadCsvParams paramsFase1;
+	paramsFase1.baseImgPath = baseImgPathFase1.c_str();
+	paramsFase1.csvFile = csvFileFase1.c_str();
+	paramsFase1.separator = ';';
+	paramsFase1.globalRange.begin = 3;
+	paramsFase1.globalRange.end = 19;
+	paramsFase1.XRange = new MatRange();
+	paramsFase1.XRange->begin = 0;
+	paramsFase1.XRange->end = 13;
+	/*In this step, we don't need y, we only extract data from images and concatenate it with X known features to make a super matrix file */
+	paramsFase1.yRange = NULL;
+	paramsFase1.withHeaders = true;
+	paramsFase1.fileNameIndex = 2;
+	paramsFase1.folderNameIndex = 1;
+	paramsFase1.fingerFieldName = "dedo";
+
+	LoadCsvParams paramsFase2;
+	paramsFase2.baseImgPath = baseImgPathFase2.c_str();
+	paramsFase2.csvFile = csvFileFase2.c_str();
+	paramsFase2.separator = ';';
+	paramsFase2.globalRange.begin = 4;
+	paramsFase2.globalRange.end = 23;
+	paramsFase2.XRange = new MatRange();
+	paramsFase2.XRange->begin = 6;
+	paramsFase2.XRange->end = 19;
+	/*In this step, we don't need y, we only extract data from images and concatenate it with X known features to make a super matrix file */
+	paramsFase2.yRange = NULL;
+	paramsFase2.withHeaders = true;
+	paramsFase2.fileNameIndex = 2;
+	paramsFase2.fingerFieldName = "dedo";
+
+	Extraction(paramsFase1, extractedFase1.c_str());
+	Extraction(paramsFase2, extractedFase2.c_str());
 }
 
+void FitAll(int argc, char* argv[])
+{
+	/******************************Fase 1 *****************************/
+	string csvFileFase1 = "D:/Data/Empremptes/CSVs/Fase1/VFS/2014.csv";
+	string extractedFileFase1 = "D:/Data/Empremptes/Extracted/Fase 1/2014-";
+	string modelFase1 = "D:/Data/Empremptes/Models/Fase 1/";
+	/******************************Fase 2 *****************************/
+	string csvFileFase2 = "D:/Data/Empremptes/CSVs/Fase2/VFS/RandomizedData.csv";
+	string extractedFileFase2 = "D:/Data/Empremptes/Extracted/Fase 2/RandomizedData-";
+	string modelFase2 = "D:/Data/Empremptes/Models/Fase 2/";
+	/******************************************************************/
+	extractedFileFase1 = extractedFileFase1 + test_name + ".csv";
+	extractedFileFase2 = extractedFileFase2 + test_name + ".csv";
+	modelFase1 = modelFase1 + test_name + "/";
+	modelFase2 = modelFase2 + test_name + "/";
+
+	Config cfg;
+	cfg.verbose = true;
+	AdaBoostProperties* abProp = new AdaBoostProperties();
+	abProp->thresh = 1.28f;
+	abProp->ineq = LESS_THAN;
+	abProp->nIterations = 60;
+	abProp->stepsPerIteration = 10;
+	cfg.adaBoostProperties = abProp;
+	RFProperties* rfProp = new RFProperties();
+	rfProp->max_depth = 16;
+	rfProp->min_samples_count = 2;
+	rfProp->max_categories = 3;
+	rfProp->max_num_of_trees_in_forest = 10;
+	rfProp->nactive_vars = 0;
+	cfg.randomForestProperties = rfProp;
+	InitConfig(cfg);
+
+	LoadCsvParams paramsFase1;
+	paramsFase1.csvFile = csvFileFase1.c_str();
+	paramsFase1.separator = ';';
+	paramsFase1.globalRange.begin = 3;
+	paramsFase1.globalRange.end = 19;
+	/* We didn't finish phase1. We just use NBIS information to train. There is no extracted data from the fingerprint image. That's why we use X range and y range */
+	/* When phase1 finish, we will use extracted data concatenated with actual X and won't need XRange anymore */
+	paramsFase1.XRange = NULL;
+	//paramsFase1.XRange->begin = 0;
+	//paramsFase1.XRange->end = 13;
+	paramsFase1.yRange = new MatRange();
+	paramsFase1.yRange->begin = 15;
+	paramsFase1.yRange->end = 15;
+	paramsFase1.withHeaders = true;
+	paramsFase1.fileNameIndex = 3;
+	paramsFase1.fingerFieldName = "dedo";
+
+	LoadCsvParams paramsFase2;
+	paramsFase2.csvFile = csvFileFase2.c_str();
+	paramsFase2.separator = ';';
+	paramsFase2.globalRange.begin = 4;
+	paramsFase2.globalRange.end = 10;
+	paramsFase2.XRange = NULL;
+	/* We only need y in this step because we want to fit extracted data vs expected output */
+	paramsFase2.yRange = new MatRange();
+	paramsFase2.yRange->begin = 0;
+	paramsFase2.yRange->end = 6;
+	paramsFase2.withHeaders = true;
+
+	Fit1(paramsFase1, extractedFileFase1.c_str(), modelFase1.c_str());
+	//Fit2(paramsFase2, extractedFileFase2.c_str(), modelFase2.c_str());
+}
+
+
+void Predict_From_Extracted(int argc, char* argv[])
+{
+	bool paramsFromCMD = false;
+
+	char* labelsDir = "D:/GoogleDrive/Projectes/GEYCE/FP/Data/CSVs/Malos_15_07_08.csv";
+	char* inputDir = "D:/GoogleDrive/Projectes/GEYCE/FP/Data/Extracted/Malos_15_07_08-VS2012.csv";
+	char* modelDir = "D:/GoogleDrive/Projectes/GEYCE/FP/Data/out/Test_VS2012_library/";
+	char* outPath = "D:/GoogleDrive/Projectes/GEYCE/FP/Data/out/Test_VS2012_library/results.txt";
+
+	if (argc == 3 && paramsFromCMD)
+	{
+		inputDir = argv[1];
+		modelDir = argv[2];
+	}
+	else
+	{
+		cout << "Usage: Test.exe <inputDir> <modelDir>" << endl;
+		cout << "Loading default params..." << endl;
+	}
+
+	CsvData X_test;
+	Utils::loadCSV(&X_test, inputDir, ',', 1, 924, 0, false);
+	CsvData y_test;
+	Utils::loadCSV(&y_test, labelsDir, ';', 1, 7, 0);
+
+	Handle* hnd;
+	ReturnType ret = InitModel(&hnd, modelDir);
+	if (ret.code > 0)
+	{
+		cout << ret.message << endl;
+		throw new exception(ret.message);
+	}
+
+	ofstream file;
+	file.open(outPath);
+
+	for (int i = 0; i < X_test.body.rows; i++)
+	{
+		float *probs;
+		int len;
+		Predict2(&len, &probs, hnd, (float*)X_test.body.row(i).data);
+		string fName;
+		Utils::getFileNameFromPath(&fName, y_test.file_names[i]);
+		file << fName;
+		for (int j = 0; j < len; j++)
+			file << ";" << probs[j];
+		for (int j = 0; j < len; j++)
+			file << ";" << y_test.body.at<float>(i, j);
+		file << endl;
+	}
+	file.close();
+	ReleaseModel(hnd);
+}
+
+/*
 void Fit_And_Predict_Main()
 {
 	string pathBase = "D:/GoogleDrive/Projectes/GEYCE/FP/";
@@ -51,7 +229,7 @@ void Fit_And_Predict_Main()
 	Fit2(tPaths, pPaths.modelDir);
 	PredictTest(pPaths, resultPath);
 }
-
+*/
 void Predict_Main(int argc, char* argv[])
 {
 	bool paramsFromCMD = false;
@@ -100,7 +278,7 @@ void Predict_Main(int argc, char* argv[])
 				float* probs;
 				bool isGood;
 				float feat[22];
-				ret = Predict1(&isGood, hnd, 1.28f, feat);
+				ret = Predict1(&isGood, hnd, feat);
 				ret = Predict2(&len, &probs, hnd, features);
 				if (ret.code > 0)
 					throw new exception(ret.message);
@@ -132,34 +310,24 @@ void Predict_Main(int argc, char* argv[])
 	}
 }
 
-/*****************************Fase I*****************************/
-void ABTrain(int argc, char* argv[])
+
+
+void RFTrain(int argc, char* argv[])
 {
 	LoadCsvParams params;
-	params.csvFile = argv[1];
-	params.separator = argv[2][0];
-	params.begin_header = atoi(argv[3]);
-	params.end_header = atoi(argv[4]);
-	params.with_headers = atoi(argv[5]);
-	Fit1(params, "./", 60, 10);
-}
+	params.csvFile = "D:/GoogleDrive/Projectes/GEYCE/FP/Data/CSVs/RandomizedData.csv";
+	params.separator = ';';
+	params.globalRange.begin = 4;
+	params.globalRange.end = 10;
+	params.XRange = NULL;
+	params.yRange = new MatRange();
+	params.yRange->begin = 0;
+	params.yRange->end = 6;
+	params.withHeaders = true;
 
-void ABTrain2(int argc, char* argv[])
-{
-	/*ProcessedCSV* params = new ProcessedCSV();
-	params->X.csvFile = "X_out_train.csv";
-	params->X.separator = ';';
-	params->X.begin_header = 1;
-	params->X.end_header = 22;
-	params->X.with_headers = false;
-
-	params->y.csvFile = "y_out_train.csv";
-	params->y.separator = ';';
-	params->y.begin_header = 1;
-	params->y.end_header = 2;
-	params->y.with_headers = false;
-	
-	Fit1(params, "./", 40, 10);*/
+	const char* dataPath = "D:/GoogleDrive/Projectes/GEYCE/FP/Data/Extracted/RandomizedData-VS2012.csv";
+	const char* modelPath = "D:/GoogleDrive/Projectes/GEYCE/FP/Data/out/Test_VS12_Library/";
+	Fit2(params, dataPath, modelPath);
 }
 
 void ABTest(int argc, char* argv[])
@@ -245,77 +413,15 @@ void ABTest(int argc, char* argv[])
 		/*for (int k = 0; k < output.row(i).cols; k++)
 			cout << output.row(i).at<float>(0, k) << " ";*/
 		string file_name = data.file_names.at(i);
-		Predict1(&adaGood, hnd, thresh, (float*)output.row(i).data);
+		Predict1(&adaGood, hnd, (float*)output.row(i).data);
 		file << file_name << ";" << (adaGood ? "True" : "False") << ";" << (kit4Good ? "true" : "false") << endl;
 	}
 	ReleaseModel(hnd);
 }
 
-int main(int argc, char* argv[]){
-	//ABTrain(argc, argv);
-	//ABTest(argc, argv);
-
-	/*long size = 1179855 * 914;
-	float* f = new float[size];*/
-
-	/*for (int i = 0; i < 1000; i++)
-	{ 
-		CvRTrees* arr = new CvRTrees[6];
-		delete[] arr;
-	}
-	system("pause");*/
-
-	//Handle* hnd;
-
-	//InitModel(&hnd,argv[1]);
-	//ReleaseModel(hnd);
-
-	/*const char* inputDir = "D:/Data/Empremptes/Extracted";
-	const char* inputFile = "201411_0404.csv";
-	const char* outputDir = "D:/Data/Empremptes/Extracted";
-
-	Normalize(inputDir, inputFile, outputDir);*/
-
-	Predict_Main(argc,argv);
-
-	//Fit_And_Predict_Main();
-
-	//string pathBase = "//ssd2015/DataFase1/Empremptes/";
-	//const char* pathBase = "D:/GoogleDrive/Projectes/GEYCE/FP/";
-
-	/*TrainPaths tPaths;
-	tPaths.labelsPath = ((string)pathBase + "Data/CSVs/RandomizedData5824-600.csv").c_str();
-	tPaths.dataPath = ((string)pathBase + "Data/out/Test_Nova_API3/RawDataTrain.csv").c_str();
-
-	PredictPaths pPaths;
-	pPaths.labelsPath = ((string)pathBase + "Data/CSVs/RandomizedDataPredict.csv").c_str();
-	pPaths.dataPath = ((string)pathBase + "Data/out/Test_Nova_API3/RawDataPredict.csv").c_str();
-	pPaths.modelDir = ((string)pathBase + "Data/out/Test_Nova_API3/").c_str();
-
-	const char* resultPath = ((string)pathBase + "Data/out/Test_Nova_API3/results-fit-predict.csv").c_str();*/
-
-
-	/*EXTRACTION**************************************************************************************/
-	/* TRAIN*/
-	/*const char* labelsPath = "D:/GoogleDrive/Projectes/GEYCE/FP/Data/CSVs/RandomizedData5824-600.csv";
-	const char* imagesPath = "D:/GoogleDrive/Projectes/GEYCE/FP/Data/Training/";
-	const char* outPath = "D:/GoogleDrive/Projectes/GEYCE/FP/Data/out/Test_Nova_API3/RawDataTrain.csv";*/
-
-	/* PREDICT*/
-	/*const char* labelsPath = "D:/GoogleDrive/Projectes/GEYCE/FP/Data/CSVs/RandomizedDataPredict.csv";
-	const char* imagesPath = "D:/GoogleDrive/Projectes/GEYCE/FP/Data/Training/";
-	const char* outPath = "D:/GoogleDrive/Projectes/GEYCE/FP/Data/out/Test_Nova_API3/RawDataPredict.csv";*/
-
-	/**********************************************/
-	/* Fase 1*/
-	/*********************************************/
-
-	//string labelsPath = (pathBase + "CSVs/Errores.csv").c_str();
-	//string labelsPath = (pathBase + "CSVs/AdaBoost15.csv").c_str();
-	//string imagesPath = (pathBase + "PNGs/2014/All/").c_str();
-	//string outPath = (pathBase + "Extracted/Errores.csv").c_str();
-
-	//Extraction(labelsPath.c_str(),imagesPath.c_str(),outPath.c_str());
+int main(int argc, char* argv[]) {
+	//ExtractForFitAll(argc, argv);
+	FitAll(argc, argv);
 }
 
 //** *****************************************************************
@@ -401,4 +507,16 @@ int digitalizeFingers(Mat* output, const Mat onlyFingerNumber)
 	}
 	*output = tmp;
 	return 0;
+}
+
+void getFileNameFromPath(string* output, const string path)
+{
+	size_t i = path.rfind(path, 1);
+
+	if (i != string::npos) {
+		*output = path.substr(i + 1, path.length() - i);
+	}
+	else {
+		*output = "";
+	}
 }

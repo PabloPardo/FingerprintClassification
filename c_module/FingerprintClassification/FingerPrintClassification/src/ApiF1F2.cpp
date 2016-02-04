@@ -12,12 +12,37 @@ MainFP* obj = new MainFP();
 extern "C" {
 #endif
 
-	__declspec(dllexport) ReturnType Extraction(const char* labelsPath, const char* imagesPath, const char* outPath)
+	__declspec(dllexport) ReturnType InitConfig(Config cfg)
 	{
 		ReturnType ret = { 0, "No Error" };
 		try
 		{
-			obj->Extraction(labelsPath, imagesPath, outPath);
+			obj->InitConfig(cfg);
+		}
+		catch (cv::Exception& ex)
+		{
+			ret.code = 1;
+			ret.message = ex.what();
+		}
+		catch (std::exception& ex)
+		{
+			ret.code = 2;
+			ret.message = ex.what();
+		}
+		catch (...)
+		{
+			ret.code = 3;
+			ret.message = "Unknown error";
+		}
+		return ret;
+	}
+
+	__declspec(dllexport) ReturnType Extraction(LoadCsvParams params, const char* modelPath)
+	{
+		ReturnType ret = { 0, "No Error" };
+		try
+		{
+			obj->Extraction(params, modelPath);
 		}
 		catch (cv::Exception& ex)
 		{
@@ -62,12 +87,12 @@ extern "C" {
 		return ret;
 	}
 
-	__declspec(dllexport) ReturnType Fit1(LoadCsvParams importData, const char* outputPath, int num_it, int num_ds_steps)
+	__declspec(dllexport) ReturnType Fit1(LoadCsvParams importData, const char* extractedFileFase1, const char* outputPath)
 	{
 		ReturnType ret = { 0, "No Error" };
 		try
 		{
-			obj->Fit1(importData, outputPath, num_it, num_ds_steps);
+			obj->Fit1(importData, extractedFileFase1, outputPath);
 		}
 		catch (cv::Exception& ex)
 		{
@@ -87,12 +112,12 @@ extern "C" {
 		return ret;
 	}
 
-	__declspec(dllexport) ReturnType Fit2(const TrainPaths tPaths, const char* outputDir)
+	__declspec(dllexport) ReturnType Fit2(LoadCsvParams params, const char* dataPath, const char* outputDir)
 	{
 		ReturnType ret = { 0, "No Error" };
 		try
 		{
-			obj->Fit2(tPaths, outputDir);
+			obj->Fit2(params, dataPath, outputDir);
 		}
 		catch (cv::Exception& ex)
 		{
@@ -112,37 +137,12 @@ extern "C" {
 		return ret;
 	}
 
-	__declspec(dllexport) ReturnType PredictTest(PredictPaths pPaths, const char* results)
+	__declspec(dllexport) ReturnType Predict1(bool* enoughQuality, Handle* hnd, float* features)
 	{
 		ReturnType ret = { 0, "No Error" };
 		try
 		{
-			obj->PredictTest(pPaths, results);
-		}
-		catch (cv::Exception& ex)
-		{
-			ret.code = 1;
-			ret.message = ex.what();
-		}
-		catch (std::exception& ex)
-		{
-			ret.code = 2;
-			ret.message = ex.what();
-		}
-		catch (...)
-		{
-			ret.code = 3;
-			ret.message = "Unknown error";
-		}
-		return ret;
-	}
-
-	__declspec(dllexport) ReturnType Predict1(bool* enoughQuality, Handle* hnd, float thresh, float* features)
-	{
-		ReturnType ret = { 0, "No Error" };
-		try
-		{
-			obj->Predict1(enoughQuality,  hnd, thresh, features);
+			obj->Predict1(enoughQuality,  hnd, features);
 		}
 		catch (cv::Exception& ex)
 		{
@@ -289,6 +289,31 @@ extern "C" {
 		}
 		return ret;
 	}	
+
+	__declspec(dllexport) ReturnType PredictTest(LoadCsvParams params, const char* modelDir, const char* dataPath, const char* results)
+	{
+		ReturnType ret = { 0, "No Error" };
+		try
+		{
+			obj->PredictTest(params, modelDir, dataPath, results);
+		}
+		catch (cv::Exception& ex)
+		{
+			ret.code = 1;
+			ret.message = ex.what();
+		}
+		catch (std::exception& ex)
+		{
+			ret.code = 2;
+			ret.message = ex.what();
+		}
+		catch (...)
+		{
+			ret.code = 3;
+			ret.message = "Unknown error";
+		}
+		return ret;
+	}
 
 #ifdef __cplusplus
 }

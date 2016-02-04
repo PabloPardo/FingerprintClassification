@@ -170,17 +170,21 @@
   <ItemGroup>
     <ClInclude Include="inc\AdaBoost.h" />
     <ClInclude Include="inc\FpFeaturesLibrary.h" />
+    <ClInclude Include="inc\ImgTools.h" />
     <ClInclude Include="inc\LearningRF.h" />
     <ClInclude Include="inc\MainFP.h" />
-    <ClInclude Include="inc\utils.h" />
+    <ClInclude Include="inc\NorManagement.h" />
+    <ClInclude Include="inc\Utils.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AdaBoost.cpp" />
     <ClCompile Include="src\ApiF1F2.cpp" />
+    <ClCompile Include="src\ImgTools.cpp" />
     <ClCompile Include="src\LearningRF.cpp" />
     <ClCompile Include="src\MainFP.cpp" />
-    <ClCompile Include="src\utils.cpp" />
+    <ClCompile Include="src\NorManagement.cpp" />
+    <ClCompile Include="src\Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FingerprintClassification.rc" />

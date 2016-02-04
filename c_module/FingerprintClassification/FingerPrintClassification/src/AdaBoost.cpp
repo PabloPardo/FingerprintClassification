@@ -6,9 +6,9 @@
 #include "utils.h"
 #include <iterator>
 
-
 AdaBoost::AdaBoost()
 {
+	prop = new AdaBoostProperties();
 }
 
 AdaBoost::~AdaBoost()
@@ -16,8 +16,6 @@ AdaBoost::~AdaBoost()
 }
 
 using namespace std;
-
-bool AdaBoost::verbose;
 
 istream & operator>>(istream& str, Inequality& v) {
 	unsigned int ineq = 0;
@@ -66,7 +64,7 @@ void AdaBoost::StumpClassify(Mat* out, const Mat dataMatrix, int dim, float thre
 	*out = ret_array;
 }
 
-void AdaBoost::BuildStump(Stump* oStump, double* oErr, Mat* oBest, const Mat data_matrix, const Mat class_labels, const Mat weigh_arr, int num_steps)
+void AdaBoost::BuildStump(Stump* oStump, double* oErr, Mat* oBest, const Mat data_matrix, const Mat class_labels, const Mat weigh_arr)
 {
 	int m = data_matrix.rows;
 	int n = data_matrix.cols;
@@ -80,11 +78,11 @@ void AdaBoost::BuildStump(Stump* oStump, double* oErr, Mat* oBest, const Mat dat
 		begin = clock();
 		double range_min, range_max;
 		minMaxLoc(data_matrix.col(i), &range_min, &range_max);
-		double step_size = (range_max - range_min) / num_steps;
+		double step_size = (range_max - range_min) / prop->stepsPerIteration;
 		double weighted_error;
 		Mat predicted_vals;
 		Inequality inequal;
-		for (int j = -1; j < (int)num_steps + 1; j++)
+		for (int j = -1; j < (int)prop->stepsPerIteration + 1; j++)
 		{
 			float thresh_val = (float)(range_min + float(j) * step_size);
 
@@ -125,7 +123,7 @@ void AdaBoost::BuildStump(Stump* oStump, double* oErr, Mat* oBest, const Mat dat
 	*oBest = best_class_est;
 }
 
-void AdaBoost::AdaboostTrainDS(vector<Stump>* weak_class_arr, Mat* agg_class_est, const Mat data_arr, const Mat class_labels, int num_it, int num_ds_steps)
+void AdaBoost::AdaboostTrainDS(vector<Stump>* weak_class_arr, Mat* agg_class_est, const Mat data_arr, const Mat class_labels)
 {
 	int m = data_arr.rows;
 	Mat weigh_arr = 0.01 * Mat(m, 1, CV_32F, 1) / m;
@@ -134,16 +132,16 @@ void AdaBoost::AdaboostTrainDS(vector<Stump>* weak_class_arr, Mat* agg_class_est
 	vector<Stump> out_weak_class_arr;
 
 
-	for (int i = 0; i < num_it; i++)
+	for (int i = 0; i < prop->nIterations; i++)
 	{
 		Stump best_stump;
 		double error;
 		Mat class_est;
 		clock_t begin, end;
 		begin = clock();
-		BuildStump(&best_stump, &error, &class_est, data_arr, class_labels, weigh_arr, num_ds_steps);
+		BuildStump(&best_stump, &error, &class_est, data_arr, class_labels, weigh_arr);
 		end = clock();
-		if (AdaBoost::verbose)
+		if (Utils::verbose)
 			cout << "BuildStump..." << double(end - begin) / CLOCKS_PER_SEC << "sec" << endl;
 		float alpha = float(0.5*log((1.0 - error) / max(error, 1e-16)));
 		best_stump.alpha = alpha;
@@ -173,7 +171,7 @@ void AdaBoost::AdaboostTrainDS(vector<Stump>* weak_class_arr, Mat* agg_class_est
 		int acc_errors = (int)sum(agg_errors)[0];
 
 		float error_rate = acc_errors / (float)m;
-		if (AdaBoost::verbose)
+		if (Utils::verbose)
 		{
 			cout << acc_errors << " errors over " << m << " inputs..." << endl;
 			cout << "Iteration {" << i << "} ---- total error: {" << error_rate << "}" << endl;
@@ -186,7 +184,7 @@ void AdaBoost::AdaboostTrainDS(vector<Stump>* weak_class_arr, Mat* agg_class_est
 	*agg_class_est = out_agg_class_est;
 }
 
-void AdaBoost::AdaboostTestDS(Mat* bin_class_est, Mat* agg_class_est, const Mat data_matrix, vector<Stump>* classifier_arr, float thresh, Inequality ineq)
+void AdaBoost::AdaboostTestDS(Mat* bin_class_est, Mat* agg_class_est, const Mat data_matrix, vector<Stump>* classifier_arr)
 {
 	int m = data_matrix.rows;
 	Mat out_agg_class_est = Mat(m, 1, CV_32F, Scalar(0));
@@ -204,18 +202,18 @@ void AdaBoost::AdaboostTestDS(Mat* bin_class_est, Mat* agg_class_est, const Mat 
 
 	for (int i = 0; i < m; i++)
 	{
-		switch (ineq)
+		switch (prop->ineq)
 		{
 		case BIGGER_THAN:
-			if (out_agg_class_est.at<float>(i, 0) > thresh)
+			if (out_agg_class_est.at<float>(i, 0) > prop->thresh)
 				out_bin_class_est.at<float>(i, 0) = -1.f;
-			if (out_agg_class_est.at<float>(i, 0) <= thresh)
+			if (out_agg_class_est.at<float>(i, 0) <= prop->thresh)
 				out_bin_class_est.at<float>(i, 0) = 1.f;
 			break;
 		case LESS_THAN:
-			if (out_agg_class_est.at<float>(i, 0) <= thresh)
+			if (out_agg_class_est.at<float>(i, 0) <= prop->thresh)
 				out_bin_class_est.at<float>(i, 0) = -1.f;
-			if (out_agg_class_est.at<float>(i, 0) > thresh)
+			if (out_agg_class_est.at<float>(i, 0) > prop->thresh)
 				out_bin_class_est.at<float>(i, 0) = 1.f;
 			break;
 		default:
@@ -242,98 +240,4 @@ void AdaBoost::ReadFromFile(vector<Stump>* stump, const char* filePath)
 	istream_iterator<Stump> start(input_file), end;
 	vector<Stump> numbers(start, end);
 	*stump = numbers;
-}
-
-int AdaBoost::LoadCSV(CsvData* out, LoadCsvParams params)
-{
-	CsvData tmp;
-	int nLines;
-
-	if (verbose)
-		cout << "Counting file lines... " << endl;
-	nLines = countLines(params.csvFile);
-	if (verbose)
-		cout << "Counting file lines completed: " << nLines << endl;
-
-	ifstream ifs(params.csvFile, ifstream::in);
-
-	if (!ifs.is_open())
-		return -1;
-	int cont;
-	string line;
-	string value;
-	istringstream iss;
-	if (params.with_headers)
-	{
-		tmp.body = Mat(nLines - 1, params.end_header - params.begin_header, CV_32F);
-		getline(ifs, line);
-		iss = istringstream(line);
-
-		cont = 0;
-
-		while (cont < params.begin_header)
-		{
-			getline(iss, value, params.separator);
-			cont++;
-		}
-
-		for (int j = params.begin_header; j < params.end_header; j++)
-		{
-			getline(iss, value, params.separator);
-			tmp.headers.push_back(value);
-		}
-	}
-	else
-		tmp.body = Mat(nLines, params.end_header - params.begin_header, CV_32F);
-
-	for (int i = 0; i < tmp.body.rows; i++)
-	{
-		getline(ifs, line);
-		iss = istringstream(line);
-		cont = 0;
-		while (cont < params.begin_header)
-		{
-			getline(iss, value, params.separator);
-			cont++;
-		}
-		// Read Line
-		for (int j = 0; j < tmp.body.cols; j++)
-		{
-			getline(iss, value, params.separator);
-			tmp.body.at<float>(i, j) = (float)atof(value.c_str());
-			if (strcmp(value.c_str(), "true") == 0)
-				tmp.body.at<float>(i, j) = 1.;
-			if (strcmp(value.c_str(), "false") == 0)
-				tmp.body.at<float>(i, j) = -1.;
-		}
-		if (verbose && tmp.body.rows > 10 && i % (tmp.body.rows / 10) == 0)
-			cout << (i > 0 ? i * 100 / (tmp.body.rows) : 0) << "%" << endl;
-	}
-	*out = tmp;
-	return 0;
-}
-
-int AdaBoost::DigitalizeFingers(Mat* output, const Mat onlyFingerNumber)
-{
-	Mat tmp = Mat(onlyFingerNumber.rows, 10, onlyFingerNumber.type());
-	try
-	{
-		for (int i = 0; i < tmp.rows; i++)
-		{
-			int nFinger = (int)onlyFingerNumber.at<float>(i, 0);
-			for (int j = 0; j < tmp.cols; j++)
-			{
-				if (j + 1 != nFinger)
-					tmp.at<float>(i, j) = 0;
-				else
-					tmp.at<float>(i, j) = 1;
-			}
-		}
-	}
-	catch (...)
-	{
-		return -1;
-	}
-	*output = tmp;
-	return 0;
 }

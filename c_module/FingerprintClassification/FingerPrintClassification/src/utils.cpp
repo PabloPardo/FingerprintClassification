@@ -7,11 +7,15 @@
 #include "opencv2\core\core.hpp"
 #include "opencv2\imgproc\imgproc.hpp"
 #include "opencv2\ml\ml.hpp"
+#include "opencv2\highgui\highgui.hpp"
 
 using namespace std;
 using namespace cv;
 
-void throwError(string error) {
+
+bool Utils::verbose;
+
+void Utils::throwError(string error) {
 	string err = error;
 	cerr << err << endl;
 	throw exception(err.c_str());
@@ -23,11 +27,12 @@ void throwError(string error) {
 *		path  : Path to csv file.
 *		head  : Boolean to determine whether the csv file has heather or not.
 *
-***************************************************************************/
-LabelsAndFeaturesData readCSV(const char *path, const char* imagesBasePath){
+***************************************************************************
+void Utils::readCSV(LabelsAndFeaturesData* out, const char *path, const char* imagesBasePath){
 
 	// Count the number of lines in the file to allocate memory.
-	int n_lines = countLines(path);
+	int n_lines;
+	countLines(&n_lines, path);
 	if(n_lines == 0)
 		throwError("ERROR: CSV " + (string)path + " contains no data");
 	// Use string instead of char*
@@ -169,10 +174,11 @@ LabelsAndFeaturesData readCSV(const char *path, const char* imagesBasePath){
 	}
 	LabelsAndFeaturesData ret = { M, imgFileNames, imgPaths, F};
 
-	return ret;
+	*out = ret;
 }
+*/
 
-int countLines(const char *path, bool verbose) {
+void Utils::countLines(int* out, const char *path, bool verbose) {
 	int number_of_lines = 0;
     string line;
     ifstream myfile(path);
@@ -198,212 +204,207 @@ int countLines(const char *path, bool verbose) {
 	
 	myfile.close();
 
-    return number_of_lines;
+    *out = number_of_lines;
 }
 
-void exportFileFeatures(Mat trainSamples, vector<string> imgPaths, const char* outFile)
-{
-	string fileName = outFile;
-	ofstream myfile (fileName);
-	if (myfile.is_open())
-	{
-		for(int i = 0; i < trainSamples.rows; i++)
-		{
-			myfile << imgPaths[i];
-			for(int j = 0; j < trainSamples.cols; j++)
-				myfile << "," << trainSamples.at<float>(i,j);
-			myfile << "\n";
-		}
-		myfile.close();
-	}
-	else
-	{
-		throwError("Unable to open file " + fileName);
-	}
-}
-
-void printParamsRF(const Properties& prop)
-{
-	cout << "n_bins:" << prop.n_bins << endl;
-	cout << "rad_grad:" << prop.rad_grad << endl;
-	cout << "rad_dens:" << prop.rad_dens << endl;
-	cout << "rad_entr:" << prop.rad_entr << endl;
-	cout << "max_depth:" << prop.max_depth << endl;
-	cout << "min_samples_count:" << prop.min_samples_count << endl;
-	cout << "max_categories:" << prop.max_categories << endl;
-	cout << "max_num_of_trees_in_forest:" << prop.max_num_of_trees_in_forest << endl;
-
-	cout << "TOTAL_FEATURES:" << Constants::TOTAL_FEATURES << endl;
-	cout << "NUM_ROW_SEGMENTS:" << Constants::NUM_ROW_SEGMENTS << endl;
-	cout << "NUM_COL_SEGMENTS:" << Constants::NUM_COL_SEGMENTS << endl;
-	cout << "NUM_CLASSIFIERS:" << Constants::NUM_CLASSIFIERS << endl;
-	cout << "NUM_FEATURES:" << Constants::NUM_FEATURES << endl;
-}
-
-bool has_suffix(const string &str, const string &suffix)
+bool Utils::has_suffix(const string &str, const string &suffix)
 {
     return str.size() >= suffix.size() &&
            str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
 }
 
-void loadNormalization(Mat* norMat, const char* normFile, int nFeat)
+void Utils::getFileNameFromPath(string* output, const string path)
 {
-	ifstream ifs(normFile, ifstream::in);
-	if (!ifs.is_open()) {
-		string err = (string)"ERROR: file " + normFile + " could not be opened. Is the path okay?";
-		cerr << err << endl;
-		return;
-	}
+	int index = path.find_last_of("/") + 1;
+	*output = path.substr(index);
+}
 
+int Utils::LoadCSV(CsvData* out, LoadCsvParams params)
+{
+	CsvData tmp;
+	int nLines;
+
+	if (verbose)
+		cout << "Counting file lines... " << endl;
+	countLines(&nLines, params.csvFile);
+	if (verbose)
+		cout << "Counting file lines completed: " << nLines << endl;
+
+	ifstream ifs(params.csvFile, ifstream::in);
+
+	if (!ifs.is_open())
+		return -1;
+	int cont;
 	string line;
 	string value;
-	Mat ret = cv::Mat(nFeat, 2, CV_32F);
-	
-	for(int i = 0; i < ret.rows; i++)
+	istringstream iss;
+	if (params.withHeaders)
 	{
+		tmp.body = Mat(nLines - 1, params.globalRange.end - params.globalRange.begin, CV_32F);
 		getline(ifs, line);
-		if (line.empty())
-			continue; 
-		istringstream iss(line);
-		// Read Line
-		for(int j = 0; j < ret.cols; j++)
+		iss = istringstream(line);
+
+		cont = 0;
+
+		while (cont < params.globalRange.begin)
 		{
-			getline(iss, value, ' ');
-			ret.at<float>(i,j) = (float)atof(value.c_str());
+			getline(iss, value, params.separator);
+			cont++;
+		}
+
+		for (int j = params.globalRange.begin; j < params.globalRange.end; j++)
+		{
+			getline(iss, value, params.separator);
+			tmp.headers.push_back(value);
 		}
 	}
-	*norMat = ret;
-}
+	else
+		tmp.body = Mat(nLines, params.globalRange.end - params.globalRange.begin, CV_32F);
 
-void saveNormalization(const Mat norMat, const char* normFile)
-{	
-	ofstream file;
-	file.open(normFile);
-	
-	for (int i = 0; i < norMat.rows; i++)
-	{
-		file << norMat.at<float>(i,0) << ' ' << norMat.at<float>(i,1) << endl;
-	}
-
-	file.close();
-}
-
-void importFileFeatures(vector<string>* fNames, Mat* normData, const char* c_path_normalized, bool verbose, const int total_features)
-{
-	char* path = (char*)c_path_normalized;
-
-	if(verbose)
-		std::cout << "Counting lines..." << std::endl;
-	int n_lines = countLines(path, verbose);
-	if(verbose)
-		std::cout << "{" << n_lines << "}" << std::endl;
-
-
-	// Open CSV file
-	ifstream ifs(path, ifstream::in);
-	if (!ifs.is_open()) {
-		throwError((string)"ERROR: file " + path + " could not be opened. Is the path okay?");
-	}
-	vector<string> imgFileNames(0);
-	string line;
-	string value;
-	Mat ret = cv::Mat(n_lines,total_features,CV_32F);
-	int percent = n_lines / 10;
-	if(verbose)
-		std::cout << "Loading data..." << std::endl;
-	for(int i = 0; i < ret.rows; i++)
+	for (int i = 0; i < tmp.body.rows; i++)
 	{
 		getline(ifs, line);
-		if (line.empty())
-			continue; 
-		istringstream iss(line);
-		// Read Line
-		for(int j = 0; j < ret.cols; j++)
+		iss = istringstream(line);
+		cont = 0;
+		string filePath;
+		while (cont < params.globalRange.begin)
 		{
-			getline(iss, value, ',');
-			if(has_suffix(value,".png"))
+			getline(iss, value, params.separator);
+			if (cont == params.folderNameIndex)
 			{
-				if(verbose && i % percent == 0)
-					cout << "imagen[" << i << "]" << value << endl;
-				imgFileNames.push_back(value);
-				j--;
-				continue;
+				filePath = params.baseImgPath + value;
+				filePath = filePath + "/";
 			}
-			ret.at<float>(i,j) = (float)atof(value.c_str());
+			
+			if (cont == params.fileNameIndex)
+			{
+				tmp.fileNames.push_back(filePath + value);
+			}
+			cont++;
+		}
+		// Read Line
+		for (int j = 0; j < tmp.body.cols; j++)
+		{
+			getline(iss, value, params.separator);
+			tmp.body.at<float>(i, j) = (float)atof(value.c_str());
+			if (strcmp(value.c_str(), "true") == 0)
+				tmp.body.at<float>(i, j) = 1.;
+			if (strcmp(value.c_str(), "false") == 0)
+				tmp.body.at<float>(i, j) = -1.;
+		}
+		if (verbose && tmp.body.rows > 10 && i % (tmp.body.rows / 10) == 0)
+			cout << (i > 0 ? i * 100 / (tmp.body.rows) : 0) << "%" << endl;
+	}
+	*out = tmp;
+	return 0;
+}
+
+void Utils::LoadFitDataFromFile(Mat* X_out, Mat* y_out, vector<string>* img_paths_out, LoadCsvParams impData)
+{
+	CsvData csv_data;
+	LoadCSV(&csv_data, impData);
+	
+	if(impData.yRange != NULL)
+	{
+		if (impData.yRange->end == impData.yRange->begin)
+			*y_out = csv_data.body.col(impData.yRange->begin);
+		else
+			*y_out = csv_data.body.colRange(impData.yRange->begin, impData.yRange->end);
+	}
+	Mat digFingers;
+	if (impData.XRange != NULL) {
+		csv_data.body = csv_data.body.colRange(impData.XRange->begin, impData.XRange->end);
+		if (impData.fingerFieldName != NULL) {
+			vector<string>::iterator it;
+			it = find(csv_data.headers.begin(), csv_data.headers.end(), impData.fingerFieldName);
+			int posDedo = (int)distance(csv_data.headers.begin(), it) - impData.XRange->begin;
+			DigitalizeFingers(&digFingers, csv_data.body.col(posDedo));
+
+			Mat output = csv_data.body.colRange(0, posDedo);
+			if (output.cols == 0)
+				output = csv_data.body.colRange(posDedo + 1, csv_data.body.cols);
+			else
+				hconcat(output, csv_data.body.colRange(posDedo + 1, csv_data.body.cols), output);
+			hconcat(digFingers, output, output);
+			*X_out = output;
+		}
+		else {
+			*X_out = csv_data.body;
 		}
 	}
-	*normData = ret;
-	*fNames = imgFileNames;
+
+	*img_paths_out = csv_data.fileNames;
 }
 
-void allocateRtrees(CvRTrees*** data, const int rows, const int cols)
+void Utils::calculateTimeLeft(long* timeLeft, long lastElapsed, int n, int i)
 {
-	CvRTrees** rtrees = new CvRTrees*[rows];
-	for (int i = 0; i < rows; ++i)
-		rtrees[i] = new CvRTrees[cols];
-	*data = rtrees;
+	*timeLeft = lastElapsed * (n - i);
 }
 
-void releaseRTrees(CvRTrees** matrix, const int rows, const int cols) 
+void Utils::convertTime(string* output, long millis)
 {
-	for (int i = 0; i < rows; ++i)
-		delete [] matrix[i];
-	delete [] matrix;
-}
-
-/**************************************************************************
-*						CropImage
-*						----------------------
-*		params->
-*			row			: Row selected
-*			col			: Col selected
-*			img			: Reference to the image.
-*		returns->
-*			cv::Mat subset of img region(row,col)
-*
-***************************************************************************/
-cv::Mat CropImage(int row, int col, const Mat img)
-{
-	int row_split = img.rows / Constants::NUM_ROW_SEGMENTS;
-	int col_split = img.cols / Constants::NUM_COL_SEGMENTS;
-	int mod_row_split = img.rows % Constants::NUM_ROW_SEGMENTS;
-	int mod_col_split = img.cols % Constants::NUM_COL_SEGMENTS;
-
-	int start_row = row*row_split;
-	int end_row = (row + 1)*row_split;
-	int start_col = col*col_split;
-	int end_col = (col + 1)*col_split;
-
-	if (end_row == img.rows - mod_row_split)
-		end_row += mod_row_split;
-
-	if (end_col == img.cols - mod_col_split)
-		end_col += mod_col_split;
-
-	cv::Rect rect = cv::Rect(start_col, start_row, end_col - start_col, end_row - start_row);
-
-	return cv::Mat((img)(rect));
-}
-
-/**************************************************************************
-*						GetImageRegions
-*						----------------------
-*		params->
-*			img		 : Reference to the image.
-*		returns->
-*			array of cv::Mat with every region
-*
-***************************************************************************/
-cv::Mat** GetImageRegions(const Mat img) {
-
-	cv::Mat** ret = new cv::Mat*[Constants::NUM_ROW_SEGMENTS];
-	for (int i = 0; i < Constants::NUM_ROW_SEGMENTS; ++i)
-		ret[i] = new cv::Mat[Constants::NUM_COL_SEGMENTS];
-
-	for (int i = 0; i < Constants::NUM_ROW_SEGMENTS; i++) {
-		for (int j = 0; j < Constants::NUM_COL_SEGMENTS; j++) {
-			ret[i][j] = CropImage(i, j, img);
+	string tmp;
+	if (millis > 999)
+	{
+		long seconds = millis / 1000;
+		tmp = to_string(millis % 1000) + "ms";
+		if (seconds > 59)
+		{
+			long minutes = seconds / 60;
+			tmp = to_string(seconds % 60) + "s and " + tmp;
+			if (minutes > 59)
+			{
+				long hours = minutes / 60;
+				tmp = to_string(minutes % 60) + "m," + tmp;
+				if (hours > 23)
+				{
+					long days = hours / 24;
+					tmp = to_string(hours % 23) + "h," + tmp;
+					tmp = to_string(days) + "d," + tmp;
+				}
+				else
+				{
+					tmp = to_string(hours) + "h," + tmp;
+				}
+			}
+			else
+			{
+				tmp = to_string(minutes) + "m," + tmp;
+			}
+		}
+		else
+		{
+			tmp = to_string(seconds) + "s and " + tmp;
 		}
 	}
-	return ret;
+	else
+	{
+		tmp = to_string(millis) + "ms";
+	}
+	*output = tmp;
+}
+
+int Utils::DigitalizeFingers(Mat* output, const Mat onlyFingerNumber)
+{
+	Mat tmp = Mat(onlyFingerNumber.rows, 10, onlyFingerNumber.type());
+	try
+	{
+		for (int i = 0; i < tmp.rows; i++)
+		{
+			int nFinger = (int)onlyFingerNumber.at<float>(i, 0);
+			for (int j = 0; j < tmp.cols; j++)
+			{
+				if (j + 1 != nFinger)
+					tmp.at<float>(i, j) = 0;
+				else
+					tmp.at<float>(i, j) = 1;
+			}
+		}
+	}
+	catch (...)
+	{
+		return -1;
+	}
+	*output = tmp;
+	return 0;
 }

@@ -10,145 +10,12 @@ using namespace std;
 
 LearningRF::LearningRF()
 {
-	prop = new Properties();
+	prop = new RFProperties();
 }
 
 LearningRF::~LearningRF()
 {
 	delete prop;
-}
-
-void LearningRF::ImageExtraction(const Mat img, Mat* output)
-{
-	Mat ret;
-	diferentiate_img(&ret, img);
-	
-	cv::Mat** regions = GetImageRegions(img);
-	
-	for (int i = Constants::NUM_ROW_SEGMENTS - 1; i >= 0; i--)
-	{
-		for (int j = Constants::NUM_COL_SEGMENTS - 1; j >= 0; j--)
-		{
-			cv::Mat in = regions[i][j];
-			cv::Mat out_grad;
-			hist_grad(&out_grad, in, prop->rad_grad, prop->n_bins);
-			cv::Mat out_dens;
-			hist_density(&out_dens, in, prop->rad_dens, prop->n_bins);
-			cv::Mat out_hough;
-			hist_hough(&out_hough, in, prop->n_bins);
-			cv::Mat out_entropy;
-			hist_entropy(&out_entropy, in, prop->rad_entr, prop->n_bins);
-			// Join histograms
-			cv::hconcat(out_hough, ret, ret);
-			cv::hconcat(out_entropy, ret, ret);
-			cv::hconcat(out_grad, ret, ret);
-			cv::hconcat(out_dens, ret, ret);
-		}
-	}
-
-	for (int i = 0; i < Constants::NUM_ROW_SEGMENTS; ++i) {
-		delete[] regions[i];
-	}
-	delete[] regions;
-
-	cv::Mat out_grad;
-	hist_grad(&out_grad, img, prop->rad_grad, prop->n_bins);
-	cv::Mat out_dens;
-	hist_density(&out_dens, img, prop->rad_dens, prop->n_bins);
-	cv::Mat out_hough;
-	hist_hough(&out_hough, img, prop->n_bins);
-	cv::Mat out_entropy;
-	hist_entropy(&out_entropy, img, prop->rad_entr, prop->n_bins);
-	// Join histograms	
-	cv::hconcat(out_hough, ret, ret);
-	cv::hconcat(out_entropy, ret, ret);
-	cv::hconcat(out_grad, ret, ret);
-	cv::hconcat(out_dens, ret, ret);
-	
-	*output = ret;
-}
-
-void LearningRF::Extract(const vector<string> imgPaths, const vector<string> imgFileNames, Mat* rawFeatures)
-{
-	Mat tmp = Mat();
-	
-	string base = "";
-	bool samePath = false;
-	if (imgPaths.size() == 1)
-	{
-		base = imgPaths[0];
-		samePath = true;
-	}
-
-	for (unsigned int i = 0; i < imgFileNames.size(); i++)
-	{
-		clock_t time_a = clock();
-		
-		Mat in;
-		string path = "";
-		if (samePath)
-			path = base + "/" + imgFileNames[i];
-		else
-			path = imgPaths[i] + "/" + imgFileNames[i];
-		
-		in = imread(path, IMREAD_GRAYSCALE);
-
-		if(in.rows == 0)
-		{
-			if(prop->verbose)
-			{
-				cout << "[" << imgFileNames[i] << "]" << (i+1) << " of " << imgFileNames.size() << ". Not Found!" << endl;
-			}
-			ofstream myfile("extractNF.txt", ios_base::app);
-			if (myfile.is_open())
-			{
-				myfile << path << endl;
-				myfile.close();
-			}
-			else cout << "Unable to open file";
-			continue;
-		}
-		Mat hist;
-		ImageExtraction(in, &hist);
-		// Join features
-		if (tmp.rows == 0)
-			tmp = hist;
-		else
-			cv::vconcat(tmp, hist, tmp);
-		
-		clock_t time_b = clock();
-		if (prop->verbose)
-			cout << "[" << imgFileNames[i] << "]" << (i+1) << " of " << imgFileNames.size() << ". length: [" << tmp.rows << "," << tmp.cols << "] time: " << (long)(time_b - time_a) << endl;
-	}
-	
-	*rawFeatures = tmp;
-}
-
-void LearningRF::CreateNorm(const Mat input, Mat* normalization, Mat* output)
-{
-	Mat nzation;
-	Mat nzed;
-
-	cv::Mat temp1, temp2, mean, std, norm_i;
-	nzed = cv::Mat(input.size(), input.type());
-	nzation = cv::Mat(input.cols, 2, input.type());
-	for (int i = 0; i < input.cols; i++)
-	{
-		cv::meanStdDev(input.col(i), mean, std);
-		//mean.convertTo(mean,CV_32F);
-		//std.convertTo(std,CV_32F);
-		cv::subtract(input.col(i), mean, temp1);
-		cv::divide(temp1, std, temp2);
-		norm_i = nzed.colRange(i, i + 1);
-		temp2.copyTo(norm_i);
-
-		nzation.at<float>(i, 0) = (float)mean.at<double>(0, 0);
-		nzation.at<float>(i, 1) = (float)std.at<double>(0, 0);
-	}
-
-	*normalization = nzation;
-	if (output != NULL)
-		*output = nzed;
 }
 
 void LearningRF::Fit(CvRTrees** ret, const Mat labels, const Mat normFeatures)
@@ -193,39 +60,15 @@ void LearningRF::Fit(CvRTrees** ret, const Mat labels, const Mat normFeatures)
 		//Prepare trainClasses for the oneVsAll classification strategy
 		trainClass_i = labels.col(i);
 		
-		if (prop->verbose)
+		if (Utils::verbose)
 			std::cout << "Training(" << i << ")...";
 		clock_t start = clock();
 		rtrees[i].train(normFeatures, CV_ROW_SAMPLE, trainClass_i);
 		//rtrees[i].train(*normFeatures, CV_ROW_SAMPLE, trainClass_i, Mat(), Mat(), var_type, Mat(), params);
-		if (prop->verbose)
+		if (Utils::verbose)
 			std::cout << "time:" << clock() - start << "ms" << std::endl;
 	}
 	*ret = rtrees;
-}
-
-void LearningRF::Normalize(const Mat input, Mat* output, const Mat normalization)
-{
-	// initialize matrices
-	cv::Mat normSample = cv::Mat(input.size(), input.type());
-	cv::Mat temp1, temp2, norm_i;
-	std::string line;
-	for (int i = 0; i < input.cols; i++)
-	{
-		// Read mean and std from normalization Mat
-		Mat row_i = normalization.row(i);
-
-		float a, b;
-		a = row_i.at<float>(0, 0);
-		b = row_i.at<float>(0, 1);
-
-		cv::subtract(input.col(i), a, temp1);
-		cv::divide(temp1, b, temp2);
-		norm_i = normSample.colRange(i, i + 1);
-		temp2.copyTo(norm_i);
-	}
-
-	*output = normSample;
 }
 
 void LearningRF::Predict(float** ret, CvRTrees* rtrees, const Mat normFeatures)
@@ -239,4 +82,32 @@ void LearningRF::Predict(float** ret, CvRTrees* rtrees, const Mat normFeatures)
 	}
 
 	*ret = prediction;
+}
+
+void LearningRF::printParamsRF(const RFProperties& prop)
+{
+	cout << "max_depth:" << prop.max_depth << endl;
+	cout << "min_samples_count:" << prop.min_samples_count << endl;
+	cout << "max_categories:" << prop.max_categories << endl;
+	cout << "max_num_of_trees_in_forest:" << prop.max_num_of_trees_in_forest << endl;
+	cout << "TOTAL_FEATURES:" << Constants::TOTAL_FEATURES << endl;
+	cout << "NUM_ROW_SEGMENTS:" << Constants::NUM_ROW_SEGMENTS << endl;
+	cout << "NUM_COL_SEGMENTS:" << Constants::NUM_COL_SEGMENTS << endl;
+	cout << "NUM_CLASSIFIERS:" << Constants::NUM_CLASSIFIERS << endl;
+	cout << "NUM_FEATURES:" << Constants::NUM_FEATURES << endl;
+}
+
+void LearningRF::allocateRtrees(CvRTrees*** data, const int rows, const int cols)
+{
+	CvRTrees** rtrees = new CvRTrees*[rows];
+	for (int i = 0; i < rows; ++i)
+		rtrees[i] = new CvRTrees[cols];
+	*data = rtrees;
+}
+
+void LearningRF::releaseRTrees(CvRTrees** matrix, const int rows, const int cols)
+{
+	for (int i = 0; i < rows; ++i)
+		delete[] matrix[i];
+	delete[] matrix;
 }

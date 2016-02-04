@@ -207,7 +207,7 @@ int Utils::loadCSV(CsvData* out, const char* csvPath, char separator, int col_be
 		while (cont < col_begin)
 		{
 			getline(iss, value, separator);
-			if (cont == file_names_index - 1)
+			if (cont == file_names_index)
 			{
 				tmp.file_names.push_back(value);
 			}

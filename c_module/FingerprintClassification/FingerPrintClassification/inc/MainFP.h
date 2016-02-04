@@ -1,5 +1,6 @@
 #include "LearningRF.h"
 #include "AdaBoost.h"
+#include "ImgTools.h"
 
 struct TrainPaths
 {
@@ -25,24 +26,33 @@ struct Handle
 	void* rTrees;
 };
 
+struct Config
+{
+	bool verbose;
+	ImgProcessingProperties* extractionProperties;
+	AdaBoostProperties* adaBoostProperties;
+	RFProperties* randomForestProperties;
+};
+
 class MainFP
 {
 	AdaBoost* fase1;
 	LearningRF* fase2;
-	void LoadFitDataFromFile(Mat*, Mat*, LoadCsvParams);
+	ImgTools* imgTools;
 public:
 	MainFP();
 	~MainFP();
+	void InitConfig(Config cfg);
 	void ExtractFingerPrint(int*, float**, unsigned char*, int, int, float*);
-	void Extraction(const char*, const char*, const char*);
+	void Extraction(LoadCsvParams,  const char*);
 	void Normalize(const char*, const char*, const char*);
-	void Fit1(LoadCsvParams, const char*, int, int);
-	void Fit2(const TrainPaths, const char*);
-	void Predict1(bool*, Handle*, float, float*);
+	void Fit1(LoadCsvParams, const char*, const char*);
+	void Fit2(LoadCsvParams, const char*, const char*);
+	void Predict1(bool*, Handle*, float*);
 	void Predict2(int*, float**, Handle*, float*);
-	void PredictTest(PredictPaths, const char*);
 	void InitModel(Handle**, const char*);
 	void ReleaseModel(Handle*);
 	void ReleaseFloatPointer(float*);
+	void PredictTest(LoadCsvParams, const char*, const char*, const char*);
 };
 
